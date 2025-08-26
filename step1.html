@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>第一步：填写日期与80道题测评</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --sub: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --brand: #38bdf8;
+      --accent: #22d3ee;
+      --warn: #f59e0b;
+      --ok: #10b981;
+    }
+    *{box-sizing:border-box}
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft Yahei", sans-serif;
+      background: radial-gradient(1200px 800px at 20% -10%, #0b1220, var(--bg));
+      color: var(--text);
+    }
+    header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #0b1220;
+      background: linear-gradient(180deg, rgba(34,211,238,0.06), transparent);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    header h1{font-size:18px;margin:0;color:#e6f6ff;letter-spacing:1px}
+    .container { max-width: 1080px; margin: 22px auto; padding: 0 16px; }
+    .card {
+      background: linear-gradient(180deg, rgba(56,189,248,0.06), rgba(30,41,59,0.6));
+      border:1px solid rgba(56,189,248,0.18);
+      border-radius: 16px; padding: 18px;
+      box-shadow: 0 6px 30px rgba(2,8,23,0.6), inset 0 0 40px rgba(34,211,238,0.05);
+      backdrop-filter: blur(6px);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 920px) {
+      .grid { grid-template-columns: 1fr 2fr; }
+    }
+    label{color:#bfe9ff}
+    input[type="date"]{
+      background: var(--sub); color: var(--text); border:1px solid #0b1220;
+      padding:8px 10px; border-radius:8px;
+    }
+
+    .q-wrap {
+      background: rgba(15,23,42,0.6);
+      border:1px solid rgba(148,163,184,0.15);
+      border-radius:14px;
+      padding:14px 14px 10px;
+    }
+    .q-title { font-size:14px; color:#dbeafe; margin-bottom:8px; line-height:1.5 }
+    .q-meta { font-size:12px; color:var(--muted); margin-bottom:6px }
+    .q-row { display:flex; align-items:center; gap:12px }
+    input[type="range"]{
+      width:100%;
+      -webkit-appearance:none;
+      height:6px; border-radius:8px;
+      background: linear-gradient(90deg,#0b1220, #0ea5e9);
+      outline:none;
+    }
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance:none; height:18px; width:18px; border-radius:50%;
+      background: radial-gradient(#ffffff, #c0f2ff);
+      border:2px solid #0ea5e9; box-shadow:0 0 12px rgba(56,189,248,0.8);
+      cursor:pointer;
+    }
+    .val{min-width:44px;text-align:right;color:#c7f9ff}
+    .scale { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:6px}
+    .pager {
+      display:flex; justify-content:space-between; gap:10px; margin-top:16px;
+    }
+    .btn {
+      background: linear-gradient(180deg,#38bdf8,#0ea5e9);
+      border:none; color:#04212d; font-weight:700;
+      padding:10px 14px; border-radius:10px; cursor:pointer;
+      box-shadow:0 6px 20px rgba(14,165,233,0.35);
+    }
+    .btn.secondary{
+      background: linear-gradient(180deg,#1f2937,#0b1220);
+      color:#e5e7eb; border:1px solid rgba(148,163,184,0.2);
+    }
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .progress {
+      height: 10px; background:#0b1220; border-radius:10px; overflow:hidden; border:1px solid rgba(56,189,248,0.2);
+      margin-top:10px;
+    }
+    .bar { height:100%; width:0%; background: linear-gradient(90deg,#22d3ee,#38bdf8); box-shadow:0 0 14px rgba(34,211,238,0.6) inset }
+    .legend {
+      display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:#cceafb; margin-top:8px
+    }
+    .pill{
+      border:1px solid rgba(148,163,184,0.25);
+      padding:4px 8px; border-radius:999px; background:rgba(2,8,23,0.5)
+    }
+    .tips { font-size:12px; color:#9cc9ff; line-height:1.6 }
+    .footer { margin-top:18px; font-size:12px; color:#7dd3fc }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Step 1 / 4 · 先天 & 自我测评（日期 + 80题）</h1>
+    <div class="legend">
+      <span class="pill">0=完全不同意</span>
+      <span class="pill">50=中立</span>
+      <span class="pill">100=完全同意</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <div class="card">
+        <h3>📅 填写生日</h3>
+        <p class="tips">用于计算西方星座（仅作先天偏好标签，不影响题目评分）。</p>
+        <label>生日
+          <br />
+          <input type="date" id="birthdate" />
+        </label>
+        <div class="footer">示例：1996-08-08</div>
+
+        <h3 style="margin-top:16px">📈 答题进度</h3>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <div class="tips" id="pageInfo" style="margin-top:6px">第 1 / 8 页（每页 10 题）</div>
+
+        <div class="pager">
+          <button class="btn secondary" id="prevBtn" disabled>← 上一页</button>
+          <button class="btn" id="nextBtn">下一页 →</button>
+        </div>
+
+        <div class="pager">
+          <button class="btn" id="saveBtn" disabled>保存并进入 第二步（标签选择） →</button>
+        </div>
+
+        <p class="tips" style="margin-top:12px">
+          说明：本量表覆盖 <b>大五人格</b>（开放性/尽责性/外向性/宜人性/情绪稳定性）维度，<br/>
+          每个特征设置<b>正向</b>与<b>反向</b>两道题，总计 80 题。系统将自动做反向计分与加权平均。
+        </p>
+      </div>
+
+      <div id="qPanel" class="card" style="min-height:560px">
+        <h3>🧠 题目（0~100 滑杆）</h3>
+        <div id="questions"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============ 题库（40 特征 × 正/反向 = 80 道） ============
+    // dim: O/C/E/A/N，对应 大五；rev: 是否反向计分
+    const PAIRS = [
+      // —— 开放性（O）
+      { pos:"我会主动探索新想法、新工具或新方法。", neg:"我更愿意遵循旧有做法，避免尝试新点子。", dim:"O" },
+      { pos:"我对艺术、审美或创意表达有真实兴趣。", neg:"艺术与创意对我来说可有可无。", dim:"O" },
+      { pos:"我能在不确定中保持好奇，愿意试错。", neg:"面对不确定性我会退缩或回避。", dim:"O" },
+      { pos:"我喜欢跨学科学习并进行知识迁移。", neg:"我更倾向在熟悉的单一领域打转。", dim:"O" },
+      { pos:"我经常构思新点子并付诸原型。", neg:"我很少产生新点子，也很少尝试原型。", dim:"O" },
+      { pos:"我乐于接受不同文化与观点。", neg:"我对不同文化或观点较不宽容。", dim:"O" },
+      { pos:"我能把抽象概念转化为实际方案。", neg:"抽象概念对我无用，难转化为行动。", dim:"O" },
+      { pos:"我会主动追踪趋势并快速迭代。", neg:"我对趋势变化不敏感，也不想调整方向。", dim:"O" },
+
+      // —— 尽责性（C）
+      { pos:"我能把大目标拆解为可执行的小步骤。", neg:"我常常只停留在想法层面不去拆解。", dim:"C" },
+      { pos:"我会按优先级管理事务并如期完成。", neg:"我常常被琐事打断，难以按时完成。", dim:"C" },
+      { pos:"我日常有节律（作息、复盘、复利）。", neg:"我的作息混乱，缺少复盘与节律。", dim:"C" },
+      { pos:"我遇到阻力也能持续推进。", neg:"遇阻时我容易放弃或拖延。", dim:"C" },
+      { pos:"我在关键时刻能保持高度执行力。", neg:"关键节点我常常状态下滑。", dim:"C" },
+      { pos:"我能权衡完美与效率并做取舍。", neg:"我常陷入完美主义耽误进度。", dim:"C" },
+      { pos:"我对细节与质量有稳定的追求。", neg:"我对细节把控较弱，常有疏漏。", dim:"C" },
+      { pos:"我会设置边界，保护深度工作时间。", neg:"我难以拒绝打断，深度工作不足。", dim:"C" },
+
+      // —— 外向性（E）
+      { pos:"我在群体中自然地主动发言与带动气氛。", neg:"我在群体中倾向沉默或回避发言。", dim:"E" },
+      { pos:"我结识新朋友时通常感到兴奋而非焦虑。", neg:"我与陌生人交流常令人紧张或疲惫。", dim:"E" },
+      { pos:"我能把想法口头表达得清晰有感染力。", neg:"我口头表达较弱，常难以阐述想法。", dim:"E" },
+      { pos:"我愿意在公开场合承担可见角色。", neg:"我尽量避免承担公开与可见角色。", dim:"E" },
+      { pos:"我与人互动能快速建立连接与热度。", neg:"与人互动常常需要很久才能热起来。", dim:"E" },
+      { pos:"我有一定的主导/主持讨论的能力。", neg:"我缺乏主持讨论或组织对话的能力。", dim:"E" },
+      { pos:"我享受多人协作带来的能量与节奏。", neg:"多人协作让我分心，低效而疲惫。", dim:"E" },
+      { pos:"我在会议/活动中经常成为推进者。", neg:"我在会议/活动中通常只被动参与。", dim:"E" },
+
+      // —— 宜人性（A）
+      { pos:"我能在分歧中保持尊重与合作。", neg:"遇到分歧我容易对抗或讥讽。", dim:"A" },
+      { pos:"我愿意倾听他人需求并尝试成全。", neg:"我更多优先自己的需求与立场。", dim:"A" },
+      { pos:"我能在原则与同理心之间取得平衡。", neg:"我要么过度迁就，要么过度强硬。", dim:"A" },
+      { pos:"我与人建立互信关系的速度较快。", neg:"我对他人普遍不信任，建立关系很慢。", dim:"A" },
+      { pos:"我乐于给予正向反馈与认可。", neg:"我很少主动表达感谢或认可。", dim:"A" },
+      { pos:"我冲突时能控制语气与表达方式。", neg:"我冲突时容易情绪化或讽刺挖苦。", dim:"A" },
+      { pos:"我乐于合作共赢，避免零和思维。", neg:"我更常以输赢来定义关系。", dim:"A" },
+      { pos:"我在团队中常被视为可靠的合作者。", neg:"我在团队协作中常显得不合拍。", dim:"A" },
+
+      // —— 情绪（N：这里存“神经质”，最终转为“情绪稳定性”）
+      { pos:"面对压力我能较快恢复到稳定状态。", neg:"面对压力我会反复回想并难以平复。", dim:"N" },
+      { pos:"我能分辨情绪与事实并避免过度解读。", neg:"我常把情绪当事实而放大问题。", dim:"N" },
+      { pos:"我遇挫时能自我安抚并寻求支持。", neg:"我遇挫时容易自责或孤立自己。", dim:"N" },
+      { pos:"我能用规律生活稳定情绪波动。", neg:"我作息失衡，情绪多受其影响。", dim:"N" },
+      { pos:"我对负面评价的耐受度尚可。", neg:"负面评价会长时间影响我的状态。", dim:"N" },
+      { pos:"我能在未知与变动中保持基本镇定。", neg:"未知与变动通常让我焦虑不安。", dim:"N" },
+      { pos:"我基本不被小事牵动整个一天的心情。", neg:"小事也会让我情绪低落很久。", dim:"N" },
+      { pos:"我能识别并调整非理性想法。", neg:"我常陷入“灾难化”或“非黑即白”的想法。", dim:"N" },
+    ];
+    // 展开为 80 题
+    const QUESTIONS = [];
+    let idx = 1;
+    PAIRS.forEach(p => {
+      QUESTIONS.push({ id: idx++, text: p.pos, dim: p.dim, rev: false });
+      QUESTIONS.push({ id: idx++, text: p.neg, dim: p.dim, rev: true  });
+    });
+
+    // ============ 分页 ============
+    const PAGE_SIZE = 10;
+    const totalPages = Math.ceil(QUESTIONS.length / PAGE_SIZE);
+    let currentPage = 1;
+
+    // 回答缓存
+    const answers = {}; // id -> 0..100
+
+    const $qs = document.getElementById("questions");
+    const $bar = document.getElementById("bar");
+    const $pageInfo = document.getElementById("pageInfo");
+    const $prev = document.getElementById("prevBtn");
+    const $next = document.getElementById("nextBtn");
+    const $save = document.getElementById("saveBtn");
+
+    function renderPage() {
+      $qs.innerHTML = "";
+      const start = (currentPage-1)*PAGE_SIZE;
+      const pageItems = QUESTIONS.slice(start, start+PAGE_SIZE);
+
+      pageItems.forEach(q => {
+        const val = (answers[q.id] ?? 50);
+        const el = document.createElement("div");
+        el.className = "q-wrap";
+        el.innerHTML = `
+          <div class="q-meta">题 ${q.id} · 维度：${dimName(q.dim)} ${q.rev ? "（反向计分）" : ""}</div>
+          <div class="q-title">${q.text}</div>
+          <div class="q-row">
+            <input type="range" min="0" max="100" value="${val}" data-id="${q.id}" />
+            <div class="val" id="v${q.id}">${val}</div>
+          </div>
+          <div class="scale"><span>完全不同意</span><span>中立</span><span>完全同意</span></div>
+        `;
+        $qs.appendChild(el);
+      });
+
+      // 绑定事件
+      $qs.querySelectorAll('input[type="range"]').forEach(r => {
+        r.addEventListener("input", e => {
+          const id = +e.target.dataset.id;
+          answers[id] = +e.target.value;
+          const v = document.getElementById("v"+id);
+          if (v) v.textContent = answers[id];
+          updateProgress();
+        });
+      });
+
+      // 更新进度与按钮
+      $pageInfo.textContent = `第 ${currentPage} / ${totalPages} 页（每页 ${PAGE_SIZE} 题）`;
+      $prev.disabled = currentPage===1;
+      $next.disabled = currentPage===totalPages;
+      updateProgress();
+      updateSaveState();
+    }
+
+    function updateProgress() {
+      const answeredCount = Object.keys(answers).length;
+      const pct = Math.round(answeredCount / QUESTIONS.length * 100);
+      $bar.style.width = pct + "%";
+    }
+
+    function updateSaveState() {
+      const full = Object.keys(answers).length === QUESTIONS.length;
+      $save.disabled = !full;
+    }
+
+    function dimName(code){
+      return {O:"开放性", C:"尽责性", E:"外向性", A:"宜人性", N:"情绪（用于反向计算稳定性）"}[code] || code;
+    }
+
+    $prev.addEventListener("click", () => {
+      if (currentPage>1){ currentPage--; renderPage(); window.scrollTo({top:0,behavior:"smooth"}); }
+    });
+    $next.addEventListener("click", () => {
+      if (currentPage<totalPages){ currentPage++; renderPage(); window.scrollTo({top:0,behavior:"smooth"}); }
+    });
+
+    // ============ 星座计算 ============
+    function calcZodiac(month, day){
+      // 西方星座边界
+      const z = [
+        {n:"摩羯座", m:12, d:22}, {n:"水瓶座", m:1, d:20}, {n:"双鱼座", m:2, d:19},
+        {n:"白羊座", m:3, d:21}, {n:"金牛座", m:4, d:20}, {n:"双子座", m:5, d:21},
+        {n:"巨蟹座", m:6, d:22}, {n:"狮子座", m:7, d:23}, {n:"处女座", m:8, d:23},
+        {n:"天秤座", m:9, d:23}, {n:"天蝎座", m:10, d:24}, {n:"射手座", m:11, d:23},
+        {n:"摩羯座", m:12, d:31}
+      ];
+      for (let i=0;i<z.length-1;i++){
+        const cur=z[i], next=z[i+1];
+        if ((month===cur.m && day>=cur.d) || (month===next.m && day<next.d)) return cur.n;
+      }
+      return "摩羯座";
+    }
+
+    // 星座属性（可在报告页展示）
+    const ZODIAC_ATTR = {
+      "白羊座":{元素:"火", 模式:"基本", 关键字:["行动","直接","热情"]},
+      "金牛座":{元素:"土", 模式:"固定", 关键字:["稳定","耐性","享受"]},
+      "双子座":{元素:"风", 模式:"变动", 关键字:["多变","沟通","好奇"]},
+      "巨蟹座":{元素:"水", 模式:"基本", 关键字:["情感","保护","家庭"]},
+      "狮子座":{元素:"火", 模式:"固定", 关键字:["表现","自信","创造"]},
+      "处女座":{元素:"土", 模式:"变动", 关键字:["细致","服务","秩序"]},
+      "天秤座":{元素:"风", 模式:"基本", 关键字:["关系","平衡","审美"]},
+      "天蝎座":{元素:"水", 模式:"固定", 关键字:["强度","洞察","再生"]},
+      "射手座":{元素:"火", 模式:"变动", 关键字:["探索","远见","自由"]},
+      "摩羯座":{元素:"土", 模式:"基本", 关键字:["结构","责任","目标"]},
+      "水瓶座":{元素:"风", 模式:"固定", 关键字:["独立","创新","理想"]},
+      "双鱼座":{元素:"水", 模式:"变动", 关键字:["共情","想象","融合"]}
+    };
+
+    // ============ 大五计分（反向题自动翻转） ============
+    function computeBigFive() {
+      // 聚合到维度
+      const buckets = {O:[],C:[],E:[],A:[],N:[]};
+      QUESTIONS.forEach(q=>{
+        let raw = answers[q.id] ?? 50;
+        // 反向：100-raw
+        let score = q.rev ? (100-raw) : raw;
+        buckets[q.dim].push(score);
+      });
+      // 平均
+      const avg = k => Math.round(buckets[k].reduce((a,b)=>a+b,0)/buckets[k].length);
+      const O = avg("O");
+      const C = avg("C");
+      const E = avg("E");
+      const A = avg("A");
+      const Neuro = avg("N"); // 这里是“低焦虑=高分”，因为我们把负性反向了
+      // 为一致性输出“情绪稳定性”，即 Stability = Neuro
+      const Stability = Neuro;
+
+      return {
+        openness: O,
+        conscientiousness: C,
+        extraversion: E,
+        agreeableness: A,
+        neuroticism: Stability  // 命名沿用后续页面字段：情绪稳定性
+      };
+    }
+
+    // ============ 四液质推断（启发式映射） ============
+    // 取值 0~100。可在后续联动中微调权重。
+    function computeTemperaments(big5){
+      const O=big5.openness, C=big5.conscientiousness, E=big5.extraversion, A=big5.agreeableness, S=big5.neuroticism; // S=情绪稳定性
+      // 归一函数
+      const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
+
+      // 多血质 Sanguine：外向 + 开放 + 友善 + 稳定
+      const sanguine = clamp(0.35*E + 0.25*O + 0.2*A + 0.2*S);
+
+      // 胆汁质 Choleric：外向 + 尽责 + 目标导向（略低宜人）+ 稳定
+      const choleric = clamp(0.35*E + 0.3*C + 0.15*S + 0.2*(100-A));
+
+      // 抑郁质 Melancholic：低外向 + 高完备（尽责）+ 低稳定（情绪波动）
+      const melancholic = clamp(0.35*(100-E) + 0.3*C + 0.35*(100-S));
+
+      // 粘液质 Phlegmatic：高宜人 + 高稳定 + 低外向（温和）
+      const phlegmatic = clamp(0.4*A + 0.35*S + 0.25*(100-E));
+
+      // 归一成比例（可在报告页画环或雷达）
+      const sum = sanguine + choleric + melancholic + phlegmatic || 1;
+      return {
+        sanguine: Math.round(sanguine / sum * 100),
+        choleric: Math.round(choleric / sum * 100),
+        melancholic: Math.round(melancholic / sum * 100),
+        phlegmatic: Math.round(phlegmatic / sum * 100)
+      };
+    }
+
+    // ============ 保存数据 ============
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const birth = document.getElementById("birthdate").value;
+      if (!birth){
+        alert("请先填写生日~");
+        return;
+      }
+      // 生日合法
+      const [y,m,d] = birth.split("-").map(x=>+x);
+      if (!y || !m || !d){ alert("生日格式不正确"); return; }
+
+      // 计算星座
+      const zodiac = calcZodiac(m,d);
+      const zodiacAttr = ZODIAC_ATTR[zodiac];
+
+      // 大五
+      const big5 = computeBigFive();
+
+      // 四液质
+      const temp4 = computeTemperaments(big5);
+
+      // 存储
+      localStorage.setItem("birthdate", birth);
+      localStorage.setItem("zodiac", zodiac);
+      localStorage.setItem("zodiacAttr", JSON.stringify(zodiacAttr));
+      localStorage.setItem("scores", JSON.stringify({
+        openness: big5.openness,
+        conscientiousness: big5.conscientiousness,
+        extraversion: big5.extraversion,
+        agreeableness: big5.agreeableness,
+        neuroticism: big5.neuroticism // 情绪稳定性
+      }));
+      localStorage.setItem("temperaments", JSON.stringify(temp4));
+      localStorage.setItem("answers", JSON.stringify(answers));
+
+      // 下一步
+      window.location.href = "step2.html";
+    });
+
+    // 初次渲染
+    renderPage();
+
+    // 当用户第一次滑动时，允许保存
+    document.addEventListener("input", updateSaveState);
+  </script>
+</body>
+</html>
