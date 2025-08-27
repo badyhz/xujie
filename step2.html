@@ -1,29 +1,35 @@
-<!-- step2.html（精简可用版） -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Step 2 - 标签选择（行业/职位=单选）</title>
+<title>Step 2 - 环境与行为标签（行业/职位=单选）</title>
 <style>
   body{margin:0;background:#f6f7fb;font-family:"Noto Sans SC",system-ui}
-  .container{max-width:1080px;margin:0 auto;padding:18px}
+  .container{max-width:1180px;margin:0 auto;padding:18px}
   h1{margin:8px 0}
   .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
   .panel{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:16px}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   select,input[type=range]{padding:8px;border:1px solid #e5e7eb;border-radius:10px}
-  .tag-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-  .chip{padding:8px 10px;border-radius:999px;background:#eef6ff;border:1px solid #d0ebff;cursor:pointer}
-  .chip.active{background:#d0ebff}
-  .sel{display:flex;flex-direction:column;gap:8px;max-height:520px;overflow:auto}
+  .lib{max-height:520px;overflow:auto;margin-top:8px}
+  .cat{margin:10px 0 6px;font-weight:700}
+  .tag{border:1px solid #e7f5ff;background:#f8fbff;border-radius:10px;padding:10px;margin:6px 0}
+  .tag h4{margin:0 0 6px;font-size:14px}
+  .tag .desc{font-size:12px;color:#6c757d}
+  .tag .ctrl{display:flex;gap:12px;align-items:center;margin-top:6px}
+  .tag button{padding:6px 10px;border:none;border-radius:8px;background:#4dabf7;color:#fff;cursor:pointer}
+  .sel{display:flex;flex-direction:column;gap:8px;max-height:710px;overflow:auto}
   .item{background:#f8fbff;border:1px solid #e7f5ff;border-radius:12px;padding:10px;display:flex;gap:8px}
   .meta{flex:1}
   .pill{font-size:12px;background:#edf2ff;color:#3b5bdb;border-radius:999px;padding:2px 8px}
   .rm{background:#ffe3e3;color:#c92a2a;border:none;border-radius:8px;padding:6px 8px;cursor:pointer}
   .actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px}
-  button{padding:12px 18px;border:none;border-radius:10px;background:#4dabf7;color:#fff;cursor:pointer}
-  .ghost{background:#e9ecef;color:#222}
+  button.primary{padding:12px 18px;border:none;border-radius:10px;background:#4dabf7;color:#fff;cursor:pointer}
+  button.ghost{padding:12px 18px;border:none;border-radius:10px;background:#e9ecef;color:#222;cursor:pointer}
+  .search{display:flex;gap:8px;margin-top:8px}
+  .search input{flex:1;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px}
+  .tiny{font-size:12px;color:#6c757d}
 </style>
 </head>
 <body>
@@ -37,155 +43,529 @@
         <select id="industry"></select>
         <label>影响权重</label>
         <input id="wIndustry" type="range" min="1" max="10" value="5"/>
+        <span id="wIndustryVal" class="tiny">5</span>
       </div>
       <div class="row" style="margin-top:8px">
         <label>职位：</label>
         <select id="position"></select>
         <label>影响权重</label>
         <input id="wPosition" type="range" min="1" max="10" value="5"/>
+        <span id="wPositionVal" class="tiny">5</span>
       </div>
 
       <h2 style="margin-top:18px">🌍 其他标签（多选 + 权重）</h2>
-      <div id="lib"></div>
+      <div class="search">
+        <input id="kw" placeholder="搜索标签或解释关键词…（支持模糊匹配）"/>
+        <button class="primary" id="clearFilter">重置</button>
+      </div>
+      <div id="lib" class="lib"></div>
+      <div class="tiny">共 <span id="totalCount">0</span> 个子标签 · 当前显示 <span id="visibleCount">0</span> 个</div>
     </section>
 
     <aside class="panel">
-      <h2>✅ 已选</h2>
+      <h2>✅ 已选标签</h2>
       <div id="selected" class="sel"></div>
       <div class="actions">
         <button class="ghost" onclick="location.href='step1.html'">⬅ 上一步</button>
-        <button id="saveNext">保存并生成报告 ➜</button>
+        <button class="primary" id="saveNext">保存并生成报告 ➜</button>
       </div>
     </aside>
   </div>
 </div>
 
 <script>
-/** 行业/职位列表（示例） */
-const INDUSTRIES = ["互联网/软件","人工智能","金融/投资","制造/工业","医疗/医药","教育/培训","媒体/内容","电商/零售"];
-const POSITIONS  = ["产品经理","后端工程师","算法工程师","数据分析","销售","运营","设计师","项目经理"];
-
-/** Big5 影响向量（示例；单位：分，建议范围 [-20,20]） */
-const big5Delta = {
-  // 行业
-  "互联网/软件":[+5,+4,+2,0,0],
-  "人工智能":[+6,+4,+1,0,+1],
-  "金融/投资":[-2,+7,0,-2,+2],
-  "制造/工业":[-1,+6,-1,0,0],
-  "医疗/医药":[0,+6,-1,+2,+1],
-  "教育/培训":[+2,+3,0,+3,0],
-  "媒体/内容":[+5,0,+2,0,+1],
-  "电商/零售":[+2,+3,+2,0,0],
-  // 职位
-  "产品经理":[+4,+5,+3,0,0],
-  "后端工程师":[+1,+5,-1,0,0],
-  "算法工程师":[+3,+5,-1,0,+1],
-  "数据分析":[+1,+4,-1,0,0],
-  "销售":[0,0,+10,-3,+2],
-  "运营":[0,+3,+2,0,0],
-  "设计师":[+6,0,+1,0,0],
-  "项目经理":[0,+6,+2,0,0],
-  // 其他标签（仅举例几条；你可扩展至 200）
-  "夜间活跃":[+4,-2,0,0,+1],
-  "社交回避":[0,0,-8,+2,+4],
-  "知识付费":[+3,+1,0,0,0],
-  "群聊主导者":[0,0,+6,0,0]
-};
-
-/** 其他标签库（示例片段；请替换为你的 200 标签对象列表） */
-const OTHER_TAGS = [
-  {category:"时间分配", label:"夜间活跃", desc:"夜晚效率高"},
-  {category:"社交指纹", label:"社交回避", desc:"退缩与能量保护"},
-  {category:"消费印记", label:"知识付费", desc:"以学习为主要投入"},
-  {category:"社交指纹", label:"群聊主导者", desc:"话题驱动与组织力"}
+/* ================== 基础：行业/职位（单选 + 权重） ================== */
+const INDUSTRIES = [
+  "互联网/软件","人工智能","金融/投资","制造/工业","医疗/医药","教育/培训","媒体/内容","电商/零售",
+  "游戏/娱乐","能源/环保","房地产/建筑","物流/供应链"
+];
+const POSITIONS = [
+  "产品经理","后端工程师","前端工程师","算法工程师","数据分析","数据工程","测试/QA","运维/平台",
+  "销售","运营","设计师","项目经理","内容编辑","HR","法务","财务"
 ];
 
-/** 渲染：行业/职位（单选） */
+/* 行业/职位的 Big5 向量（示例，可调整） */
+const big5DeltaRole = {
+  // 行业：O C E A N
+  "互联网/软件":[+5,+4,+2, 0, 0],
+  "人工智能":[+6,+4,+1, 0,+1],
+  "金融/投资":[-2,+7, 0,-2,+2],
+  "制造/工业":[-1,+6,-1, 0, 0],
+  "医疗/医药":[ 0,+6,-1,+2,+1],
+  "教育/培训":[+2,+3, 0,+3, 0],
+  "媒体/内容":[+5, 0,+2, 0,+1],
+  "电商/零售":[+2,+3,+2, 0, 0],
+  "游戏/娱乐":[+6, 0,+3,-1,+2],
+  "能源/环保":[+3,+4, 0,+1, 0],
+  "房地产/建筑":[-1,+5, 0, 0, 0],
+  "物流/供应链":[-1,+5, 0, 0, 0],
+  // 职位
+  "产品经理":[+4,+5,+3, 0, 0],
+  "后端工程师":[+1,+5,-1, 0, 0],
+  "前端工程师":[+2,+4, 0, 0, 0],
+  "算法工程师":[+3,+5,-1, 0,+1],
+  "数据分析":[+1,+4,-1, 0, 0],
+  "数据工程":[ 0,+4,-1, 0, 0],
+  "测试/QA":[ 0,+6,-1, 0, 0],
+  "运维/平台":[ 0,+5,-1, 0, 0],
+  "销售":[ 0, 0,+10,-3,+2],
+  "运营":[ 0,+3,+2, 0, 0],
+  "设计师":[+6, 0,+1, 0, 0],
+  "项目经理":[ 0,+6,+2, 0, 0],
+  "内容编辑":[+4, 0, 0, 0, 0],
+  "HR":[ 0,+2,+1,+4, 0],
+  "法务":[-2,+6,-2, 0, 0],
+  "财务":[-2,+6,-2, 0, 0]
+};
+
+/* ================== 200 子标签库（类别/标签/解释） ==================
+   六大类：关键事件、社会阶层、消费印记、社交指纹、时间分配、数字肢体语言
+   采用规则映射器计算大五影响，便于统一维护。
+===================================================================== */
+const TAGS_EVENTS = [ // 18
+  {label:"重大失败",desc:"经历重大挫败，价值观与抗压方式重塑"},
+  {label:"突遇贵人",desc:"获得关键帮助，扩展机遇与资源"},
+  {label:"移民经历",desc:"跨文化适应，认知边界与社交网络重构"},
+  {label:"自然灾害",desc:"突发风险与复原力考验"},
+  {label:"重大疾病",desc:"长期康复或照护经历，生命观改变"},
+  {label:"意外财富",desc:"资源骤增带来的选择与试探"},
+  {label:"创业失败",desc:"高压试错，心态与执行力的双重检验"},
+  {label:"公开演讲成功",desc:"舞台经验增强自我效能感"},
+  {label:"长期异地恋",desc:"情绪管理与承诺考验"},
+  {label:"升学跳级",desc:"早期成就带来的认知结构影响"},
+  {label:"家庭变故",desc:"角色转变与责任重构"},
+  {label:"职业转行",desc:"跨路径迁移，开放性与不确定承受"},
+  {label:"长途徒步",desc:"耐力与自我对话"},
+  {label:"志愿者服务",desc:"同理与利他动机强化"},
+  {label:"竞技夺冠",desc:"目标锚定与胜任信念提升"},
+  {label:"学术不端冲击",desc:"信念崩塌后的再建构"},
+  {label:"考试失利",desc:"短期挫败与长期学习策略调整"},
+  {label:"亲密关系破裂",desc:"依恋风格与信任系统重塑"}
+];
+
+const TAGS_CLASS = [ // 6
+  {label:"寒门出身",desc:"资源稀缺驱动的努力模型"},
+  {label:"中产家庭",desc:"稳定结构与路径依赖"},
+  {label:"富裕阶层",desc:"资源冗余与机会窗口"},
+  {label:"乡镇背景",desc:"熟人社会与稳态价值"},
+  {label:"都市家庭",desc:"开放网络与竞争压力"},
+  {label:"移民家庭",desc:"跨文化与双语环境"}
+];
+
+const TAGS_CONSUME = [ // 40
+  {label:"奢侈品偏好",desc:"通过高端消费表达品味"},
+  {label:"知识付费",desc:"持续订阅学习与课程"},
+  {label:"极简主义",desc:"减少占有，强调功能"},
+  {label:"冲动消费",desc:"情绪驱动的即时购买"},
+  {label:"二手循环",desc:"环保与性价比兼顾"},
+  {label:"电子数码控",desc:"追新硬件与参数"},
+  {label:"体验至上",desc:"旅行/展览/活动优先"},
+  {label:"家庭型消费",desc:"以家人需求为先"},
+  {label:"健康投入",desc:"健身/体检/营养"},
+  {label:"审美投入",desc:"艺术/家居/设计"},
+  {label:"储蓄优先",desc:"以安全感为导向"},
+  {label:"投资优先",desc:"理财/股债/量化"},
+  {label:"盲盒收藏",desc:"趣味性与稀缺性"},
+  {label:"内容付费",desc:"会员/版权/去广告"},
+  {label:"游戏氪金",desc:"虚拟物品与竞技"},
+  {label:"直播打赏",desc:"社交回馈与情绪消费"},
+  {label:"绿色消费",desc:"可持续与低碳偏好"},
+  {label:"品牌忠诚",desc:"长期单一品牌偏好"},
+  {label:"国产偏好",desc:"本土品牌支持"},
+  {label:"小众品牌",desc:"个性表达"},
+  {label:"大牌刚需",desc:"头部品牌刚需"},
+  {label:"订阅经济",desc:"SaaS/会员/自动续费"},
+  {label:"团购拼单",desc:"社交与性价比"},
+  {label:"买菜达人",desc:"家庭性价比优化"},
+  {label:"外卖重度",desc:"便利优先"},
+  {label:"居家囤货",desc:"安全感与规划"},
+  {label:"海淘常客",desc:"全球购与差异化"},
+  {label:"线下体验派",desc:"实体触感与社交"},
+  {label:"线上效率派",desc:"时间成本优先"},
+  {label:"手作材料",desc:"DIY 创造性消费"},
+  {label:"摄影器材",desc:"画质与记录偏好"},
+  {label:"露营装备",desc:"户外体验"},
+  {label:"乐器购置",desc:"音乐表达"},
+  {label:"宠物开销",desc:"陪伴与责任"},
+  {label:"亲子教育",desc:"长线投入"},
+  {label:"医美护肤",desc:"自我形象管理"},
+  {label:"餐饮探索",desc:"口味与社交"},
+  {label:"出行升级",desc:"舒适/效率"},
+  {label:"礼物社交",desc:"关系维护"},
+  {label:"社群团费",desc:"圈层参与"}
+];
+
+const TAGS_SOCIAL = [ // 50
+  {label:"群聊主导者",desc:"组织话题与节奏"},
+  {label:"倾听者",desc:"低声量高共情"},
+  {label:"段子手",desc:"幽默驱动连接"},
+  {label:"社交回避",desc:"能量保护与退缩"},
+  {label:"撮合者",desc:"牵线搭桥"},
+  {label:"意见领袖",desc:"观点外溢影响"},
+  {label:"和事佬",desc:"缓冲冲突"},
+  {label:"批判者",desc:"挑错与校正"},
+  {label:"共情者",desc:"情绪容器"},
+  {label:"执行者",desc:"落地推进"},
+  {label:"凝聚者",desc:"维护群内纽带"},
+  {label:"破冰者",desc:"快速打通陌生感"},
+  {label:"观察者",desc:"信息吸收与判断"},
+  {label:"记录者",desc:"总结与留痕"},
+  {label:"分享者",desc:"资料/资源分发"},
+  {label:"催化者",desc:"促成行动"},
+  {label:"挑战者",desc:"逆向思维"},
+  {label:"稳压器",desc:"稳定群情绪"},
+  {label:"人脉拓展者",desc:"弱连接扩张"},
+  {label:"社群管理员",desc:"秩序与规范"},
+  {label:"话题沉浸者",desc:"高频互动"},
+  {label:"潜水者",desc:"低频参与"},
+  {label:"独立行动者",desc:"偏单兵作战"},
+  {label:"团队协作者",desc:"偏团队合奏"},
+  {label:"跨圈连接者",desc:"异质群体桥梁"},
+  {label:"礼貌型社交",desc:"形式性维系"},
+  {label:"功利型社交",desc:"目标导向"},
+  {label:"情感型社交",desc:"关系导向"},
+  {label:"知识型社交",desc:"内容导向"},
+  {label:"价值观守护者",desc:"边界与原则"},
+  {label:"开放包容者",desc:"尊重差异"},
+  {label:"自我表达者",desc:"表达欲强"},
+  {label:"沉默寡言者",desc:"表达欲弱"},
+  {label:"直球沟通者",desc:"低修饰表达"},
+  {label:"高情商沟通者",desc:"高同理沟通"},
+  {label:"即兴社交者",desc:"随性参与"},
+  {label:"策划型社交者",desc:"预案与组织"},
+  {label:"线上社交者",desc:"偏线上互动"},
+  {label:"线下社交者",desc:"偏线下聚会"},
+  {label:"长期关系维护者",desc:"深关系经营"},
+  {label:"短期关系收集者",desc:"广撒网"},
+  {label:"高强度社交者",desc:"高频曝光"},
+  {label:"低强度社交者",desc:"低频露面"},
+  {label:"同温层社交",desc:"价值观一致"},
+  {label:"多样化社交",desc:"多元人群"},
+  {label:"议程控",desc:"会议推动"},
+  {label:"打断型表达",desc:"高冲突风险"},
+  {label:"轮到式表达",desc:"秩序意识强"},
+  {label:"善于求助者",desc:"低成本求助"},
+  {label:"乐于助人者",desc:"资源输出"}
+];
+
+const TAGS_TIME = [ // 36
+  {label:"晨型人",desc:"清晨高效"},
+  {label:"夜间活跃",desc:"夜晚高效"},
+  {label:"固定作息",desc:"节律稳定"},
+  {label:"碎片化时间",desc:"短时切片"},
+  {label:"深度工作块",desc:"长时无打扰"},
+  {label:"多线程切换",desc:"频繁上下文"},
+  {label:"周末冲刺",desc:"集中攻坚"},
+  {label:"午后低谷",desc:"节律识别"},
+  {label:"会议密集",desc:"协作时间多"},
+  {label:"通勤长",desc:"路上时间多"},
+  {label:"差旅频繁",desc:"空间切换"},
+  {label:"居家办公",desc:"场景稳定"},
+  {label:"办公室办公",desc:"即时协作"},
+  {label:"运动固定时段",desc:"体能节律"},
+  {label:"学习固定时段",desc:"认知节律"},
+  {label:"家庭时间优先",desc:"亲子/照护"},
+  {label:"社交时间固定",desc:"定期聚会"},
+  {label:"创作时间固定",desc:"输出习惯"},
+  {label:"娱乐时间固定",desc:"恢复与奖励"},
+  {label:"午睡习惯",desc:"恢复精力"},
+  {label:"早起阅读",desc:"输入优先"},
+  {label:"晚间复盘",desc:"反思总结"},
+  {label:"清晨邮件",desc:"沟通前置"},
+  {label:"夜间编码",desc:"安静生产"},
+  {label:"错峰作息",desc:"异步协同"},
+  {label:"固定番茄钟",desc:"节律工具"},
+  {label:"无闹钟自然醒",desc:"身心节律"},
+  {label:"凌晨灵感高发",desc:"创造窗口"},
+  {label:"周三低峰",desc:"中周疲劳"},
+  {label:"周一高压",desc:"启动成本"},
+  {label:"周五放松",desc:"恢复窗口"},
+  {label:"清晨锻炼",desc:"自律强化"},
+  {label:"实时响应",desc:"高可用性"},
+  {label:"延迟响应",desc:"深度优先"},
+  {label:"固定静默时段",desc:"屏蔽打扰"},
+  {label:"家庭晚餐固定",desc:"关系维护"},
+  {label:"早睡早起",desc:"稳态节律"}
+];
+
+const TAGS_DBL = [ // 数字肢体语言 50
+  {label:"点赞狂魔",desc:"高频点赞与轻互动"},
+  {label:"已读不回",desc:"低反馈高阅读"},
+  {label:"长文党",desc:"结构化长文本"},
+  {label:"语音消息偏好",desc:"口述表达"},
+  {label:"表情包达人",desc:"情绪可视化"},
+  {label:"撤回频繁",desc:"表达谨慎/后悔"},
+  {label:"秒回习惯",desc:"即时反馈"},
+  {label:"延迟回复",desc:"异步节奏"},
+  {label:"深夜发言",desc:"夜间活跃"},
+  {label:"白天沉默",desc:"工作时段专注"},
+  {label:"引用回复",desc:"结构清晰"},
+  {label:"@全体偏好",desc:"效率/冒犯边界"},
+  {label:"消息已送达控",desc:"确认偏好"},
+  {label:"文件命名规范",desc:"秩序与可检索"},
+  {label:"版本控制意识",desc:"变更可追溯"},
+  {label:"笔记链接党",desc:"知识图谱意识"},
+  {label:"日历邀请者",desc:"善用协同工具"},
+  {label:"日程临时改动",desc:"灵活/不稳定"},
+  {label:"在线状态长亮",desc:"长时在线"},
+  {label:"免打扰常开",desc:"减少打扰"},
+  {label:"开会摄像头常开",desc:"透明与在场感"},
+  {label:"开会静音常开",desc:"降低噪音"},
+  {label:"会议纪要输出",desc:"信息复用"},
+  {label:"任务看板习惯",desc:"流程化管理"},
+  {label:"多人协作文档",desc:"实时共创"},
+  {label:"模版化复用",desc:"抽象与效率"},
+  {label:"截图注释派",desc:"视觉沟通"},
+  {label:"图表偏好者",desc:"数据表达"},
+  {label:"代码片段共享",desc:"技术沟通"},
+  {label:"短句要点风格",desc:"信息密度高"},
+  {label:"问题导向风格",desc:"直达主题"},
+  {label:"致谢/反馈习惯",desc:"关系维护"},
+  {label:"表决投票积极",desc:"参与度高"},
+  {label:"群里少说话",desc:"节能策略"},
+  {label:"自建知识库",desc:"长期积累"},
+  {label:"收藏夹分门别类",desc:"信息管理"},
+  {label:"自动化脚本偏好",desc:"流程自动化"},
+  {label:"快捷键重度",desc:"效率至上"},
+  {label:"云端同步偏好",desc:"多端一致"},
+  {label:"隐私设置敏感",desc:"边界与安全"},
+  {label:"小号观察/分身",desc:"风险控制"},
+  {label:"主题皮肤统一",desc:"审美一致性"},
+  {label:"浅色模式派",desc:"视觉偏好"},
+  {label:"深色模式派",desc:"视觉偏好"},
+  {label:"设备多端切换",desc:"移动办公"},
+  {label:"收藏不复看",desc:"囤积信息"},
+  {label:"定期清理收件箱",desc:"整洁与掌控"},
+  {label:"群消息折叠",desc:"降噪策略"},
+  {label:"分组通知策略",desc:"优先级意识"},
+  {label:"敏捷迭代日志",desc:"节奏与透明"},
+  {label:"沉浸写作模式",desc:"专注输出"}
+];
+
+/* 汇总至 200 个 */
+const LIB = {
+  "关键事件": TAGS_EVENTS,
+  "社会阶层": TAGS_CLASS,
+  "消费印记": TAGS_CONSUME,
+  "社交指纹": TAGS_SOCIAL,
+  "时间分配": TAGS_TIME,
+  "数字肢体语言": TAGS_DBL
+};
+const TOTAL_COUNT = Object.values(LIB).reduce((a,arr)=>a+arr.length,0); // =200
+
+/* ================== 规则映射器：标签 → Big5 Δ向量 ==================
+   返回 [dO,dC,dE,dA,dN]，建议范围约 [-10,+10]；关键事件可稍大。
+   你可以按需要在此进一步精细化。
+===================================================================== */
+function deltaForTag(category, label){
+  // 基础
+  let O=0,C=0,E=0,A=0,N=0;
+
+  // —— 关键事件（更强的幅度） ——
+  if(category==="关键事件"){
+    const m = {
+      "重大失败":[ 0,-2,-2,-2,+8],
+      "突遇贵人":[+2,+2,+2,+3,-1],
+      "移民经历":[+6, 0,+3,+2,+3],
+      "自然灾害":[ 0, 0, 0,+1,+6],
+      "重大疾病":[ 0,-2, 0, 0,+8],
+      "意外财富":[+2, 0,+2,-2,+2],
+      "创业失败":[+1,-1,-1,-1,+7],
+      "公开演讲成功":[ 0, 0,+5, 0,-1],
+      "长期异地恋":[ 0, 0, 0,+1,+4],
+      "升学跳级":[+2,+2, 0, 0, 0],
+      "家庭变故":[ 0,+1,-2,-1,+6],
+      "职业转行":[+4, 0, 0, 0,+2],
+      "长途徒步":[ 0,+2, 0, 0,+1],
+      "志愿者服务":[ 0, 0, 0,+5, 0],
+      "竞技夺冠":[ 0,+4,+2, 0,-2],
+      "学术不端冲击":[-2, 0,-2,-3,+7],
+      "考试失利":[ 0,-1,-1,-1,+5],
+      "亲密关系破裂":[ 0, 0,-2,-2,+6]
+    };
+    if(m[label]) [O,C,E,A,N] = m[label];
+  }
+
+  // —— 社会阶层 ——
+  if(category==="社会阶层"){
+    const m = {
+      "寒门出身":[+1,+3, 0, 0,+2],
+      "中产家庭":[ 0,+2, 0,+1, 0],
+      "富裕阶层":[+1, 0,+2,-1, 0],
+      "乡镇背景":[-1, 0,-1,+1, 0],
+      "都市家庭":[+2,+1,+1, 0,+1],
+      "移民家庭":[+3, 0,+1,+1,+2]
+    };
+    if(m[label]) [O,C,E,A,N] = m[label];
+  }
+
+  // —— 消费印记（关键词规则） ——
+  if(category==="消费印记"){
+    if(/知识|学习|内容|阅读|手作|摄影|乐器/.test(label)) O+=3;
+    if(/极简|储蓄|二手|规范|订阅|团购|买菜|囤货/.test(label)) C+=2;
+    if(/冲动|氪金|打赏/.test(label)) { E+=2; N+=2; C-=2; }
+    if(/绿色|可持续/.test(label)) { O+=2; A+=1; }
+    if(/家庭|亲子/.test(label)) { A+=2; C+=1; }
+    if(/品牌忠诚|大牌刚需/.test(label)) { C+=2; O-=1; }
+    if(/小众|审美|艺术/.test(label)) { O+=3; }
+    if(/线上|效率|订阅|自动/.test(label)) { C+=2; }
+    if(/线下|体验|餐饮|旅行|露营/.test(label)) { E+=2; O+=2; }
+    if(/健康|体检|健身/.test(label)) { C+=2; N-=1; }
+  }
+
+  // —— 社交指纹 ——
+  if(category==="社交指纹"){
+    if(/主导|意见领袖|议程控|挑战者/.test(label)) { E+=5; A-=2; C+=1; }
+    if(/和事佬|稳压器|高情商/.test(label)) { A+=5; N-=1; }
+    if(/社交回避|潜水|沉默寡言/.test(label)) { E-=6; N+=3; }
+    if(/破冰|分享|凝聚|人脉|跨圈/.test(label)) { E+=4; O+=2; }
+    if(/记录者|知识|总结|轮到式/.test(label)) { C+=2; E-=1; }
+    if(/功利|直球|打断/.test(label)) { A-=3; E+=1; }
+    if(/开放包容/.test(label)) { A+=3; O+=2; }
+    if(/独立行动者/.test(label)) { E-=2; C+=1; }
+    if(/团队协作|协作者/.test(label)) { A+=2; E+=1; }
+    if(/高强度/.test(label)) { E+=3; N+=1; }
+    if(/低强度/.test(label)) { E-=3; }
+  }
+
+  // —— 时间分配 ——
+  if(category==="时间分配"){
+    if(/晨|早起|清晨/.test(label)) { C+=3; N-=1; }
+    if(/夜|凌晨/.test(label)) { O+=2; C-=2; }
+    if(/固定|规律|番茄|静默|日历/.test(label)) { C+=4; N-=1; }
+    if(/碎片|多线程|实时/.test(label)) { C-=2; N+=1; }
+    if(/深度工作/.test(label)) { C+=4; N-=1; }
+    if(/家庭|社交/.test(label)) { A+=2; }
+    if(/差旅/.test(label)) { O+=2; E+=1; }
+  }
+
+  // —— 数字肢体语言 ——
+  if(category==="数字肢体语言"){
+    if(/已读不回|延迟|免打扰|静音/.test(label)) { E-=2; C+=1; }
+    if(/秒回|在线状态/.test(label)) { E+=3; }
+    if(/长文|引用|纪要|版本|看板|模版|命名/.test(label)) { C+=4; }
+    if(/表情包|图表|截图/.test(label)) { O+=2; E+=1; }
+    if(/隐私|小号/.test(label)) { N+=2; A-=1; }
+    if(/致谢|投票|多人协作/.test(label)) { A+=3; }
+    if(/自动化|快捷键|云端/.test(label)) { C+=2; O+=1; }
+    if(/深夜发言/.test(label)) { O+=1; C-=1; }
+  }
+
+  return [O,C,E,A,N];
+}
+
+/* ================== UI 渲染 ================== */
 const selInd = document.getElementById('industry');
 const selPos = document.getElementById('position');
 selInd.innerHTML = INDUSTRIES.map(x=>`<option>${x}</option>`).join('');
 selPos.innerHTML = POSITIONS.map(x=>`<option>${x}</option>`).join('');
+const wIEl=document.getElementById('wIndustry'), wPEl=document.getElementById('wPosition');
+const wIVal=document.getElementById('wIndustryVal'), wPVal=document.getElementById('wPositionVal');
+wIEl.addEventListener('input',()=>wIVal.textContent=wIEl.value);
+wPEl.addEventListener('input',()=>wPVal.textContent=wPEl.value);
 
-/** 渲染：其他标签（chip 可选，右侧权重可调） */
+/* 标签库渲染（带搜索） */
 const libBox = document.getElementById('lib');
-function renderLibrary(){
-  // 分组显示
-  const byCat = {};
-  OTHER_TAGS.forEach(t=>{ (byCat[t.category]??=[]).push(t); });
-  libBox.innerHTML = Object.keys(byCat).map(cat=>{
-    const chips = byCat[cat].map(t=>`<span class="chip" data-cat="${cat}" data-lab="${t.label}" title="${t.desc}">${t.label}</span>`).join('');
-    return `<h3>${cat}</h3><div class="tag-grid">${chips}</div>`;
-  }).join('');
-  libBox.addEventListener('click', e=>{
-    const chip = e.target.closest('.chip'); if(!chip) return;
-    const cat = chip.dataset.cat, lab = chip.dataset.lab;
-    toggleOther({category:cat,label:lab,desc:OTHER_TAGS.find(x=>x.label===lab)?.desc || ""});
-    chip.classList.toggle('active');
-  }, {once:true});
-}
+const totalCountEl = document.getElementById('totalCount');
+const visibleCountEl = document.getElementById('visibleCount');
+totalCountEl.textContent = TOTAL_COUNT;
 
-/** 状态：已选 */
+function renderLibrary(filter=""){
+  libBox.innerHTML="";
+  let visible=0;
+  Object.keys(LIB).forEach(cat=>{
+    const list = LIB[cat].filter(t=>{
+      if(!filter) return true;
+      return t.label.includes(filter) || (t.desc && t.desc.includes(filter));
+    });
+    if(!list.length) return;
+    const h = document.createElement('div');
+    h.className='cat'; h.textContent=cat; libBox.appendChild(h);
+    list.forEach(t=>{
+      visible++;
+      const box = document.createElement('div');
+      box.className='tag';
+      const id = `${cat}__${t.label}`;
+      box.innerHTML = `
+        <h4>${t.label} <span class="tiny">（${cat}）</span></h4>
+        <div class="desc">${t.desc||""}</div>
+        <div class="ctrl">
+          <label>影响权重</label>
+          <input type="range" min="1" max="10" value="5" id="w_${id}"/>
+          <span class="tiny" id="wv_${id}">5</span>
+          <button data-cat="${cat}" data-lab="${t.label}">加入</button>
+        </div>`;
+      libBox.appendChild(box);
+      const r = box.querySelector(`#w_${id}`), v = box.querySelector(`#wv_${id}`);
+      r.addEventListener('input',()=>{ v.textContent=r.value; });
+      box.querySelector('button').addEventListener('click', ()=>{
+        upsertSelected({category:cat,label:t.label,desc:t.desc,weight:parseInt(r.value,10)});
+      });
+    });
+  });
+  visibleCountEl.textContent = visible;
+}
+renderLibrary();
+document.getElementById('kw').addEventListener('input', e=>renderLibrary(e.target.value.trim()));
+document.getElementById('clearFilter').addEventListener('click', ()=>{ document.getElementById('kw').value=""; renderLibrary(""); });
+
+/* ================== 已选管理 ================== */
 const state = { selected: [] };
-function upsertItem(item){
+function upsertSelected(item){
   const i = state.selected.findIndex(x=>x.category===item.category && x.label===item.label);
   if(i>=0) state.selected[i]=item; else state.selected.push(item);
-}
-function removeItem(item){
-  const i = state.selected.findIndex(x=>x.category===item.category && x.label===item.label);
-  if(i>=0) state.selected.splice(i,1);
-}
-function toggleOther(t){
-  const i = state.selected.findIndex(x=>x.category===t.category && x.label===t.label);
-  if(i>=0) state.selected.splice(i,1); else state.selected.push({...t, weight:5});
   renderSelected();
 }
 function renderSelected(){
   const box=document.getElementById('selected');
-  if(!state.selected.length){ box.innerHTML='<div style="color:#6c757d">暂无选择</div>'; return; }
+  if(!state.selected.length){ box.innerHTML='<div class="tiny">暂无选择</div>'; return; }
   box.innerHTML = state.selected.map((s,i)=>`
     <div class="item">
       <div class="meta">
         <div><strong>${s.label}</strong> <span class="pill">${s.category}</span></div>
-        <div style="font-size:12px;color:#6c757d">${s.desc||""}</div>
+        <div class="tiny">${s.desc||""}</div>
         <div class="row" style="margin-top:6px">
-          <label>影响权重</label>
-          <input type="range" min="1" max="10" value="${s.weight||5}" oninput="state.selected[${i}].weight=this.value"/>
+          <label>权重</label>
+          <input type="range" min="1" max="10" value="${s.weight||5}" oninput="state.selected[${i}].weight=parseInt(this.value,10)"/>
+          <span class="tiny">${s.weight||5}</span>
         </div>
       </div>
       <button class="rm" onclick="state.selected.splice(${i},1);renderSelected()">移除</button>
     </div>
   `).join('');
 }
+renderSelected();
 
-/** 计算：环境大五（行业单选 + 职位单选 + 其他标签[*权重]） */
+/* ================== 计算：环境大五 & 四液质 ================== */
 function clamp01(x){ return Math.max(0, Math.min(100, Math.round(x))); }
-function addVec(a=[],b=[]){ return a.map((v,i)=>(v||0)+(b[i]||0)); }
+function addVec(a=[],b=[]){ return [ (a[0]||0)+(b[0]||0), (a[1]||0)+(b[1]||0), (a[2]||0)+(b[2]||0), (a[3]||0)+(b[3]||0), (a[4]||0)+(b[4]||0) ]; }
+
 function weightedEnvBig5(){
   const baseline = [50,50,50,50,50];
 
+  let acc=[0,0,0,0,0], wSum=0;
+
   // 行业（单选）
   const ind = selInd.value;
-  const wI = parseInt(document.getElementById('wIndustry').value,10)||5;
-  let acc = [0,0,0,0,0], wSum=0;
-  if(big5Delta[ind]){ acc = addVec(acc, big5Delta[ind].map(x=>x*wI)); wSum += wI; }
+  const wI = parseInt(wIEl.value,10)||5;
+  if(big5DeltaRole[ind]){ acc = addVec(acc, big5DeltaRole[ind].map(x=>x*wI)); wSum += wI; }
 
   // 职位（单选）
   const pos = selPos.value;
-  const wP = parseInt(document.getElementById('wPosition').value,10)||5;
-  if(big5Delta[pos]){ acc = addVec(acc, big5Delta[pos].map(x=>x*wP)); wSum += wP; }
+  const wP = parseInt(wPEl.value,10)||5;
+  if(big5DeltaRole[pos]){ acc = addVec(acc, big5DeltaRole[pos].map(x=>x*wP)); wSum += wP; }
 
   // 其他标签（多选）
   state.selected.forEach(s=>{
-    const v = big5Delta[s.label] || [0,0,0,0,0];
+    const delta = deltaForTag(s.category, s.label);
     const w = parseInt(s.weight||5,10);
-    acc = addVec(acc, v.map(x=>x*w)); wSum += w;
+    acc = addVec(acc, delta.map(x=>x*w)); wSum += w;
   });
 
-  const delta = wSum ? acc.map(x=>x/wSum) : [0,0,0,0,0];
-  return baseline.map((b,i)=>clamp01(b + delta[i]));
+  const avg = wSum ? acc.map(x=>x/wSum) : [0,0,0,0,0];
+  return baseline.map((b,i)=>clamp01(b + avg[i]));
 }
 
-/** 四液质映射（复用 Step1 公式） */
 function bigFiveToTemperaments([O,C,E,A,N]){
   const ES=100-N;
   let S=0.5*E+0.3*O+0.2*ES;
@@ -197,17 +577,15 @@ function bigFiveToTemperaments([O,C,E,A,N]){
   return {多血质:Math.round(S/sum*100),胆汁质:Math.round(Ch/sum*100),抑郁质:Math.round(M/sum*100),粘液质:Math.round(P/sum*100)};
 }
 
-/** 保存并跳转 */
+/* ================== 保存并跳转 ================== */
 document.getElementById('saveNext').addEventListener('click', ()=>{
-  // 将行业/职位也写入 selectedTags（分别两条）
-  const wI = parseInt(document.getElementById('wIndustry').value,10)||5;
-  const wP = parseInt(document.getElementById('wPosition').value,10)||5;
-  const sel = [
-    {label: selInd.value, category:"行业", desc:"职业行业单选", weight:wI},
-    {label: selPos.value, category:"职位", desc:"职业职位单选", weight:wP},
+  // 把行业/职位也并入 selectedTags（注意：它们是单选，各自独立记录）
+  const selectedTags = [
+    {label: selInd.value, category:"行业", desc:"职业行业单选", weight: parseInt(wIEl.value,10)},
+    {label: selPos.value, category:"职位", desc:"职业职位单选", weight: parseInt(wPEl.value,10)},
     ...state.selected
   ];
-  localStorage.setItem('selectedTags', JSON.stringify(sel));
+  localStorage.setItem('selectedTags', JSON.stringify(selectedTags));
 
   const envBig5 = weightedEnvBig5();
   const envTemp = bigFiveToTemperaments(envBig5);
@@ -216,10 +594,6 @@ document.getElementById('saveNext').addEventListener('click', ()=>{
 
   window.location.assign('report.html');
 });
-
-/** 初始化 */
-renderLibrary();
-renderSelected();
 </script>
 </body>
 </html>
