@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 1 - 自评问卷（大五人格 80 题）</title>
+  <style>
+    /* 全局样式 */
+    :root {
+      --bg: #f9fafc;
+      --card: #ffffff;
+      --primary: #4dabf7;
+      --text: #333;
+      --muted: #6c757d;
+      --border: #e0e0e0;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    /* 容器 */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* 标题 */
+    h1 {
+      text-align: center;
+      margin-bottom: 16px;
+      color: #222;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 30px;
+    }
+
+    /* 信息输入框 */
+    .info-group {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .info-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .info-group input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .info-group input[type="date"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.25);
+    }
+
+    /* 问题样式 */
+    .question {
+      margin-bottom: 18px;
+      background: var(--card);
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--primary);
+    }
+
+    .question label {
+      display: block;
+      margin-bottom: 12px;
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    /* 滑块容器 */
+    .slider-container {
+      position: relative;
+    }
+
+    /* 滑块值显示 */
+    .slider-value {
+      position: absolute;
+      top: -25px;
+      right: 0;
+      font-size: 14px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* 滑块样式 */
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    /* 提交按钮 */
+    .submit-btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 30px;
+      transition: all 0.2s ease;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .submit-btn:hover {
+      background: #3a97e0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(77, 171, 247, 0.3);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Step 1: 自评问卷（大五人格 80 题）</h1>
+    <p class="subtitle">请根据您的真实情况，选择最符合的选项。1=非常不同意，5=非常同意。</p>
+    
+    <!-- 新增：信息输入框 -->
+    <div class="info-group">
+      <label for="birthDate">📅 请填写您的出生日期以计算星座：</label>
+      <input type="date" id="birthDate" required>
+    </div>
+
+    <form id="quizForm">
+      <!-- 问题将由JavaScript动态生成 -->
+    </form>
+    <div style="text-align:center; margin-top: 20px;">
+      <button type="submit" form="quizForm" class="submit-btn" id="submitBtn">保存并进入第二步 ➡</button>
+    </div>
+  </div>
+
+  <script>
+    // 1. 问题库 (80题，16题/维度)
+    const QUESTIONS = {
+      开放性: [
+        "我喜欢尝试新鲜事物",
+        "我常常对未知保持好奇",
+        "我喜欢艺术和创意活动",
+        "我能轻松接受不同的文化和观点",
+        "我不喜欢改变，偏好熟悉的环境（反向）",
+        "我讨厌复杂的问题（反向）",
+        "我容易被新奇事物吸引",
+        "我常常幻想未来的可能性",
+        "我愿意挑战传统思维",
+        "我对哲学和抽象问题感兴趣",
+        "我不喜欢抽象的讨论（反向）",
+        "我习惯遵循常规，不喜欢冒险（反向）",
+        "我欣赏新颖的设计和想法",
+        "我容易接受不确定性",
+        "我对科学探索有兴趣",
+        "我喜欢不断学习新知识"
+      ],
+      尽责性: [
+        "我做事有计划性",
+        "我注重细节",
+        "我能坚持完成长期目标",
+        "我会认真履行承诺",
+        "我经常拖延（反向）",
+        "我做事粗心大意（反向）",
+        "我擅长制定并遵守时间表",
+        "我能高效完成任务",
+        "我会提前准备，避免意外情况",
+        "我在任务中一丝不苟",
+        "我经常半途而废（反向）",
+        "我很容易分心（反向）",
+        "我对责任感到重视",
+        "我喜欢有条理的生活",
+        "我做事很有纪律性",
+        "我重视长期规划"
+      ],
+      外向性: [
+        "我喜欢结识新朋友",
+        "我在社交场合很活跃",
+        "我容易表达情感",
+        "我喜欢成为人群中的焦点",
+        "我害怕在人群中发言（反向）",
+        "我不喜欢与人互动（反向）",
+        "我乐于分享自己的想法",
+        "我精力充沛",
+        "我喜欢带动气氛",
+        "我能轻松和陌生人聊天",
+        "我常常避免聚会（反向）",
+        "我习惯独自待着（反向）",
+        "我善于社交表达",
+        "我喜欢与团队一起工作",
+        "我享受热闹的氛围",
+        "我容易与人建立联系"
+      ],
+      宜人性: [
+        "我愿意帮助他人",
+        "我很容易体谅他人感受",
+        "我倾向于合作而不是竞争",
+        "我喜欢维护和谐的人际关系",
+        "我常常忽视别人的感受（反向）",
+        "我容易与他人发生冲突（反向）",
+        "我信任别人",
+        "我愿意妥协以避免矛盾",
+        "我很少怀疑他人的动机",
+        "我善于倾听",
+        "我容易怀恨在心（反向）",
+        "我经常批评他人（反向）",
+        "我喜欢鼓励和支持他人",
+        "我在团队中注重共识",
+        "我愿意为朋友付出",
+        "我很少怀有敌意"
+      ],
+      神经质: [
+        "我容易感到焦虑",
+        "我常常担心小事",
+        "我容易感到压力",
+        "我经常感到不安",
+        "我很少情绪波动（反向）",
+        "我能轻松应对挫折（反向）",
+        "我容易陷入负面情绪",
+        "我常常缺乏安全感",
+        "我在压力下容易崩溃",
+        "我对批评过度敏感",
+        "我情绪很稳定（反向）",
+        "我不容易被打乱情绪（反向）",
+        "我经常反复思考错误",
+        "我容易情绪化",
+        "我对未来充满担忧",
+        "我常常因为小事失眠"
+      ]
+    };
+
+    // 2. 工具函数
+    const Utils = {
+      // 计算星座
+      getZodiacSign: (date) => {
+        const month = date.getMonth() + 1; // getMonth() 返回 0-11
+        const day = date.getDate();
+        
+        // 星座日期范围
+        const zodiacs = [
+          { name: "水瓶座", start: [1, 20], end: [2, 18] },
+          { name: "双鱼座", start: [2, 19], end: [3, 20] },
+          { name: "白羊座", start: [3, 21], end: [4, 19] },
+          { name: "金牛座", start: [4, 20], end: [5, 20] },
+          { name: "双子座", start: [5, 21], end: [6, 21] },
+          { name: "巨蟹座", start: [6, 22], end: [7, 22] },
+          { name: "狮子座", start: [7, 23], end: [8, 22] },
+          { name: "处女座", start: [8, 23], end: [9, 22] },
+          { name: "天秤座", start: [9, 23], end: [10, 23] },
+          { name: "天蝎座", start: [10, 24], end: [11, 22] },
+          { name: "射手座", start: [11, 23], end: [12, 21] },
+          { name: "摩羯座", start: [12, 22], end: [1, 19] } // 跨年
+        ];
+
+        // 处理跨年星座（摩羯座）
+        if (month === 12 && day >= 22) return "摩羯座";
+        if (month === 1 && day <= 19) return "摩羯座";
+
+        // 遍历其他星座
+        for (const z of zodiacs) {
+          if (month === z.start[0] && day >= z.start[1]) return z.name;
+          if (month === z.end[0] && day <= z.end[1]) return z.name;
+        }
+        return "未知";
+      },
+
+      // 将分数从5分制转换为百分制 (平均值 * 20)
+      toPercentile: (rawScore, count) => {
+        return Math.round((rawScore / count) * 20);
+      },
+
+      // 保存数据到LocalStorage
+      saveToStorage: (key, data) => {
+        try {
+          localStorage.setItem(key, JSON.stringify(data));
+          return true;
+        } catch (e) {
+          console.error("保存数据失败:", e);
+          return false;
+        }
+      }
+    };
+
+    // 3. 主要逻辑
+    class QuizApp {
+      constructor() {
+        this.form = document.getElementById("quizForm");
+        this.submitBtn = document.getElementById("submitBtn");
+        this.birthDateInput = document.getElementById("birthDate");
+        this.scores = { 开放性: 0, 尽责性: 0, 外向性: 0, 宜人性: 0, 神经质: 0 };
+        this.totalQuestions = 0;
+      }
+
+      // 渲染所有问题
+      renderQuestions() {
+        let questionIndex = 1;
+        for (const [trait, questions] of Object.entries(QUESTIONS)) {
+          questions.forEach(questionText => {
+            const isReversed = questionText.includes("（反向）");
+            const questionId = `q${questionIndex}`;
+            
+            const div = document.createElement("div");
+            div.className = "question";
+            div.innerHTML = `
+              <label for="${questionId}">${questionIndex}. ${questionText.replace("（反向）", "")}</label>
+              <div class="slider-container">
+                <input type="range" min="1" max="5" value="3" name="${questionId}" id="${questionId}" 
+                       data-trait="${trait}" data-reversed="${isReversed}">
+                <span class="slider-value" id="value-${questionId}">3</span>
+              </div>
+            `;
+            this.form.appendChild(div);
+            questionIndex++;
+            this.totalQuestions++;
+          });
+        }
+
+        // 为所有滑块添加实时反馈
+        this.form.querySelectorAll('input[type="range"]').forEach(slider => {
+          slider.addEventListener('input', (e) => {
+            document.getElementById(`value-${e.target.id}`).textContent = e.target.value;
+          });
+        });
+      }
+
+      // 计算最终得分
+      calculateScores() {
+        this.scores = { 开放性: 0, 尽责性: 0, 外向性: 0, 宜人性: 0, 神经质: 0 };
+        let traitCounts = { 开放性: 0, 尽责性: 0, 外向性: 0, 宜人性: 0, 神经质: 0 };
+
+        for (let i = 1; i <= this.totalQuestions; i++) {
+          const input = this.form[`q${i}`];
+          const val = parseInt(input.value);
+          const trait = input.dataset.trait;
+          const isReversed = input.dataset.reversed === 'true';
+          
+          // 处理反向题
+          const score = isReversed ? (6 - val) : val;
+          this.scores[trait] += score;
+          traitCounts[trait]++;
+        }
+
+        // 转换为百分制
+        const percentileScores = Object.keys(this.scores).map(trait => {
+          return Utils.toPercentile(this.scores[trait], traitCounts[trait]);
+        });
+
+        return percentileScores;
+      }
+
+      // 处理表单提交
+      handleSubmit(e) {
+        e.preventDefault();
+        
+        // 验证日期是否已填写
+        if (!this.birthDateInput.value) {
+          alert("请填写您的出生日期！");
+          this.birthDateInput.focus();
+          return;
+        }
+
+        this.submitBtn.disabled = true;
+        this.submitBtn.textContent = "正在保存...";
+
+        try {
+          // 1. 计算并保存星座
+          const birthDate = new Date(this.birthDateInput.value);
+          const zodiac = Utils.getZodiacSign(birthDate);
+          const zodiacSuccess = Utils.saveToStorage("zodiac", zodiac);
+          if (!zodiacSuccess) throw new Error("星座保存失败");
+
+          // 2. 计算并保存人格分数
+          const finalScores = this.calculateScores();
+          const scoresSuccess = Utils.saveToStorage("selfScores", finalScores);
+          if (!scoresSuccess) throw new Error("人格分数保存失败");
+          
+          // 3. 跳转
+          setTimeout(() => {
+            alert(`✅ 问卷完成！您的星座是 ${zodiac}。即将进入下一步。`);
+            window.location.assign("step2.html");
+          }, 500);
+
+        } catch (error) {
+          this.submitBtn.disabled = false;
+          this.submitBtn.textContent = "保存并进入第二步 ➡";
+          alert(`❌ 保存失败：${error.message}。请检查浏览器设置或重试。`);
+          console.error("提交失败:", error);
+        }
+      }
+
+      // 初始化
+      init() {
+        this.renderQuestions();
+        this.form.addEventListener("submit", (e) => this.handleSubmit(e));
+      }
+    }
+
+    // 启动应用
+    document.addEventListener("DOMContentLoaded", () => {
+      new QuizApp().init();
+    });
+  </script>
+</body>
+</html>

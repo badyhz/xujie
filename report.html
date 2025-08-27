@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>人格分析报告</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #222;
+      --primary: #4dabf7;
+      --primary-light: #e6f4ff;
+      --primary-dark: #3a9cf0;
+      --border: #edf2ff;
+      --muted: #6c757d;
+      --success: #4caf50;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      margin: 0;
+      font-family: "Noto Sans SC", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      padding: 24px;
+      background: linear-gradient(135deg, var(--primary), #66b3ff);
+      color: white;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .sub {
+      font-size: 15px;
+      opacity: 0.9;
+    }
+    .section {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: var(--primary);
+    }
+    .section-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .chip {
+      background: var(--primary-light);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: var(--primary-dark);
+    }
+    .progress-item {
+      margin-bottom: 12px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .progress-bar {
+      height: 12px;
+      background: #e0e0e0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      border-radius: 6px;
+      width: 0%;
+      transition: width 0.8s ease;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th {
+      background: var(--primary);
+      color: white;
+      padding: 10px;
+      text-align: left;
+      font-weight: 600;
+    }
+    td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+    .score {
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+    .highlight {
+      color: var(--success);
+      font-weight: 600;
+    }
+    .chart-container {
+      position: relative;
+      height: 320px;
+      margin-top: 16px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+    button {
+      padding: 10px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: var(--primary-dark);
+    }
+    .btn-ghost {
+      background: #e9ecef;
+      color: #222;
+    }
+    .btn-ghost:hover {
+      background: #d0d0d0;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      padding: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>👤 你的综合人格画像报告</h1>
+      <div class="sub">基于80道自评题 + 200个行为标签的深度分析</div>
+    </header>
+
+    <div id="errorBox"></div>
+
+    <!-- 🌟 星座与五行 -->
+    <div class="section" id="section-zodiac">
+      <h2>🌟 星座与五行</h2>
+      <div class="section-content">
+        <p><strong>你的星座：</strong> <span id="zodiac">未知</span></p>
+        <p><strong>五行属性：</strong> <span id="element">未知</span></p>
+        <div class="tag-list" id="zodiac-tags"></div>
+      </div>
+    </div>
+
+    <!-- 🪐 四液质倾向分布 (来自 step1) -->
+    <div class="section" id="section-temperament">
+      <h2>🪐 四液质倾向分布</h2>
+      <div class="section-content">
+        <div class="progress-item">
+          <div class="progress-label"><strong>多血质</strong> <span id="temperament-多血质">7/10</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-多血质"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><strong>胆汁质</strong> <span id="temperament-胆汁质">5/10</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-胆汁质"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><strong>抑郁质</strong> <span id="temperament-抑郁质">4/10</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-抑郁质"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-label"><strong>粘液质</strong> <span id="temperament-粘液质">6/10</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="fill-粘液质"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📊 基础人格特质 -->
+    <div class="section" id="section-self-bigfive">
+      <h2>📊 基础人格特质</h2>
+      <table><thead><tr><th>维度</th><th>得分</th><th>满分</th><th>解读</th></tr></thead>
+        <tbody id="self-bigfive-body"></tbody>
+      </table>
+    </div>
+
+    <!-- 🎯 环境影响人格特质 -->
+    <div class="section" id="section-env-bigfive">
+      <h2>🎯 环境影响人格特质</h2>
+      <table><thead><tr><th>维度</th><th>得分</th><th>满分</th><th>解读</th></tr></thead>
+        <tbody id="env-bigfive-body"></tbody>
+      </table>
+    </div>
+
+    <!-- 🧭 人格特质对比 -->
+    <div class="section" id="section-bigfive-radar">
+      <h2>🧭 人格特质对比</h2>
+      <div class="chart-container"><canvas id="bigFiveRadar"></canvas></div>
+    </div>
+
+    <!-- ⚖️ 气质倾向对比 -->
+    <div class="section" id="section-temperament-radar">
+      <h2>⚖️ 气质倾向对比</h2>
+      <div class="chart-container"><canvas id="temperamentRadar"></canvas></div>
+    </div>
+
+    <footer>
+      <button class="btn-ghost" onclick="window.location.href='step2.html'">⬅ 返回上一步</button>
+      <button onclick="window.print()">🖨️ 打印/保存为PDF</button>
+    </footer>
+  </div>
+
+  <script>
+    const errorBox = document.getElementById('errorBox');
+
+    function showError(msg) {
+      errorBox.innerHTML = `<div class="error">⚠️ ${msg}</div>`;
+      document.querySelectorAll('.section').forEach(el => el.style.display = 'none');
+    }
+
+    // 1. 读取数据
+    let selfScores = null;
+    let selectedTags = [];
+    let zodiac = '未知';
+
+    try {
+      const rawScores = localStorage.getItem("selfScores");
+      const rawTags = localStorage.getItem("selectedTags");
+
+      if (!rawScores) throw new Error("未找到自评分数，请先完成 step1.html");
+      if (!rawTags) throw new Error("未找到行为标签，请先完成 step2.html");
+
+      selfScores = JSON.parse(rawScores);
+      if (!Array.isArray(selfScores) || selfScores.length !== 5) {
+        throw new Error("自评分数格式错误，应为长度为5的数组");
+      }
+
+      selectedTags = JSON.parse(rawTags);
+      if (!Array.isArray(selectedTags)) {
+        throw new Error("行为标签格式错误");
+      }
+
+      zodiac = localStorage.getItem("zodiac") || '未知';
+
+    } catch (e) {
+      console.error("数据加载失败:", e);
+      showError(e.message);
+      throw e;
+    }
+
+    // 2. 显示星座信息
+    document.getElementById('zodiac').textContent = zodiac;
+
+    const zodiacInfo = {
+      "白羊座": { element: "火", tags: ["冒险者", "领导者", "冲动者", "战士", "开拓者"] },
+      "金牛座": { element: "土", tags: ["保守者", "享受者", "固执者", "稳定者", "美食家"] },
+      "双子座": { element: "风", tags: ["沟通者", "好奇者", "多变者", "信息贩子", "社交达人"] },
+      "巨蟹座": { element: "水", tags: ["情感者", "保护者", "怀旧者", "家庭至上", "敏感者"] },
+      "狮子座": { element: "火", tags: ["表演者", "慷慨者", "自恋者", "领袖", "聚光灯爱好者"] },
+      "处女座": { element: "土", tags: ["完美主义者", "分析者", "服务者", "挑剔者", "秩序控"] },
+      "天秤座": { element: "风", tags: ["和平者", "审美家", "犹豫者", "社交蝴蝶", "关系维护者"] },
+      "天蝎座": { element: "水", tags: ["深刻者", "神秘者", "掌控者", "复仇者", "洞察者"] },
+      "射手座": { element: "火", tags: ["冒险家", "自由者", "乐观者", "旅行者", "哲学家"] },
+      "摩羯座": { element: "土", tags: ["攀登者", "现实者", "自律者", "野心家", "守旧者"] },
+      "水瓶座": { element: "风", tags: ["革新者", "怪人", "理想主义者", "反传统", "未来主义者"] },
+      "双鱼座": { element: "水", tags: ["梦想家", "同理心者", "逃避者", "艺术家", "牺牲者"] }
+    };
+
+    const info = zodiacInfo[zodiac] || { element: "未知", tags: ["未知"] };
+    document.getElementById('element').textContent = info.element;
+
+    const tagList = document.getElementById('zodiac-tags');
+    info.tags.forEach(tag => {
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = tag;
+      tagList.appendChild(span);
+    });
+
+    // 3. 从 step1 的自评推断四液质 (基于大五人格题目)
+    // 使用 selfScores (0-100) 直接映射
+    const selfTemperament = {
+      "多血质": Math.round(selfScores[2] / 10), // 外向性
+      "胆汁质": Math.round(selfScores[1] / 10), // 尽责性
+      "抑郁质": Math.round(selfScores[4] / 10), // 神经质
+      "粘液质": Math.round(selfScores[3] / 10)  // 宜人性
+    };
+
+    // 4. 计算环境修正后的四液质分数 (来自 step2 的标签)
+    const temperamentMap = {
+      "多血质": ["社交达人", "舞池焦点", "段子手", "聚会常客", "夜猫子社交", "朋友圈宽广", "公众曝光", "表演者", "情绪发泄", "视频创作者", "游戏在线", "直播主", "K歌达人", "语音社交", "网络暧昧", "虚拟社交", "音乐社交", "娱乐型社交", "酒局社交", "运动社交", "群聊主导者", "组织者", "协调者", "内容创作者", "产品运营", "游戏策划", "产品经理", "销售", "市场/品牌", "公关", "客服/运营", "媒体/内容", "教育/培训", "互联网/软件", "游戏/娱乐", "电商/零售", "物流/供应链", "旅游/酒店/餐饮", "农业/生物科技"],
+      "胆汁质": ["创业失败", "重大失败", "突遇贵人", "危机领导", "中年转行", "企业家/创始人", "自由职业者", "销售", "项目经理", "法务", "财务/审计", "战略/咨询", "教师/讲师", "医生/护士", "科研人员", "军人/警察", "政府/事业单位", "咨询/法律/会计", "人力/组织", "制造业/工业", "汽车/智能车", "半导体/硬件", "医疗/医药", "金融/投资", "互联网/软件", "人工智能", "能源/新能源", "房地产/建筑", "军警/安防"],
+      "抑郁质": ["亲密关系分手", "离婚", "丧亲之痛", "重大疾病", "城市迁移", "长期照护亲人", "重大合伙分手", "背叛/被欺骗", "债务压力", "裁员", "破产", "实现财务自由", "高考/升学失利", "遭遇欺凌", "创伤后成长", "长途独旅", "灵性觉醒", "科研突破", "竞技夺冠"],
+      "粘液质": ["寒门出身", "工薪家庭", "城镇家庭", "县城土著", "中产家庭", "新中产", "准富裕", "富裕阶层", "超高净值", "家族企业背景", "体制内背景", "移民家庭", "留学家庭", "单亲家庭", "丁克/不婚", "四世同堂", "城乡流动", "外来务工", "资源稀缺地区", "教育资源充沛", "知识付费", "极简主义", "禁欲消费", "吃货", "健身消费", "精神消费", "数码控", "宠物消费", "汽车控", "美妆消费", "家居布置", "厨房达人", "摄影消费", "教育消费", "收藏癖", "投资理财", "旅游消费", "娱乐消费", "学习专注", "冥想时间", "散步时间", "创作时间", "工作狂", "副业时间", "照护家人", "社群经营", "通勤时间长", "户外时间多"]
+    };
+
+    const environmentTemperament = { "多血质": 0, "胆汁质": 0, "抑郁质": 0, "粘液质": 0 };
+    let totalWeight = 0;
+
+    selectedTags.forEach(tag => {
+      const weight = tag.weight || 5;
+      totalWeight += weight;
+      for (const [type, labels] of Object.entries(temperamentMap)) {
+        if (labels.includes(tag.label)) {
+          environmentTemperament[type] += weight;
+        }
+      }
+    });
+
+    const normalizedEnvironmentTemperament = {};
+    for (const type in environmentTemperament) {
+      normalizedEnvironmentTemperament[type] = Math.round((environmentTemperament[type] / (totalWeight || 1)) * 10);
+    }
+
+    // 5. 计算环境修正后的大五人格 (来自 step2 的标签)
+    const bigFiveLabels = ["开放性", "尽责性", "外向性", "宜人性", "神经质"];
+    const environmentBigFive = [0, 0, 0, 0, 0];
+
+    selectedTags.forEach(tag => {
+      const weight = tag.weight || 5;
+      // 开放性
+      if (["灵性觉醒", "长途独旅", "科研突破", "知识付费", "极简主义", "收藏癖", "博客作者", "技术极客", "AI提示工程", "播客听众", "短视频重度"].includes(tag.label)) {
+        environmentBigFive[0] += weight;
+      }
+      // 尽责性
+      if (["高考/升学失利", "重大法律纠纷", "中年转行", "项目经理", "财务/审计", "法务", "长期规划者", "健身规律", "工作狂", "数据控", "机器人控", "投资理财"].includes(tag.label)) {
+        environmentBigFive[1] += weight;
+      }
+      // 外向性
+      if (["社交达人", "群聊主导者", "组织者", "舞台控", "视频创作者", "直播主", "朋友圈刷屏", "点赞狂魔", "热点追随", "情绪发泄", "频繁分享", "K歌达人", "语音社交", "游戏在线", "舞池焦点", "聚会常客"].includes(tag.label)) {
+        environmentBigFive[2] += weight;
+      }
+      // 宜人性
+      if (["倾听者", "协调者", "圈子维护者", "公益社交", "长期照护亲人", "情感消费", "宠物消费", "家庭时间多", "客服/运营", "教师/讲师", "医生/护士"].includes(tag.label)) {
+        environmentBigFive[3] += weight;
+      }
+      // 神经质
+      if (["重大失败", "离婚", "丧亲之痛", "重大疾病", "裁员", "破产", "债务压力", "遭遇欺凌", "背叛/被欺骗", "信用消费", "刷屏成瘾", "情绪发泄"].includes(tag.label)) {
+        environmentBigFive[4] += weight;
+      }
+      // 负向标签 (降低神经质)
+      if (["实现财务自由", "政策红利", "冥想时间", "散步时间", "极简主义", "投资理财"].includes(tag.label)) {
+        environmentBigFive[4] -= weight;
+      }
+    });
+
+    // 归一化到 0-100
+    const totalWeightBigFive = selectedTags.reduce((sum, tag) => sum + (tag.weight || 5), 0);
+    const normalizedEnvironmentBigFive = environmentBigFive.map(v => {
+      return Math.round((v / (totalWeightBigFive || 1)) * 100);
+    });
+
+    // 6. 更新四液质条形图 (来自 step1)
+    Object.keys(selfTemperament).forEach(type => {
+      const score = selfTemperament[type];
+      document.getElementById(`temperament-${type}`).textContent = `${score}/10`;
+      document.getElementById(`fill-${type}`).style.width = `${score * 10}%`;
+    });
+
+    // 7. 更新表格
+    function updateTable(tableId, scores) {
+      const tbody = document.getElementById(tableId);
+      tbody.innerHTML = bigFiveLabels.map((label, i) => `
+        <tr>
+          <td>${label}</td>
+          <td class="score">${scores[i]}</td>
+          <td>100</td>
+          <td class="interpretation">
+            ${i === 4 ? (scores[i] < 40 ? '<span class="highlight">非常稳定</span>，不易焦虑' : '情绪较敏感') :
+              i === 0 ? (scores[i] > 70 ? '<span class="highlight">高度开放</span>，思维活跃' : '偏好熟悉的事物') :
+              i === 1 ? (scores[i] > 70 ? '<span class="highlight">高度自律</span>，有条理' : '有时会拖延') :
+              i === 2 ? '内外向平衡' :
+              '有自己的主见'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    updateTable('self-bigfive-body', selfScores);
+    updateTable('env-bigfive-body', normalizedEnvironmentBigFive);
+
+    // 8. 渲染图表
+    function renderCharts() {
+      const bigFiveRadarCtx = document.getElementById('bigFiveRadar').getContext('2d');
+      new Chart(bigFiveRadarCtx, {
+        type: 'radar',
+         {
+          labels: bigFiveLabels,
+          datasets: [
+            {
+              label: '基础特质',
+               selfScores,
+              borderColor: '#4dabf7',
+              backgroundColor: 'rgba(77, 171, 247, 0.1)',
+              pointBackgroundColor: '#4dabf7',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#4dabf7',
+              fill: true
+            },
+            {
+              label: '环境影响',
+               normalizedEnvironmentBigFive,
+              borderColor: '#66b3ff',
+              backgroundColor: 'rgba(102, 179, 255, 0.1)',
+              pointBackgroundColor: '#66b3ff',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#66b3ff',
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { display: true, color: '#e0e0e0' },
+              grid: { circular: true, color: '#e0e0e0' },
+              ticks: { display: true, color: '#666' }
+            }
+          },
+          plugins: { legend: { position: 'top' } }
+        }
+      });
+
+      const temperamentRadarCtx = document.getElementById('temperamentRadar').getContext('2d');
+      new Chart(temperamentRadarCtx, {
+        type: 'radar',
+         {
+          labels: ['多血质', '胆汁质', '抑郁质', '粘液质'],
+          datasets: [
+            {
+              label: '基础倾向',
+               Object.values(selfTemperament),
+              borderColor: '#4dabf7',
+              backgroundColor: 'rgba(77, 171, 247, 0.1)',
+              pointBackgroundColor: '#4dabf7',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#4dabf7',
+              fill: true
+            },
+            {
+              label: '环境影响',
+               Object.values(normalizedEnvironmentTemperament),
+              borderColor: '#66b3ff',
+              backgroundColor: 'rgba(102, 179, 255, 0.1)',
+              pointBackgroundColor: '#66b3ff',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: '#66b3ff',
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              angleLines: { display: true, color: '#e0e0e0' },
+              grid: { circular: true, color: '#e0e0e0' },
+              ticks: { display: true, color: '#666' }
+            }
+          },
+          plugins: { legend: { position: 'top' } }
+        }
+      });
+    }
+
+    // 9. 页面加载完成后渲染
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        renderCharts();
+      } catch (e) {
+        console.error("图表渲染失败:", e);
+        showError("图表渲染失败：" + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
