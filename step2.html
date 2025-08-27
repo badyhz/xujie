@@ -1,734 +1,225 @@
+<!-- step2.html（精简可用版） -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Step 2 - 标签选择</title>
-  <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #222;
-      --muted: #6c757d;
-      --primary: #4dabf7;
-      --chip: #eef6ff;
-      --chip-on: #d0ebff;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Noto Sans SC", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      background: #fff;
-      border-bottom: 1px solid #eee;
-      z-index: 10;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 18px;
-    }
-
-    h1 {
-      margin: 4px 0 6px;
-      font-size: 22px;
-    }
-
-    .sub {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    input[type="search"] {
-      flex: 1;
-      min-width: 240px;
-      padding: 10px 12px;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      outline: none;
-    }
-
-    main {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 16px;
-      margin-top: 14px;
-    }
-
-    .panel {
-      background: var(--card);
-      border-radius: 14px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
-      padding: 16px;
-    }
-
-    h2 {
-      font-size: 18px;
-      margin: 0 0 10px;
-    }
-
-    details {
-      background: #fbfdff;
-      border: 1px solid #edf2ff;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .tag-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: var(--chip);
-      border: 1px solid #dbeafe;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .chip:hover {
-      border-color: #74c0fc;
-    }
-
-    .chip.active {
-      background: var(--chip-on);
-      border-color: #74c0fc;
-      color: #000;
-    }
-
-    .chip small {
-      color: #5c677d;
-    }
-
-    .selected {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 540px;
-      overflow: auto;
-      padding-right: 6px;
-    }
-
-    .sel-item {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-      background: #f8fbff;
-      border: 1px solid #e7f5ff;
-      border-radius: 12px;
-      padding: 10px;
-    }
-
-    .sel-item .meta {
-      flex: 1;
-    }
-
-    .sel-item .ttl {
-      font-weight: 600;
-    }
-
-    .sel-item .desc {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 2px;
-    }
-
-    .pill {
-      background: #edf2ff;
-      color: #3b5bdb;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-    }
-
-    .rm {
-      background: #ffe3e3;
-      color: #c92a2a;
-      border: none;
-      border-radius: 8px;
-      padding: 6px 8px;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .rm:hover {
-      background: #fcc;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    input[type="range"] {
-      width: 100%;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .counter {
-      color: #6c757d;
-      font-size: 12px;
-      margin-left: 6px;
-    }
-
-    button {
-      padding: 10px 14px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    button.ghost {
-      background: #e9ecef;
-      color: #222;
-    }
-
-    button.ok {
-      background: #4dabf7;
-      color: #fff;
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Step 2 - 标签选择（行业/职位=单选）</title>
+<style>
+  body{margin:0;background:#f6f7fb;font-family:"Noto Sans SC",system-ui}
+  .container{max-width:1080px;margin:0 auto;padding:18px}
+  h1{margin:8px 0}
+  .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+  .panel{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:16px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  select,input[type=range]{padding:8px;border:1px solid #e5e7eb;border-radius:10px}
+  .tag-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .chip{padding:8px 10px;border-radius:999px;background:#eef6ff;border:1px solid #d0ebff;cursor:pointer}
+  .chip.active{background:#d0ebff}
+  .sel{display:flex;flex-direction:column;gap:8px;max-height:520px;overflow:auto}
+  .item{background:#f8fbff;border:1px solid #e7f5ff;border-radius:12px;padding:10px;display:flex;gap:8px}
+  .meta{flex:1}
+  .pill{font-size:12px;background:#edf2ff;color:#3b5bdb;border-radius:999px;padding:2px 8px}
+  .rm{background:#ffe3e3;color:#c92a2a;border:none;border-radius:8px;padding:6px 8px;cursor:pointer}
+  .actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px}
+  button{padding:12px 18px;border:none;border-radius:10px;background:#4dabf7;color:#fff;cursor:pointer}
+  .ghost{background:#e9ecef;color:#222}
+</style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h1>Step 2 · 标签选择</h1>
-      <div class="sub">从环境与行为角度刻画你的画像。左侧选择标签，右侧查看已选与说明。</div>
-      <div class="toolbar">
-        <input id="search" type="search" placeholder="🔎 搜索标签" />
-        <button class="ghost" id="clearAll">清空全部</button>
-        <span class="counter" id="countInfo">已选 0 个</span>
-        <div style="margin-left:auto;display:flex;gap:8px;">
-          <button class="ghost" onclick="location.href='step1.html'">⬅ 上一步</button>
-          <button class="ok" id="saveNext">保存并进入第三步</button>
+<div class="container">
+  <h1>Step 2 · 环境与行为标签</h1>
+  <div class="grid">
+    <section class="panel">
+      <h2>🏢 职业烙印（单选）</h2>
+      <div class="row">
+        <label>行业：</label>
+        <select id="industry"></select>
+        <label>影响权重</label>
+        <input id="wIndustry" type="range" min="1" max="10" value="5"/>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <label>职位：</label>
+        <select id="position"></select>
+        <label>影响权重</label>
+        <input id="wPosition" type="range" min="1" max="10" value="5"/>
+      </div>
+
+      <h2 style="margin-top:18px">🌍 其他标签（多选 + 权重）</h2>
+      <div id="lib"></div>
+    </section>
+
+    <aside class="panel">
+      <h2>✅ 已选</h2>
+      <div id="selected" class="sel"></div>
+      <div class="actions">
+        <button class="ghost" onclick="location.href='step1.html'">⬅ 上一步</button>
+        <button id="saveNext">保存并生成报告 ➜</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/** 行业/职位列表（示例） */
+const INDUSTRIES = ["互联网/软件","人工智能","金融/投资","制造/工业","医疗/医药","教育/培训","媒体/内容","电商/零售"];
+const POSITIONS  = ["产品经理","后端工程师","算法工程师","数据分析","销售","运营","设计师","项目经理"];
+
+/** Big5 影响向量（示例；单位：分，建议范围 [-20,20]） */
+const big5Delta = {
+  // 行业
+  "互联网/软件":[+5,+4,+2,0,0],
+  "人工智能":[+6,+4,+1,0,+1],
+  "金融/投资":[-2,+7,0,-2,+2],
+  "制造/工业":[-1,+6,-1,0,0],
+  "医疗/医药":[0,+6,-1,+2,+1],
+  "教育/培训":[+2,+3,0,+3,0],
+  "媒体/内容":[+5,0,+2,0,+1],
+  "电商/零售":[+2,+3,+2,0,0],
+  // 职位
+  "产品经理":[+4,+5,+3,0,0],
+  "后端工程师":[+1,+5,-1,0,0],
+  "算法工程师":[+3,+5,-1,0,+1],
+  "数据分析":[+1,+4,-1,0,0],
+  "销售":[0,0,+10,-3,+2],
+  "运营":[0,+3,+2,0,0],
+  "设计师":[+6,0,+1,0,0],
+  "项目经理":[0,+6,+2,0,0],
+  // 其他标签（仅举例几条；你可扩展至 200）
+  "夜间活跃":[+4,-2,0,0,+1],
+  "社交回避":[0,0,-8,+2,+4],
+  "知识付费":[+3,+1,0,0,0],
+  "群聊主导者":[0,0,+6,0,0]
+};
+
+/** 其他标签库（示例片段；请替换为你的 200 标签对象列表） */
+const OTHER_TAGS = [
+  {category:"时间分配", label:"夜间活跃", desc:"夜晚效率高"},
+  {category:"社交指纹", label:"社交回避", desc:"退缩与能量保护"},
+  {category:"消费印记", label:"知识付费", desc:"以学习为主要投入"},
+  {category:"社交指纹", label:"群聊主导者", desc:"话题驱动与组织力"}
+];
+
+/** 渲染：行业/职位（单选） */
+const selInd = document.getElementById('industry');
+const selPos = document.getElementById('position');
+selInd.innerHTML = INDUSTRIES.map(x=>`<option>${x}</option>`).join('');
+selPos.innerHTML = POSITIONS.map(x=>`<option>${x}</option>`).join('');
+
+/** 渲染：其他标签（chip 可选，右侧权重可调） */
+const libBox = document.getElementById('lib');
+function renderLibrary(){
+  // 分组显示
+  const byCat = {};
+  OTHER_TAGS.forEach(t=>{ (byCat[t.category]??=[]).push(t); });
+  libBox.innerHTML = Object.keys(byCat).map(cat=>{
+    const chips = byCat[cat].map(t=>`<span class="chip" data-cat="${cat}" data-lab="${t.label}" title="${t.desc}">${t.label}</span>`).join('');
+    return `<h3>${cat}</h3><div class="tag-grid">${chips}</div>`;
+  }).join('');
+  libBox.addEventListener('click', e=>{
+    const chip = e.target.closest('.chip'); if(!chip) return;
+    const cat = chip.dataset.cat, lab = chip.dataset.lab;
+    toggleOther({category:cat,label:lab,desc:OTHER_TAGS.find(x=>x.label===lab)?.desc || ""});
+    chip.classList.toggle('active');
+  }, {once:true});
+}
+
+/** 状态：已选 */
+const state = { selected: [] };
+function upsertItem(item){
+  const i = state.selected.findIndex(x=>x.category===item.category && x.label===item.label);
+  if(i>=0) state.selected[i]=item; else state.selected.push(item);
+}
+function removeItem(item){
+  const i = state.selected.findIndex(x=>x.category===item.category && x.label===item.label);
+  if(i>=0) state.selected.splice(i,1);
+}
+function toggleOther(t){
+  const i = state.selected.findIndex(x=>x.category===t.category && x.label===t.label);
+  if(i>=0) state.selected.splice(i,1); else state.selected.push({...t, weight:5});
+  renderSelected();
+}
+function renderSelected(){
+  const box=document.getElementById('selected');
+  if(!state.selected.length){ box.innerHTML='<div style="color:#6c757d">暂无选择</div>'; return; }
+  box.innerHTML = state.selected.map((s,i)=>`
+    <div class="item">
+      <div class="meta">
+        <div><strong>${s.label}</strong> <span class="pill">${s.category}</span></div>
+        <div style="font-size:12px;color:#6c757d">${s.desc||""}</div>
+        <div class="row" style="margin-top:6px">
+          <label>影响权重</label>
+          <input type="range" min="1" max="10" value="${s.weight||5}" oninput="state.selected[${i}].weight=this.value"/>
         </div>
       </div>
+      <button class="rm" onclick="state.selected.splice(${i},1);renderSelected()">移除</button>
     </div>
-  </header>
+  `).join('');
+}
 
-  <div class="container">
-    <main>
-      <!-- 左侧：类别与标签 -->
-      <section class="panel left">
-        <h2>📚 标签库</h2>
+/** 计算：环境大五（行业单选 + 职位单选 + 其他标签[*权重]） */
+function clamp01(x){ return Math.max(0, Math.min(100, Math.round(x))); }
+function addVec(a=[],b=[]){ return a.map((v,i)=>(v||0)+(b[i]||0)); }
+function weightedEnvBig5(){
+  const baseline = [50,50,50,50,50];
 
-        <!-- 职业烙印：行业 + 职位 -->
-        <details open>
-          <summary>🏢 职业烙印</summary>
-          <div class="tag-grid" id="cat-industry"></div>
-          <div class="tag-grid" id="cat-position"></div>
-        </details>
+  // 行业（单选）
+  const ind = selInd.value;
+  const wI = parseInt(document.getElementById('wIndustry').value,10)||5;
+  let acc = [0,0,0,0,0], wSum=0;
+  if(big5Delta[ind]){ acc = addVec(acc, big5Delta[ind].map(x=>x*wI)); wSum += wI; }
 
-        <!-- 关键事件 -->
-        <details open>
-          <summary>🧭 关键事件</summary>
-          <div class="tag-grid" id="cat-key"></div>
-        </details>
+  // 职位（单选）
+  const pos = selPos.value;
+  const wP = parseInt(document.getElementById('wPosition').value,10)||5;
+  if(big5Delta[pos]){ acc = addVec(acc, big5Delta[pos].map(x=>x*wP)); wSum += wP; }
 
-        <!-- 社会阶层 -->
-        <details>
-          <summary>🏛️ 社会阶层</summary>
-          <div class="tag-grid" id="cat-class"></div>
-        </details>
+  // 其他标签（多选）
+  state.selected.forEach(s=>{
+    const v = big5Delta[s.label] || [0,0,0,0,0];
+    const w = parseInt(s.weight||5,10);
+    acc = addVec(acc, v.map(x=>x*w)); wSum += w;
+  });
 
-        <!-- 消费印记 -->
-        <details>
-          <summary>🛍️ 消费印记</summary>
-          <div class="tag-grid" id="cat-consumption"></div>
-        </details>
+  const delta = wSum ? acc.map(x=>x/wSum) : [0,0,0,0,0];
+  return baseline.map((b,i)=>clamp01(b + delta[i]));
+}
 
-        <!-- 社交指纹 -->
-        <details>
-          <summary>🤝 社交指纹</summary>
-          <div class="tag-grid" id="cat-social"></div>
-        </details>
+/** 四液质映射（复用 Step1 公式） */
+function bigFiveToTemperaments([O,C,E,A,N]){
+  const ES=100-N;
+  let S=0.5*E+0.3*O+0.2*ES;
+  let Ch=0.4*E+0.4*C-0.2*A+0.2*ES;
+  let M=0.5*N+0.2*C-0.2*E+0.1*A;
+  let P=0.4*A+0.3*ES+0.2*C-0.1*E;
+  S=Math.max(0,S);Ch=Math.max(0,Ch);M=Math.max(0,M);P=Math.max(0,P);
+  const sum=S+Ch+M+P || 1;
+  return {多血质:Math.round(S/sum*100),胆汁质:Math.round(Ch/sum*100),抑郁质:Math.round(M/sum*100),粘液质:Math.round(P/sum*100)};
+}
 
-        <!-- 时间分配 -->
-        <details>
-          <summary>⏰ 时间分配</summary>
-          <div class="tag-grid" id="cat-time"></div>
-        </details>
+/** 保存并跳转 */
+document.getElementById('saveNext').addEventListener('click', ()=>{
+  // 将行业/职位也写入 selectedTags（分别两条）
+  const wI = parseInt(document.getElementById('wIndustry').value,10)||5;
+  const wP = parseInt(document.getElementById('wPosition').value,10)||5;
+  const sel = [
+    {label: selInd.value, category:"行业", desc:"职业行业单选", weight:wI},
+    {label: selPos.value, category:"职位", desc:"职业职位单选", weight:wP},
+    ...state.selected
+  ];
+  localStorage.setItem('selectedTags', JSON.stringify(sel));
 
-        <!-- 数字肢体语言 -->
-        <details>
-          <summary>📱 数字肢体语言</summary>
-          <div class="tag-grid" id="cat-digital"></div>
-        </details>
-      </section>
+  const envBig5 = weightedEnvBig5();
+  const envTemp = bigFiveToTemperaments(envBig5);
+  localStorage.setItem('envScores', JSON.stringify(envBig5));
+  localStorage.setItem('temperamentEnv', JSON.stringify(envTemp));
 
-      <!-- 右侧：已选 -->
-      <aside class="panel right">
-        <h2>✅ 已选标签</h2>
-        <div class="selected" id="selectedBox"></div>
-        <footer>
-          <span class="muted">点击标签可勾选/取消。</span>
-          <button class="ghost" id="clearSelected">清空</button>
-        </footer>
-      </aside>
-    </main>
-  </div>
+  window.location.assign('report.html');
+});
 
-  <script>
-    /* ============ 1) 数据：标签库 ============ */
-    const LIB_KEY_EVENTS = [
-      {label:"重大失败",desc:"关键目标失利导致价值观/策略重构"},
-      {label:"突遇贵人",desc:"获得关键支持与资源，改变轨迹"},
-      {label:"移民经历",desc:"跨文化适应带来身份与认同变化"},
-      {label:"自然灾害",desc:"经历灾害后安全/风险观改变"},
-      {label:"重大疾病",desc:"健康危机后重评人生优先级"},
-      {label:"意外财富",desc:"资源骤增带来消费/人际策略变化"},
-      {label:"创业失败",desc:"商业尝试受挫，风险与复盘能力提升"},
-      {label:"高考/升学失利",desc:"教育拐点，动机与路径调整"},
-      {label:"亲密关系分手",desc:"依附模式与信任策略重塑"},
-      {label:"离婚",desc:"角色再分配与边界感重建"},
-      {label:"丧亲之痛",desc:"哀伤整合，生命意义再定义"},
-      {label:"破产",desc:"财务重构与风险偏好重置"},
-      {label:"裁员",desc:"职业韧性与再就业策略强化"},
-      {label:"重大法律纠纷",desc:"规则意识、风险规避显著提升"},
-      {label:"公众曝光",desc:"名誉/隐私冲击后自我呈现改变"},
-      {label:"政策红利",desc:"外部制度利好带来机会窗口"},
-      {label:"危机领导",desc:"高压中承担领导，形成指挥风格"},
-      {label:"中年转行",desc:"核心能力迁移与身份再造"},
-      {label:"创伤后成长",desc:"逆境后心理韧性与意义感提升"},
-      {label:"长途独旅",desc:"独立性与探索性显著增加"},
-      {label:"灵性觉醒",desc:"价值观由外在成功转向内在一致"},
-      {label:"科研突破",desc:"深度专注获得长期回报的记忆"},
-      {label:"竞技夺冠",desc:"胜任感与目标管理策略固化"},
-      {label:"遭遇欺凌",desc:"边界与防御策略增强"},
-      {label:"长期照护亲人",desc:"共情与耐性提升，时间观改变"},
-      {label:"重大合伙分手",desc:"信任模型与合同意识增强"},
-      {label:"背叛/被欺骗",desc:"风险评估与信息核验倾向增强"},
-      {label:"城市迁移",desc:"社交网络与资源再构建"},
-      {label:"债务压力",desc:"现金流与成本控制能力被动提升"},
-      {label:"实现财务自由",desc:"时间配置与自我实现空间扩大"}
-    ];
-
-    const INDUSTRIES = [
-      {label:"互联网/软件",desc:"数字化、敏捷、快速试错"},
-      {label:"人工智能",desc:"算法思维、数据驱动与前沿迭代"},
-      {label:"金融/投资",desc:"风险收益权衡、决策与合规"},
-      {label:"制造/工业",desc:"流程标准化与品质控制"},
-      {label:"汽车/智能车",desc:"系统工程与安全冗余"},
-      {label:"半导体/硬件",desc:"高门槛、长研发周期与严谨性"},
-      {label:"医疗/医药",desc:"循证与伦理优先、严谨合规"},
-      {label:"教育/培训",desc:"知识传递、耐心与个体差异"},
-      {label:"媒体/内容",desc:"叙事、表达与影响力导向"},
-      {label:"电商/零售",desc:"转化效率、供应链与用户洞察"},
-      {label:"物流/供应链",desc:"时效、成本与协同优化"},
-      {label:"能源/新能源",desc:"长期资本投入与稳定回报"},
-      {label:"房地产/建筑",desc:"项目制、重资产与周期性"},
-      {label:"政府/事业单位",desc:"公共价值、流程合规与稳定性"},
-      {label:"军警/安防",desc:"纪律、应急与风险控制"},
-      {label:"咨询/法律/会计",desc:"结构化问题解决与专业判断"},
-      {label:"人力/组织",desc:"人才杠杆与组织协同"},
-      {label:"游戏/娱乐",desc:"体验经济、情绪设计与留存"},
-      {label:"旅游/酒店/餐饮",desc:"服务体验与运营效率"},
-      {label:"农业/生物科技",desc:"实验、季节性与可持续"}
-    ];
-
-    const POSITIONS = [
-      {label:"产品经理",desc:"以用户与数据驱动的跨部门协调"},
-      {label:"后端工程师",desc:"系统设计、性能可靠与容错"},
-      {label:"前端工程师",desc:"交互体验与可用性"},
-      {label:"算法工程师",desc:"建模、评估与迭代优化"},
-      {label:"数据分析/科学",desc:"指标体系与决策支持"},
-      {label:"测试/QA",desc:"质量保障与风险预防"},
-      {label:"运维/平台",desc:"稳定性与自动化"},
-      {label:"设计师（UI/UX）",desc:"同理心、信息架构与美学"},
-      {label:"项目经理",desc:"进度、范围与资源三角"},
-      {label:"销售",desc:"目标导向与人际影响"},
-      {label:"客服/运营",desc:"流程与体验优化"},
-      {label:"市场/品牌",desc:"叙事、定位与传播"},
-      {label:"公关",desc:"舆情与关系管理"},
-      {label:"法务",desc:"合规、合同与风控"},
-      {label:"人力HR",desc:"招聘、绩效与发展"},
-      {label:"财务/审计",desc:"合规、预算与内控"},
-      {label:"战略/咨询",desc:"结构化分析与路线设计"},
-      {label:"教师/讲师",desc:"知识组织与引导"},
-      {label:"医生/护士",desc:"临床判断与伦理"},
-      {label:"科研人员",desc:"假设验证与长期主义"},
-      {label:"企业家/创始人",desc:"资源整合与不确定性承担"},
-      {label:"自由职业者",desc:"自驱与多线程经营"},
-      {label:"产品运营",desc:"增长、留存与分层策略"},
-      {label:"内容创作者",desc:"表达、节奏与社群经营"},
-      {label:"游戏策划",desc:"数值/关卡与乐趣设计"}
-    ];
-
-    const LIB_CLASS = [
-      {label:"寒门出身",desc:"资源稀缺，韧性与上升动机强"},
-      {label:"工薪家庭",desc:"稳健务实，风险偏好中低"},
-      {label:"城镇家庭",desc:"本地网络稳固，机会均衡"},
-      {label:"县城土著",desc:"熟人社会，关系导向明显"},
-      {label:"中产家庭",desc:"教育投入高，规划意识强"},
-      {label:"新中产",desc:"跨城流动与成长型心态"},
-      {label:"准富裕",desc:"资产增长期，资源整合能力提升"},
-      {label:"富裕阶层",desc:"资源宽裕与守成思维"},
-      {label:"超高净值",desc:"家族治理与风险隔离"},
-      {label:"家族企业背景",desc:"继承与治理训练"},
-      {label:"体制内背景",desc:"规则意识、稳定预期"},
-      {label:"移民家庭",desc:"跨文化资源与适应力"},
-      {label:"留学家庭",desc:"全球视野与机会偏好"},
-      {label:"单亲家庭",desc:"责任早熟与边界敏感"},
-      {label:"丁克/不婚",desc:"自我实现优先"},
-      {label:"四世同堂",desc:"传统责任与秩序导向"},
-      {label:"城乡流动",desc:"适应性强，社交重建频繁"},
-      {label:"外来务工",desc:"务实与抗压"},
-      {label:"资源稀缺地区",desc:"节制与韧性"},
-      {label:"教育资源充沛",desc:"竞争意识与精细化培养"}
-    ];
-
-    const LIB_CONSUMPTION = [
-      {label:"奢侈品",desc:"重视身份呈现与品质"},
-      {label:"知识付费",desc:"以学习为主要投入"},
-      {label:"极简主义",desc:"去冗余、重体验"},
-      {label:"冲动消费",desc:"情绪驱动下单"},
-      {label:"囤货癖",desc:"以物换安全感"},
-      {label:"网购依赖",desc:"便利至上，易超支"},
-      {label:"精致生活",desc:"仪式感与质量控制"},
-      {label:"外卖依赖",desc:"时间成本权衡"},
-      {label:"打折猎手",desc:"性价比与延迟消费"},
-      {label:"血拼达人",desc:"购物快感显著"},
-      {label:"信用消费",desc:"预支未来，现金流紧张"},
-      {label:"禁欲消费",desc:"强抑制，低欲望"},
-      {label:"吃货",desc:"情绪与美食绑定"},
-      {label:"游戏氪金",desc:"虚拟消费高"},
-      {label:"情感消费",desc:"赠与/社交体面"},
-      {label:"潮流追随",desc:"趋势驱动选择"},
-      {label:"投资理财",desc:"理性配置与增值"},
-      {label:"旅游消费",desc:"体验优先"},
-      {label:"娱乐消费",desc:"文化活动开销大"},
-      {label:"健身消费",desc:"健康投入"},
-      {label:"精神消费",desc:"身心成长类开支"},
-      {label:"数码控",desc:"更新频繁、发烧友"},
-      {label:"宠物消费",desc:"拟人化情感支出"},
-      {label:"汽车控",desc:"速度/身份象征"},
-      {label:"美妆消费",desc:"形象与社交资本"},
-      {label:"家居布置",desc:"环境美学与舒适"},
-      {label:"厨房达人",desc:"厨具/食材投入"},
-      {label:"摄影消费",desc:"器材与创作并重"},
-      {label:"教育消费",desc:"自我/子女教育投入"},
-      {label:"收藏癖",desc:"稀缺性与偏好驱动"}
-    ];
-
-    const LIB_SOCIAL = [
-      {label:"群聊主导者",desc:"话题驱动与组织力"},
-      {label:"倾听者",desc:"低调共情与支持"},
-      {label:"段子手",desc:"幽默化解紧张"},
-      {label:"社交回避",desc:"退缩与能量保护"},
-      {label:"自拍达人",desc:"自我呈现需求高"},
-      {label:"聚会常客",desc:"线下参与度高"},
-      {label:"舞池焦点",desc:"表现欲与肢体表达"},
-      {label:"社交达人",desc:"多平台高频互动"},
-      {label:"沉默社交",desc:"在场但少言"},
-      {label:"圈子维护者",desc:"长期关系经营"},
-      {label:"朋友圈宽广",desc:"弱连接数量大"},
-      {label:"发言积极者",desc:"观点表达外显"},
-      {label:"社交疲劳者",desc:"社交后消耗大"},
-      {label:"舞台控",desc:"舞台表现欲强"},
-      {label:"组织者",desc:"主动发起与协调"},
-      {label:"协调者",desc:"缓和冲突与居中"},
-      {label:"夜猫子社交",desc:"夜间高活跃"},
-      {label:"隔绝者",desc:"社交去连接化"},
-      {label:"国际社交",desc:"跨文化互动"},
-      {label:"知识型社交",desc:"以内容为纽带"},
-      {label:"娱乐型社交",desc:"以玩乐为纽带"},
-      {label:"家庭导向社交",desc:"亲缘网络为主"},
-      {label:"小圈子控",desc:"强关系小群"},
-      {label:"虚拟社交",desc:"游戏/VR为主"},
-      {label:"网络暧昧",desc:"线上情感互动"},
-      {label:"音乐社交",desc:"同好聚合"},
-      {label:"文学社交",desc:"阅读写作同好"},
-      {label:"游戏社交",desc:"公会/战队"},
-      {label:"宗教社交",desc:"信仰共同体"},
-      {label:"公益社交",desc:"助人/志愿网络"},
-      {label:"职场人脉",desc:"行业交换与协作"},
-      {label:"学术社交",desc:"论文/会议为纽带"},
-      {label:"邻里社交",desc:"社区与地缘"},
-      {label:"运动社交",desc:"俱乐部/团练"},
-      {label:"酒局社交",desc:"餐叙与关系润滑"}
-    ];
-
-    const LIB_TIME = [
-      {label:"夜间活跃",desc:"夜晚效率高"},
-      {label:"晨型人",desc:"清晨专注"},
-      {label:"碎片化",desc:"多任务切换"},
-      {label:"长期规划者",desc:"前置计划与复盘"},
-      {label:"临时抱佛脚",desc:"压力驱动效率"},
-      {label:"循环作息",desc:"固定节律"},
-      {label:"游戏时间多",desc:"娱乐权重高"},
-      {label:"健身规律",desc:"固定锻炼"},
-      {label:"学习专注",desc:"长期学习投入"},
-      {label:"聚会频繁",desc:"社交占比高"},
-      {label:"长睡眠",desc:"恢复性优先"},
-      {label:"短睡眠",desc:"时间挤压"},
-      {label:"家庭时间多",desc:"亲子/长辈陪伴"},
-      {label:"出差频繁",desc:"差旅占比高"},
-      {label:"娱乐时间多",desc:"看剧/综艺"},
-      {label:"学习型作息",desc:"课程/证书驱动"},
-      {label:"冥想时间",desc:"身心调节"},
-      {label:"散步时间",desc:"轻运动+思考"},
-      {label:"创作时间",desc:"写作/绘画/音乐"},
-      {label:"工作狂",desc:"高投入工作"},
-      {label:"副业时间",desc:"多元收入尝试"},
-      {label:"照护家人",desc:"护理与家务"},
-      {label:"社群经营",desc:"线上社群维护"},
-      {label:"通勤时间长",desc:"远距离通勤"},
-      {label:"户外时间多",desc:"徒步/露营/阳光"}
-    ];
-
-    const LIB_DIGITAL = [
-      {label:"点赞狂魔",desc:"高频点攒表达存在"},
-      {label:"已读不回",desc:"保持疏离/延迟回应"},
-      {label:"长文党",desc:"系统表达偏好"},
-      {label:"朋友圈刷屏",desc:"高频发布动态"},
-      {label:"表情包达人",desc:"轻松幽默表达"},
-      {label:"潜水党",desc:"低可见度观察"},
-      {label:"碎片记录",desc:"备忘/随手记"},
-      {label:"转发党",desc:"内容二次传播"},
-      {label:"视频创作者",desc:"短视频/直播输出"},
-      {label:"游戏在线",desc:"实时语音/组队"},
-      {label:"热点追随",desc:"时事参与表达"},
-      {label:"情绪发泄",desc:"宣泄型表达"},
-      {label:"频繁分享",desc:"分享给熟人圈"},
-      {label:"信息搜集",desc:"内容爬梳与归档"},
-      {label:"机器人控",desc:"AI/自动化工作流"},
-      {label:"虚拟沉浸",desc:"元宇宙/VR社交"},
-      {label:"数据控",desc:"追踪与量化自我"},
-      {label:"刷屏成瘾",desc:"高时长使用"},
-      {label:"博客作者",desc:"长周期深度输出"},
-      {label:"技术极客",desc:"尝鲜与改造"},
-      {label:"语音社交",desc:"语聊/播客互动"},
-      {label:"直播观众",desc:"经济打赏/互动"},
-      {label:"直播主",desc:"主持/变现能力"},
-      {label:"电话党",desc:"偏好同步沟通"},
-      {label:"邮件控",desc:"正式书面沟通"},
-      {label:"多群体活跃",desc:"并行社群参与"},
-      {label:"网络合作",desc:"远程协作"},
-      {label:"K歌达人",desc:"音乐表达"},
-      {label:"论坛深潜",desc:"长帖/专业论坛"},
-      {label:"Git活跃",desc:"开源协作与贡献"},
-      {label:"笔记花园",desc:"个人知识库公开"},
-      {label:"匿名小号",desc:"身份切换管理"},
-      {label:"AI提示工程",desc:"提示构建/自动化"},
-      {label:"播客听众",desc:"长音频摄入"},
-      {label:"短视频重度",desc:"注意力碎片化"}
-    ];
-
-    // 统一标签库
-    const LIBRARIES = {
-      key: { label: "关键事件", items: LIB_KEY_EVENTS },
-      class: { label: "社会阶层", items: LIB_CLASS },
-      consumption: { label: "消费印记", items: LIB_CONSUMPTION },
-      social: { label: "社交指纹", items: LIB_SOCIAL },
-      time: { label: "时间分配", items: LIB_TIME },
-      digital: { label: "数字肢体语言", items: LIB_DIGITAL },
-      industry: { label: "行业", items: INDUSTRIES },
-      position: { label: "职位", items: POSITIONS }
-    };
-
-    // 从 localStorage 加载已选标签
-    let selectedTags = [];
-    try {
-      const raw = localStorage.getItem("selectedTags");
-      selectedTags = raw ? JSON.parse(raw) : [];
-    } catch (e) {
-      console.error("加载失败:", e);
-    }
-
-    // 检查是否已选
-    function isSelected(categoryLabel, label) {
-      return selectedTags.some(t => t.category === categoryLabel && t.label === label);
-    }
-
-    // 切换标签
-    function toggleTag(categoryLabel, label) {
-      // 查找 desc
-      let desc = "";
-      for (const [, cat] of Object.entries(LIBRARIES)) {
-        if (cat.label === categoryLabel) {
-          const item = cat.items.find(i => i.label === label);
-          if (item) {
-            desc = item.desc;
-            break;
-          }
-        }
-      }
-
-      const index = selectedTags.findIndex(t => t.category === categoryLabel && t.label === label);
-      if (index > -1) {
-        selectedTags.splice(index, 1);
-      } else {
-        selectedTags.push({
-          label,
-          desc,
-          category: categoryLabel,
-          weight: 5
-        });
-      }
-      saveToStorage();
-      renderSelected();
-      renderAllChips();
-    }
-
-    // 保存
-    function saveToStorage() {
-      try {
-        localStorage.setItem("selectedTags", JSON.stringify(selectedTags));
-        document.getElementById("countInfo").textContent = `已选 ${selectedTags.length} 个`;
-      } catch (e) {
-        console.error("保存失败:", e);
-      }
-    }
-
-    // 渲染所有标签
-    function renderAllChips() {
-      Object.entries(LIBRARIES).forEach(([key, categoryData]) => {
-        const container = document.getElementById(`cat-${key}`);
-        if (!container) return;
-        container.innerHTML = categoryData.items.map(item => {
-          const active = isSelected(categoryData.label, item.label) ? 'active' : '';
-          return `
-            <button class="chip ${active}" onclick="toggleTag('${categoryData.label}', '${item.label}')">
-              ${item.label} <small>· ${categoryData.label}</small>
-            </button>
-          `;
-        }).join("");
-      });
-    }
-
-    // 渲染已选
-    function renderSelected() {
-      const box = document.getElementById("selectedBox");
-      if (selectedTags.length === 0) {
-        box.innerHTML = `<div class="muted">尚未选择标签</div>`;
-        return;
-      }
-      box.innerHTML = selectedTags.map((tag, i) => `
-        <div class="sel-item">
-          <div class="meta">
-            <div class="ttl">${tag.label} <span class="pill">${tag.category}</span></div>
-            <div class="desc">${tag.desc}</div>
-            <div class="row" style="margin-top:6px;">
-              <label class="muted">影响强度</label>
-              <input type="range" min="1" max="10" value="${tag.weight}" oninput="updateWeight(${i}, this.value)" />
-            </div>
-          </div>
-          <button class="rm" onclick="removeSelected(${i})">移除</button>
-        </div>
-      `).join("");
-    }
-
-    // 更新权重
-    function updateWeight(index, value) {
-      selectedTags[index].weight = Number(value);
-      saveToStorage();
-    }
-
-    // 移除
-    function removeSelected(index) {
-      selectedTags.splice(index, 1);
-      saveToStorage();
-      renderSelected();
-      renderAllChips();
-    }
-
-    // 搜索
-    document.getElementById("search").addEventListener("input", (e) => {
-      const query = e.target.value.trim().toLowerCase();
-      if (!query) {
-        renderAllChips();
-        return;
-      }
-      Object.entries(LIBRARIES).forEach(([key, categoryData]) => {
-        const container = document.getElementById(`cat-${key}`);
-        if (!container) return;
-        container.innerHTML = categoryData.items
-          .filter(item => item.label.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query))
-          .map(item => {
-            const active = isSelected(categoryData.label, item.label) ? 'active' : '';
-            return `
-              <button class="chip ${active}" onclick="toggleTag('${categoryData.label}', '${item.label}')">
-                ${item.label} <small>· ${categoryData.label}</small>
-              </button>
-            `;
-          }).join("");
-      });
-    });
-
-    // 清空
-    document.getElementById("clearSelected").onclick = () => {
-      if (confirm("确定要清空所有已选标签吗？")) {
-        selectedTags = [];
-        saveToStorage();
-        renderSelected();
-        renderAllChips();
-      }
-    };
-
-    document.getElementById("clearAll").onclick = () => {
-      document.getElementById("search").value = "";
-      renderAllChips();
-    };
-
-    // 保存并跳转
-    document.getElementById("saveNext").onclick = () => {
-      saveToStorage();
-      alert("✅ 标签已保存！");
-      window.location.assign("report.html");
-    };
-
-    // 初始化
-    document.addEventListener("DOMContentLoaded", () => {
-      renderAllChips();
-      renderSelected();
-    });
-  </script>
+/** 初始化 */
+renderLibrary();
+renderSelected();
+</script>
 </body>
 </html>
