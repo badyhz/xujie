@@ -3,78 +3,102 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Step 2 - 环境与行为标签（行业/职位=单选）</title>
+<title>Step 2 - 环境与行为标签（点击选择丨行业/职位单选）</title>
 <style>
   body{margin:0;background:#f6f7fb;font-family:"Noto Sans SC",system-ui}
   .container{max-width:1180px;margin:0 auto;padding:18px}
   h1{margin:8px 0}
-  .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
-  .panel{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:16px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  select,input[type=range]{padding:8px;border:1px solid #e5e7eb;border-radius:10px}
-  .lib{max-height:520px;overflow:auto;margin-top:8px}
-  .cat{margin:10px 0 6px;font-weight:700}
-  .tag{border:1px solid #e7f5ff;background:#f8fbff;border-radius:10px;padding:10px;margin:6px 0}
-  .tag h4{margin:0 0 6px;font-size:14px}
-  .tag .desc{font-size:12px;color:#6c757d}
-  .tag .ctrl{display:flex;gap:12px;align-items:center;margin-top:6px}
-  .tag button{padding:6px 10px;border:none;border-radius:8px;background:#4dabf7;color:#fff;cursor:pointer}
-  .sel{display:flex;flex-direction:column;gap:8px;max-height:710px;overflow:auto}
-  .item{background:#f8fbff;border:1px solid #e7f5ff;border-radius:12px;padding:10px;display:flex;gap:8px}
-  .meta{flex:1}
+  .panel{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:16px;margin-bottom:16px}
+  .cat-title{margin:6px 0 10px;font-size:16px;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media (max-width:900px){ .grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:600px){ .grid{grid-template-columns:1fr} }
+  .card{
+    border:1px solid #e7f5ff;background:#f8fbff;border-radius:12px;padding:12px;
+    transition:.2s; cursor:pointer; position:relative; display:flex; flex-direction:column; gap:8px;
+  }
+  .card:hover{box-shadow:0 6px 16px rgba(17,104,255,.08); transform:translateY(-1px)}
+  .card.active{border-color:#4dabf7;background:#eef6ff}
+  .head{display:flex;justify-content:space-between;gap:8px;align-items:center}
   .pill{font-size:12px;background:#edf2ff;color:#3b5bdb;border-radius:999px;padding:2px 8px}
-  .rm{background:#ffe3e3;color:#c92a2a;border:none;border-radius:8px;padding:6px 8px;cursor:pointer}
+  .desc{font-size:12px;color:#6c757d}
+  .ctrl{display:flex;gap:10px;align-items:center}
+  .ctrl input[type=range]{flex:1}
+  .ctrl .wval{width:28px;text-align:right;font-size:12px;color:#495057}
+  .ctrl .label{font-size:12px;color:#6c757d}
+  .disabled{opacity:.45; pointer-events:none}
   .actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px}
-  button.primary{padding:12px 18px;border:none;border-radius:10px;background:#4dabf7;color:#fff;cursor:pointer}
-  button.ghost{padding:12px 18px;border:none;border-radius:10px;background:#e9ecef;color:#222;cursor:pointer}
-  .search{display:flex;gap:8px;margin-top:8px}
-  .search input{flex:1;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px}
+  button{padding:12px 18px;border:none;border-radius:10px;background:#4dabf7;color:#fff;cursor:pointer}
+  button.ghost{background:#e9ecef;color:#222}
   .tiny{font-size:12px;color:#6c757d}
+  .search{display:flex;gap:8px;margin:8px 0 0}
+  .search input{flex:1;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Step 2 · 环境与行为标签</h1>
-  <div class="grid">
-    <section class="panel">
-      <h2>🏢 职业烙印（单选）</h2>
-      <div class="row">
-        <label>行业：</label>
-        <select id="industry"></select>
-        <label>影响权重</label>
-        <input id="wIndustry" type="range" min="1" max="10" value="5"/>
-        <span id="wIndustryVal" class="tiny">5</span>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <label>职位：</label>
-        <select id="position"></select>
-        <label>影响权重</label>
-        <input id="wPosition" type="range" min="1" max="10" value="5"/>
-        <span id="wPositionVal" class="tiny">5</span>
-      </div>
 
-      <h2 style="margin-top:18px">🌍 其他标签（多选 + 权重）</h2>
-      <div class="search">
-        <input id="kw" placeholder="搜索标签或解释关键词…（支持模糊匹配）"/>
-        <button class="primary" id="clearFilter">重置</button>
-      </div>
-      <div id="lib" class="lib"></div>
-      <div class="tiny">共 <span id="totalCount">0</span> 个子标签 · 当前显示 <span id="visibleCount">0</span> 个</div>
-    </section>
+  <!-- 搜索框（可选） -->
+  <div class="panel">
+    <div class="search">
+      <input id="kw" placeholder="搜索标签或解释关键词…（支持模糊匹配）"/>
+      <button class="ghost" id="clearFilter" type="button">重置</button>
+    </div>
+    <div class="tiny">提示：行业、职位为单选；其它为多选。未选中时权重滑杆不生效。</div>
+  </div>
 
-    <aside class="panel">
-      <h2>✅ 已选标签</h2>
-      <div id="selected" class="sel"></div>
-      <div class="actions">
-        <button class="ghost" onclick="location.href='step1.html'">⬅ 上一步</button>
-        <button class="primary" id="saveNext">保存并生成报告 ➜</button>
-      </div>
-    </aside>
+  <!-- 行业 -->
+  <section class="panel">
+    <div class="cat-title">🏭 行业（单选）</div>
+    <div id="cat-行业" class="grid"></div>
+  </section>
+
+  <!-- 职位 -->
+  <section class="panel">
+    <div class="cat-title">👔 职位（单选）</div>
+    <div id="cat-职位" class="grid"></div>
+  </section>
+
+  <!-- 其它分类 -->
+  <section class="panel">
+    <div class="cat-title">🌍 关键事件（多选）</div>
+    <div id="cat-关键事件" class="grid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="cat-title">🏛️ 社会阶层（多选）</div>
+    <div id="cat-社会阶层" class="grid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="cat-title">🛍️ 消费印记（多选）</div>
+    <div id="cat-消费印记" class="grid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="cat-title">🤝 社交指纹（多选）</div>
+    <div id="cat-社交指纹" class="grid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="cat-title">⏱️ 时间分配（多选）</div>
+    <div id="cat-时间分配" class="grid"></div>
+  </section>
+
+  <section class="panel">
+    <div class="cat-title">📱 数字肢体语言（多选）</div>
+    <div id="cat-数字肢体语言" class="grid"></div>
+  </section>
+
+  <div class="panel actions">
+    <button class="ghost" type="button" onclick="location.href='step1.html'">⬅ 上一步</button>
+    <button id="saveNext" type="button">保存并生成报告 ➜</button>
   </div>
 </div>
 
 <script>
-/* ================== 基础：行业/职位（单选 + 权重） ================== */
+/* ================== 数据：行业 / 职位（单选） ================== */
 const INDUSTRIES = [
   "互联网/软件","人工智能","金融/投资","制造/工业","医疗/医药","教育/培训","媒体/内容","电商/零售",
   "游戏/娱乐","能源/环保","房地产/建筑","物流/供应链"
@@ -84,9 +108,8 @@ const POSITIONS = [
   "销售","运营","设计师","项目经理","内容编辑","HR","法务","财务"
 ];
 
-/* 行业/职位的 Big5 向量（示例，可调整） */
+/* 行业/职位的 Big5 向量（O C E A N） */
 const big5DeltaRole = {
-  // 行业：O C E A N
   "互联网/软件":[+5,+4,+2, 0, 0],
   "人工智能":[+6,+4,+1, 0,+1],
   "金融/投资":[-2,+7, 0,-2,+2],
@@ -99,7 +122,6 @@ const big5DeltaRole = {
   "能源/环保":[+3,+4, 0,+1, 0],
   "房地产/建筑":[-1,+5, 0, 0, 0],
   "物流/供应链":[-1,+5, 0, 0, 0],
-  // 职位
   "产品经理":[+4,+5,+3, 0, 0],
   "后端工程师":[+1,+5,-1, 0, 0],
   "前端工程师":[+2,+4, 0, 0, 0],
@@ -118,11 +140,9 @@ const big5DeltaRole = {
   "财务":[-2,+6,-2, 0, 0]
 };
 
-/* ================== 200 子标签库（类别/标签/解释） ==================
-   六大类：关键事件、社会阶层、消费印记、社交指纹、时间分配、数字肢体语言
-   采用规则映射器计算大五影响，便于统一维护。
-===================================================================== */
-const TAGS_EVENTS = [ // 18
+/* ================== 其余 6 大类（共 200 子标签） ==================
+   —— 内容同你之前要求；这里省略注释，只保留对象列表 —— */
+const TAGS_EVENTS = [
   {label:"重大失败",desc:"经历重大挫败，价值观与抗压方式重塑"},
   {label:"突遇贵人",desc:"获得关键帮助，扩展机遇与资源"},
   {label:"移民经历",desc:"跨文化适应，认知边界与社交网络重构"},
@@ -142,8 +162,7 @@ const TAGS_EVENTS = [ // 18
   {label:"考试失利",desc:"短期挫败与长期学习策略调整"},
   {label:"亲密关系破裂",desc:"依恋风格与信任系统重塑"}
 ];
-
-const TAGS_CLASS = [ // 6
+const TAGS_CLASS = [
   {label:"寒门出身",desc:"资源稀缺驱动的努力模型"},
   {label:"中产家庭",desc:"稳定结构与路径依赖"},
   {label:"富裕阶层",desc:"资源冗余与机会窗口"},
@@ -151,8 +170,7 @@ const TAGS_CLASS = [ // 6
   {label:"都市家庭",desc:"开放网络与竞争压力"},
   {label:"移民家庭",desc:"跨文化与双语环境"}
 ];
-
-const TAGS_CONSUME = [ // 40
+const TAGS_CONSUME = [
   {label:"奢侈品偏好",desc:"通过高端消费表达品味"},
   {label:"知识付费",desc:"持续订阅学习与课程"},
   {label:"极简主义",desc:"减少占有，强调功能"},
@@ -194,8 +212,7 @@ const TAGS_CONSUME = [ // 40
   {label:"礼物社交",desc:"关系维护"},
   {label:"社群团费",desc:"圈层参与"}
 ];
-
-const TAGS_SOCIAL = [ // 50
+const TAGS_SOCIAL = [
   {label:"群聊主导者",desc:"组织话题与节奏"},
   {label:"倾听者",desc:"低声量高共情"},
   {label:"段子手",desc:"幽默驱动连接"},
@@ -247,8 +264,7 @@ const TAGS_SOCIAL = [ // 50
   {label:"善于求助者",desc:"低成本求助"},
   {label:"乐于助人者",desc:"资源输出"}
 ];
-
-const TAGS_TIME = [ // 36
+const TAGS_TIME = [
   {label:"晨型人",desc:"清晨高效"},
   {label:"夜间活跃",desc:"夜晚高效"},
   {label:"固定作息",desc:"节律稳定"},
@@ -287,8 +303,7 @@ const TAGS_TIME = [ // 36
   {label:"家庭晚餐固定",desc:"关系维护"},
   {label:"早睡早起",desc:"稳态节律"}
 ];
-
-const TAGS_DBL = [ // 数字肢体语言 50
+const TAGS_DBL = [
   {label:"点赞狂魔",desc:"高频点赞与轻互动"},
   {label:"已读不回",desc:"低反馈高阅读"},
   {label:"长文党",desc:"结构化长文本"},
@@ -342,8 +357,10 @@ const TAGS_DBL = [ // 数字肢体语言 50
   {label:"沉浸写作模式",desc:"专注输出"}
 ];
 
-/* 汇总至 200 个 */
+/* 合并库（总计约 200） */
 const LIB = {
+  "行业": INDUSTRIES.map(x=>({label:x,desc:"职业行业选择"})),
+  "职位": POSITIONS.map(x=>({label:x,desc:"职业职位选择"})),
   "关键事件": TAGS_EVENTS,
   "社会阶层": TAGS_CLASS,
   "消费印记": TAGS_CONSUME,
@@ -351,55 +368,32 @@ const LIB = {
   "时间分配": TAGS_TIME,
   "数字肢体语言": TAGS_DBL
 };
-const TOTAL_COUNT = Object.values(LIB).reduce((a,arr)=>a+arr.length,0); // =200
 
-/* ================== 规则映射器：标签 → Big5 Δ向量 ==================
-   返回 [dO,dC,dE,dA,dN]，建议范围约 [-10,+10]；关键事件可稍大。
-   你可以按需要在此进一步精细化。
-===================================================================== */
+/* ================== 规则映射器（其它分类） ================== */
 function deltaForTag(category, label){
-  // 基础
+  // 返回 [O,C,E,A,N]
   let O=0,C=0,E=0,A=0,N=0;
 
-  // —— 关键事件（更强的幅度） ——
   if(category==="关键事件"){
-    const m = {
-      "重大失败":[ 0,-2,-2,-2,+8],
-      "突遇贵人":[+2,+2,+2,+3,-1],
-      "移民经历":[+6, 0,+3,+2,+3],
-      "自然灾害":[ 0, 0, 0,+1,+6],
-      "重大疾病":[ 0,-2, 0, 0,+8],
-      "意外财富":[+2, 0,+2,-2,+2],
-      "创业失败":[+1,-1,-1,-1,+7],
-      "公开演讲成功":[ 0, 0,+5, 0,-1],
-      "长期异地恋":[ 0, 0, 0,+1,+4],
-      "升学跳级":[+2,+2, 0, 0, 0],
-      "家庭变故":[ 0,+1,-2,-1,+6],
-      "职业转行":[+4, 0, 0, 0,+2],
-      "长途徒步":[ 0,+2, 0, 0,+1],
-      "志愿者服务":[ 0, 0, 0,+5, 0],
-      "竞技夺冠":[ 0,+4,+2, 0,-2],
-      "学术不端冲击":[-2, 0,-2,-3,+7],
-      "考试失利":[ 0,-1,-1,-1,+5],
-      "亲密关系破裂":[ 0, 0,-2,-2,+6]
+    const m={
+      "重大失败":[0,-2,-2,-2,+8],"突遇贵人":[+2,+2,+2,+3,-1],"移民经历":[+6,0,+3,+2,+3],
+      "自然灾害":[0,0,0,+1,+6],"重大疾病":[0,-2,0,0,+8],"意外财富":[+2,0,+2,-2,+2],
+      "创业失败":[+1,-1,-1,-1,+7],"公开演讲成功":[0,0,+5,0,-1],"长期异地恋":[0,0,0,+1,+4],
+      "升学跳级":[+2,+2,0,0,0],"家庭变故":[0,+1,-2,-1,+6],"职业转行":[+4,0,0,0,+2],
+      "长途徒步":[0,+2,0,0,+1],"志愿者服务":[0,0,0,+5,0],"竞技夺冠":[0,+4,+2,0,-2],
+      "学术不端冲击":[-2,0,-2,-3,+7],"考试失利":[0,-1,-1,-1,+5],"亲密关系破裂":[0,0,-2,-2,+6]
     };
-    if(m[label]) [O,C,E,A,N] = m[label];
+    if(m[label]) [O,C,E,A,N]=m[label];
   }
 
-  // —— 社会阶层 ——
   if(category==="社会阶层"){
-    const m = {
-      "寒门出身":[+1,+3, 0, 0,+2],
-      "中产家庭":[ 0,+2, 0,+1, 0],
-      "富裕阶层":[+1, 0,+2,-1, 0],
-      "乡镇背景":[-1, 0,-1,+1, 0],
-      "都市家庭":[+2,+1,+1, 0,+1],
-      "移民家庭":[+3, 0,+1,+1,+2]
+    const m={
+      "寒门出身":[+1,+3,0,0,+2],"中产家庭":[0,+2,0,+1,0],"富裕阶层":[+1,0,+2,-1,0],
+      "乡镇背景":[-1,0,-1,+1,0],"都市家庭":[+2,+1,+1,0,+1],"移民家庭":[+3,0,+1,+1,+2]
     };
-    if(m[label]) [O,C,E,A,N] = m[label];
+    if(m[label]) [O,C,E,A,N]=m[label];
   }
 
-  // —— 消费印记（关键词规则） ——
   if(category==="消费印记"){
     if(/知识|学习|内容|阅读|手作|摄影|乐器/.test(label)) O+=3;
     if(/极简|储蓄|二手|规范|订阅|团购|买菜|囤货/.test(label)) C+=2;
@@ -413,7 +407,6 @@ function deltaForTag(category, label){
     if(/健康|体检|健身/.test(label)) { C+=2; N-=1; }
   }
 
-  // —— 社交指纹 ——
   if(category==="社交指纹"){
     if(/主导|意见领袖|议程控|挑战者/.test(label)) { E+=5; A-=2; C+=1; }
     if(/和事佬|稳压器|高情商/.test(label)) { A+=5; N-=1; }
@@ -428,7 +421,6 @@ function deltaForTag(category, label){
     if(/低强度/.test(label)) { E-=3; }
   }
 
-  // —— 时间分配 ——
   if(category==="时间分配"){
     if(/晨|早起|清晨/.test(label)) { C+=3; N-=1; }
     if(/夜|凌晨/.test(label)) { O+=2; C-=2; }
@@ -439,7 +431,6 @@ function deltaForTag(category, label){
     if(/差旅/.test(label)) { O+=2; E+=1; }
   }
 
-  // —— 数字肢体语言 ——
   if(category==="数字肢体语言"){
     if(/已读不回|延迟|免打扰|静音/.test(label)) { E-=2; C+=1; }
     if(/秒回|在线状态/.test(label)) { E+=3; }
@@ -450,91 +441,156 @@ function deltaForTag(category, label){
     if(/自动化|快捷键|云端/.test(label)) { C+=2; O+=1; }
     if(/深夜发言/.test(label)) { O+=1; C-=1; }
   }
-
   return [O,C,E,A,N];
 }
 
-/* ================== UI 渲染 ================== */
-const selInd = document.getElementById('industry');
-const selPos = document.getElementById('position');
-selInd.innerHTML = INDUSTRIES.map(x=>`<option>${x}</option>`).join('');
-selPos.innerHTML = POSITIONS.map(x=>`<option>${x}</option>`).join('');
-const wIEl=document.getElementById('wIndustry'), wPEl=document.getElementById('wPosition');
-const wIVal=document.getElementById('wIndustryVal'), wPVal=document.getElementById('wPositionVal');
-wIEl.addEventListener('input',()=>wIVal.textContent=wIEl.value);
-wPEl.addEventListener('input',()=>wPVal.textContent=wPEl.value);
+/* ================== 渲染：按分类铺开（点击选中/取消） ================== */
+const containerIds = {
+  "行业": "cat-行业",
+  "职位": "cat-职位",
+  "关键事件":"cat-关键事件",
+  "社会阶层":"cat-社会阶层",
+  "消费印记":"cat-消费印记",
+  "社交指纹":"cat-社交指纹",
+  "时间分配":"cat-时间分配",
+  "数字肢体语言":"cat-数字肢体语言"
+};
 
-/* 标签库渲染（带搜索） */
-const libBox = document.getElementById('lib');
-const totalCountEl = document.getElementById('totalCount');
-const visibleCountEl = document.getElementById('visibleCount');
-totalCountEl.textContent = TOTAL_COUNT;
+const state = {
+  selected: [] // {category,label,desc,weight}
+};
 
-function renderLibrary(filter=""){
-  libBox.innerHTML="";
-  let visible=0;
-  Object.keys(LIB).forEach(cat=>{
-    const list = LIB[cat].filter(t=>{
-      if(!filter) return true;
-      return t.label.includes(filter) || (t.desc && t.desc.includes(filter));
-    });
-    if(!list.length) return;
-    const h = document.createElement('div');
-    h.className='cat'; h.textContent=cat; libBox.appendChild(h);
-    list.forEach(t=>{
-      visible++;
-      const box = document.createElement('div');
-      box.className='tag';
-      const id = `${cat}__${t.label}`;
-      box.innerHTML = `
-        <h4>${t.label} <span class="tiny">（${cat}）</span></h4>
-        <div class="desc">${t.desc||""}</div>
-        <div class="ctrl">
-          <label>影响权重</label>
-          <input type="range" min="1" max="10" value="5" id="w_${id}"/>
-          <span class="tiny" id="wv_${id}">5</span>
-          <button data-cat="${cat}" data-lab="${t.label}">加入</button>
-        </div>`;
-      libBox.appendChild(box);
-      const r = box.querySelector(`#w_${id}`), v = box.querySelector(`#wv_${id}`);
-      r.addEventListener('input',()=>{ v.textContent=r.value; });
-      box.querySelector('button').addEventListener('click', ()=>{
-        upsertSelected({category:cat,label:t.label,desc:t.desc,weight:parseInt(r.value,10)});
-      });
-    });
+function setWeight(category,label,val){
+  const i = state.selected.findIndex(x=>x.category===category && x.label===label);
+  if(i>=0) state.selected[i].weight = val;
+}
+
+function isSelected(category,label){
+  return state.selected.some(x=>x.category===category && x.label===label);
+}
+
+function toggleSelect(category,label,desc){
+  if(category==="行业" || category==="职位"){
+    // 单选：取消同类其他
+    state.selected = state.selected.filter(x=>x.category!==category);
+    // 如果再次点击同一个则相当于取消
+    if(!isSelected(category,label)){
+      state.selected.push({category,label,desc,weight:5});
+    }
+    // 同类卡片样式更新
+    refreshCategoryCards(category);
+  }else{
+    const idx = state.selected.findIndex(x=>x.category===category && x.label===label);
+    if(idx>=0) state.selected.splice(idx,1);
+    else state.selected.push({category,label,desc,weight:5});
+    // 单卡样式更新
+    refreshSingleCard(category,label);
+  }
+}
+
+function refreshCategoryCards(category){
+  const box = document.getElementById(containerIds[category]);
+  if(!box) return;
+  box.querySelectorAll('.card').forEach(card=>{
+    const lab = card.dataset.label;
+    const active = isSelected(category, lab);
+    card.classList.toggle('active', active);
+    const slider = card.querySelector('input[type=range]');
+    const wval = card.querySelector('.wval');
+    if(active){
+      slider.disabled = false; card.classList.remove('disabled');
+      // 恢复之前的权重值
+      const cur = state.selected.find(x=>x.category===category && x.label===lab)?.weight || 5;
+      slider.value = cur; wval.textContent = cur;
+    }else{
+      slider.disabled = true; card.classList.add('disabled');
+      slider.value = 5; wval.textContent = 5;
+    }
   });
-  visibleCountEl.textContent = visible;
 }
-renderLibrary();
-document.getElementById('kw').addEventListener('input', e=>renderLibrary(e.target.value.trim()));
-document.getElementById('clearFilter').addEventListener('click', ()=>{ document.getElementById('kw').value=""; renderLibrary(""); });
 
-/* ================== 已选管理 ================== */
-const state = { selected: [] };
-function upsertSelected(item){
-  const i = state.selected.findIndex(x=>x.category===item.category && x.label===item.label);
-  if(i>=0) state.selected[i]=item; else state.selected.push(item);
-  renderSelected();
+function refreshSingleCard(category,label){
+  const box = document.getElementById(containerIds[category]);
+  if(!box) return;
+  const card = box.querySelector(`.card[data-label="${label}"]`);
+  if(!card) return;
+  const active = isSelected(category, label);
+  card.classList.toggle('active', active);
+  const slider = card.querySelector('input[type=range]');
+  const wval = card.querySelector('.wval');
+  if(active){
+    slider.disabled = false; card.classList.remove('disabled');
+    const cur = state.selected.find(x=>x.category===category && x.label===label)?.weight || 5;
+    slider.value = cur; wval.textContent = cur;
+  }else{
+    slider.disabled = true; card.classList.add('disabled');
+    slider.value = 5; wval.textContent = 5;
+  }
 }
-function renderSelected(){
-  const box=document.getElementById('selected');
-  if(!state.selected.length){ box.innerHTML='<div class="tiny">暂无选择</div>'; return; }
-  box.innerHTML = state.selected.map((s,i)=>`
-    <div class="item">
-      <div class="meta">
-        <div><strong>${s.label}</strong> <span class="pill">${s.category}</span></div>
-        <div class="tiny">${s.desc||""}</div>
-        <div class="row" style="margin-top:6px">
-          <label>权重</label>
-          <input type="range" min="1" max="10" value="${s.weight||5}" oninput="state.selected[${i}].weight=parseInt(this.value,10)"/>
-          <span class="tiny">${s.weight||5}</span>
-        </div>
+
+function renderCategory(category, list){
+  const box = document.getElementById(containerIds[category]);
+  const frag = document.createDocumentFragment();
+  list.forEach(t=>{
+    const card = document.createElement('div');
+    card.className = 'card disabled';
+    card.dataset.category = category;
+    card.dataset.label = t.label;
+    card.innerHTML = `
+      <div class="head">
+        <div><strong>${t.label}</strong> <span class="pill">${category}</span></div>
       </div>
-      <button class="rm" onclick="state.selected.splice(${i},1);renderSelected()">移除</button>
-    </div>
-  `).join('');
+      <div class="desc">${t.desc||""}</div>
+      <div class="ctrl">
+        <span class="label">权重</span>
+        <input type="range" min="1" max="10" value="5" disabled />
+        <span class="wval">5</span>
+      </div>
+    `;
+    // 点击切换选中
+    card.addEventListener('click', (e)=>{
+      // 点击滑杆不触发切换
+      if(e.target && e.target.type==='range') return;
+      toggleSelect(category, t.label, t.desc||"");
+    });
+    // 滑杆改变权重
+    const slider = card.querySelector('input[type=range]');
+    const wval = card.querySelector('.wval');
+    slider.addEventListener('input', (e)=>{
+      const val = parseInt(e.target.value,10);
+      wval.textContent = val;
+      setWeight(category, t.label, val);
+    });
+    frag.appendChild(card);
+  });
+  box.innerHTML = "";
+  box.appendChild(frag);
+  refreshCategoryCards(category);
 }
-renderSelected();
+
+// 初始化渲染
+renderCategory("行业", LIB["行业"]);
+renderCategory("职位", LIB["职位"]);
+renderCategory("关键事件", LIB["关键事件"]);
+renderCategory("社会阶层", LIB["社会阶层"]);
+renderCategory("消费印记", LIB["消费印记"]);
+renderCategory("社交指纹", LIB["社交指纹"]);
+renderCategory("时间分配", LIB["时间分配"]);
+renderCategory("数字肢体语言", LIB["数字肢体语言"]);
+
+/* ================== 搜索过滤 ================== */
+document.getElementById('kw').addEventListener('input', (e)=>{
+  const f = e.target.value.trim();
+  Object.keys(LIB).forEach(cat=>{
+    const box = document.getElementById(containerIds[cat]);
+    const items = LIB[cat].filter(t=> !f || t.label.includes(f) || (t.desc||"").includes(f));
+    renderCategory(cat, items);
+  });
+});
+document.getElementById('clearFilter').addEventListener('click', ()=>{
+  document.getElementById('kw').value = "";
+  Object.keys(LIB).forEach(cat=> renderCategory(cat, LIB[cat]));
+});
 
 /* ================== 计算：环境大五 & 四液质 ================== */
 function clamp01(x){ return Math.max(0, Math.min(100, Math.round(x))); }
@@ -542,23 +598,26 @@ function addVec(a=[],b=[]){ return [ (a[0]||0)+(b[0]||0), (a[1]||0)+(b[1]||0), (
 
 function weightedEnvBig5(){
   const baseline = [50,50,50,50,50];
-
   let acc=[0,0,0,0,0], wSum=0;
 
   // 行业（单选）
-  const ind = selInd.value;
-  const wI = parseInt(wIEl.value,10)||5;
-  if(big5DeltaRole[ind]){ acc = addVec(acc, big5DeltaRole[ind].map(x=>x*wI)); wSum += wI; }
+  const selInd = state.selected.find(x=>x.category==="行业");
+  if(selInd && big5DeltaRole[selInd.label]){
+    acc = addVec(acc, big5DeltaRole[selInd.label].map(x=>x*(selInd.weight||5)));
+    wSum += (selInd.weight||5);
+  }
 
   // 职位（单选）
-  const pos = selPos.value;
-  const wP = parseInt(wPEl.value,10)||5;
-  if(big5DeltaRole[pos]){ acc = addVec(acc, big5DeltaRole[pos].map(x=>x*wP)); wSum += wP; }
+  const selPos = state.selected.find(x=>x.category==="职位");
+  if(selPos && big5DeltaRole[selPos.label]){
+    acc = addVec(acc, big5DeltaRole[selPos.label].map(x=>x*(selPos.weight||5)));
+    wSum += (selPos.weight||5);
+  }
 
-  // 其他标签（多选）
-  state.selected.forEach(s=>{
+  // 其它（多选）
+  state.selected.filter(x=>!["行业","职位"].includes(x.category)).forEach(s=>{
     const delta = deltaForTag(s.category, s.label);
-    const w = parseInt(s.weight||5,10);
+    const w = s.weight||5;
     acc = addVec(acc, delta.map(x=>x*w)); wSum += w;
   });
 
@@ -577,21 +636,18 @@ function bigFiveToTemperaments([O,C,E,A,N]){
   return {多血质:Math.round(S/sum*100),胆汁质:Math.round(Ch/sum*100),抑郁质:Math.round(M/sum*100),粘液质:Math.round(P/sum*100)};
 }
 
-/* ================== 保存并跳转 ================== */
+/* ================== 保存并跳转（修复按钮不可点击） ================== */
 document.getElementById('saveNext').addEventListener('click', ()=>{
-  // 把行业/职位也并入 selectedTags（注意：它们是单选，各自独立记录）
-  const selectedTags = [
-    {label: selInd.value, category:"行业", desc:"职业行业单选", weight: parseInt(wIEl.value,10)},
-    {label: selPos.value, category:"职位", desc:"职业职位单选", weight: parseInt(wPEl.value,10)},
-    ...state.selected
-  ];
-  localStorage.setItem('selectedTags', JSON.stringify(selectedTags));
+  // 保存已选明细
+  localStorage.setItem('selectedTags', JSON.stringify(state.selected));
 
+  // 计算两层映射
   const envBig5 = weightedEnvBig5();
   const envTemp = bigFiveToTemperaments(envBig5);
   localStorage.setItem('envScores', JSON.stringify(envBig5));
   localStorage.setItem('temperamentEnv', JSON.stringify(envTemp));
 
+  // 跳转报告页
   window.location.assign('report.html');
 });
 </script>
