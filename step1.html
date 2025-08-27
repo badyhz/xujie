@@ -1,58 +1,78 @@
-<!-- step1.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Step 1 - 出生日期 & 80题</title>
+<title>Step 1 - 出生日期 & 80题答题（只收集）</title>
 <style>
-  body{margin:0;background:#f6f7fb;font-family:"Noto Sans SC",system-ui}
+  :root{--bg:#f6f7fb;--card:#fff;--text:#222;--muted:#6c757d;--primary:#4dabf7;--ring:rgba(77,171,247,.25)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans SC",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
   .container{max-width:1080px;margin:0 auto;padding:18px}
-  h1{margin:8px 0}
-  .panel{background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:16px;margin:16px 0}
+  h1{margin:6px 0 2px;font-size:22px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:12px}
+  .panel{background:var(--card);border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:16px;margin:16px 0}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  input[type="date"]{padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px}
+  input[type="date"]{padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;outline:none}
+  input[type="date"]:focus{box-shadow:0 0 0 4px var(--ring);border-color:#cfe8ff}
+
   .q{padding:12px;border:1px solid #eef1f5;border-radius:12px;margin-bottom:12px;background:#fff}
-  .q .item{display:grid;grid-template-columns: 68px 1fr 44px;gap:10px;align-items:center;margin:6px 0}
-  .tag{font-size:12px;color:#495057;background:#f1f3f5;border-radius:999px;padding:2px 8px;text-align:center}
+  .q h4{margin:0 0 8px;font-size:14px;font-weight:600}
+  .q .item{display:grid;grid-template-columns: 1fr 120px 48px;align-items:center;gap:12px}
   input[type=range]{width:100%}
-  .actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:10px;padding:12px;background:linear-gradient(0deg,#fff,rgba(255,255,255,.96));border-top:1px solid #eee}
-  button{padding:12px 18px;border:none;border-radius:10px;background:#4dabf7;color:#fff;cursor:pointer}
+  .val{width:48px;text-align:right;color:#111}
+
+  .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .muted{color:var(--muted);font-size:12px}
+  progress{width:220px;height:10px}
+  .actions{position:sticky;bottom:0;background:linear-gradient(0deg,#fff,rgba(255,255,255,.96));border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;padding:12px}
+  button{padding:12px 18px;border:none;border-radius:10px;background:var(--primary);color:#fff;cursor:pointer}
+  button.ghost{background:#e9ecef;color:#222}
 </style>
 </head>
 <body>
   <div class="container">
     <h1>Step 1 · 出生日期 & 80 题答题</h1>
+    <div class="sub">本页仅收集数据；不会展示结果。分数将用于 Step 2 与报告页。</div>
 
+    <!-- 基础信息 -->
     <section class="panel">
       <h2>✨ 基础信息</h2>
       <div class="row">
         <label for="birth">出生日期：</label>
         <input id="birth" type="date"/>
-      </div>
-      <div style="color:#6c757d;font-size:12px;margin-top:6px">
-        本页仅收集数据，不展示结果；分数将用于 Step 2 与报告页。
+        <span id="zodiacEcho" class="muted"></span>
       </div>
     </section>
 
+    <!-- 题目 -->
     <section class="panel">
-      <h2>📝 自评问卷（80题 | 1=非常不同意 ··· 5=非常同意）</h2>
+      <div class="topline">
+        <h2>📝 自评问卷（80 题 | 1=非常不同意 ··· 5=非常同意）</h2>
+        <div class="row">
+          <span class="muted">已调整：<span id="movedCount">0</span>/80</span>
+          <progress id="pg" max="80" value="0"></progress>
+        </div>
+      </div>
       <form id="quizForm"></form>
     </section>
   </div>
 
+  <!-- 底部操作 -->
   <div class="actions">
-    <button id="saveNext">保存并进入第二步 ➜</button>
+    <button class="ghost" onclick="location.href='step2.html'">跳过（仅演示）</button>
+    <div class="row">
+      <span class="muted">完成后保存并进入第二步</span>
+      <button id="saveNext">保存并进入第二步 ➜</button>
+    </div>
   </div>
 
 <script>
-/** 星座/四象/五行 **/
+/* -------- 星座 / 四象 / 五行 -------- */
 function zodiacFromDate(month, day){
   const names=["摩羯座","水瓶座","双鱼座","白羊座","金牛座","双子座","巨蟹座","狮子座","处女座","天秤座","天蝎座","射手座"];
-  const edge =[1222,120,219,321,420,521,622,723,823,923,1024,1123];
-  const md = month*100+day;
-  let idx=0; for(let i=0;i<edge.length;i++){ if(md>=edge[i]) idx=i; }
-  return names[idx];
+  const edge =[1222,120,219,321,420,521,622,723,823,923,1024,1123]; // MMDD
+  const md = month*100+day; let idx=0; for(let i=0;i<edge.length;i++){ if(md>=edge[i]) idx=i; } return names[idx];
 }
 const zodiacElementMap = { // 四象
   "白羊座":"火","狮子座":"火","射手座":"火",
@@ -61,7 +81,7 @@ const zodiacElementMap = { // 四象
   "巨蟹座":"水","天蝎座":"水","双鱼座":"水"
 };
 function fiveElementFromYear(y){
-  const stems = ["庚","辛","壬","癸","甲","乙","丙","丁","戊","己"]; // 年份%10 映射（简化）
+  const stems = ["庚","辛","壬","癸","甲","乙","丙","丁","戊","己"]; // year%10 简化
   const s = stems[y%10];
   if("甲乙".includes(s)) return "木";
   if("丙丁".includes(s)) return "火";
@@ -69,9 +89,22 @@ function fiveElementFromYear(y){
   if("庚辛".includes(s)) return "金";
   return "水"; // 壬癸
 }
+const birthEl = document.getElementById('birth');
+birthEl.addEventListener('change', ()=>{
+  const d = new Date(birthEl.value);
+  const echo = document.getElementById('zodiacEcho');
+  if(!isNaN(d)){
+    const z = zodiacFromDate(d.getMonth()+1, d.getDate());
+    const elem = zodiacElementMap[z] || "";
+    const five = fiveElementFromYear(d.getFullYear());
+    echo.textContent = `星座预览：${z}（${elem}）· 五行：${five}`;
+  }else{ echo.textContent = ""; }
+});
 
-/** 你提供的 40 特征×正反 = 80 题 */
+/* -------- 题库（40 特征 × 正/反 = 80 道；此处展开为 80 单题） -------- */
+// 用你的 PAIRS，拆成 80 条：每条包含 {text, dim, rev}
 const PAIRS = [
+  // O
   { pos:"我会主动探索新想法、新工具或新方法。", neg:"我更愿意遵循旧有做法，避免尝试新点子。", dim:"O" },
   { pos:"我对艺术、审美或创意表达有真实兴趣。", neg:"艺术与创意对我来说可有可无。", dim:"O" },
   { pos:"我能在不确定中保持好奇，愿意试错。", neg:"面对不确定性我会退缩或回避。", dim:"O" },
@@ -80,6 +113,7 @@ const PAIRS = [
   { pos:"我乐于接受不同文化与观点。", neg:"我对不同文化或观点较不宽容。", dim:"O" },
   { pos:"我能把抽象概念转化为实际方案。", neg:"抽象概念对我无用，难转化为行动。", dim:"O" },
   { pos:"我会主动追踪趋势并快速迭代。", neg:"我对趋势变化不敏感，也不想调整方向。", dim:"O" },
+  // C
   { pos:"我能把大目标拆解为可执行的小步骤。", neg:"我常常只停留在想法层面不去拆解。", dim:"C" },
   { pos:"我会按优先级管理事务并如期完成。", neg:"我常常被琐事打断，难以按时完成。", dim:"C" },
   { pos:"我日常有节律（作息、复盘、复利）。", neg:"我的作息混乱，缺少复盘与节律。", dim:"C" },
@@ -88,6 +122,7 @@ const PAIRS = [
   { pos:"我能权衡完美与效率并做取舍。", neg:"我常陷入完美主义耽误进度。", dim:"C" },
   { pos:"我对细节与质量有稳定的追求。", neg:"我对细节把控较弱，常有疏漏。", dim:"C" },
   { pos:"我会设置边界，保护深度工作时间。", neg:"我难以拒绝打断，深度工作不足。", dim:"C" },
+  // E
   { pos:"我在群体中自然地主动发言与带动气氛。", neg:"我在群体中倾向沉默或回避发言。", dim:"E" },
   { pos:"我结识新朋友时通常感到兴奋而非焦虑。", neg:"我与陌生人交流常令人紧张或疲惫。", dim:"E" },
   { pos:"我能把想法口头表达得清晰有感染力。", neg:"我口头表达较弱，常难以阐述想法。", dim:"E" },
@@ -96,6 +131,7 @@ const PAIRS = [
   { pos:"我有一定的主导/主持讨论的能力。", neg:"我缺乏主持讨论或组织对话的能力。", dim:"E" },
   { pos:"我享受多人协作带来的能量与节奏。", neg:"多人协作让我分心，低效而疲惫。", dim:"E" },
   { pos:"我在会议/活动中经常成为推进者。", neg:"我在会议/活动中通常只被动参与。", dim:"E" },
+  // A
   { pos:"我能在分歧中保持尊重与合作。", neg:"遇到分歧我容易对抗或讥讽。", dim:"A" },
   { pos:"我愿意倾听他人需求并尝试成全。", neg:"我更多优先自己的需求与立场。", dim:"A" },
   { pos:"我能在原则与同理心之间取得平衡。", neg:"我要么过度迁就，要么过度强硬。", dim:"A" },
@@ -104,6 +140,7 @@ const PAIRS = [
   { pos:"我冲突时能控制语气与表达方式。", neg:"我冲突时容易情绪化或讽刺挖苦。", dim:"A" },
   { pos:"我乐于合作共赢，避免零和思维。", neg:"我更常以输赢来定义关系。", dim:"A" },
   { pos:"我在团队中常被视为可靠的合作者。", neg:"我在团队协作中常显得不合拍。", dim:"A" },
+  // N
   { pos:"面对压力我能较快恢复到稳定状态。", neg:"面对压力我会反复回想并难以平复。", dim:"N" },
   { pos:"我能分辨情绪与事实并避免过度解读。", neg:"我常把情绪当事实而放大问题。", dim:"N" },
   { pos:"我遇挫时能自我安抚并寻求支持。", neg:"我遇挫时容易自责或孤立自己。", dim:"N" },
@@ -114,50 +151,62 @@ const PAIRS = [
   { pos:"我能识别并调整非理性想法。", neg:"我常陷入“灾难化”或“非黑即白”的想法。", dim:"N" }
 ];
 
-/** 渲染 80 题（每对=2题） **/
-const form = document.getElementById('quizForm');
-let qi=1;
-PAIRS.forEach((p,idx)=>{
-  const box = document.createElement('div');
-  box.className='q';
-  box.innerHTML = `
-    <div class="item">
-      <span class="tag">正向</span>
-      <input type="range" min="1" max="5" step="1" value="3" name="q${qi}" data-dim="${p.dim}" data-rev="0"/>
-      <span id="v${qi}">3</span>
-    </div>
-    <div class="item">
-      <span class="tag">反向</span>
-      <input type="range" min="1" max="5" step="1" value="3" name="q${qi+1}" data-dim="${p.dim}" data-rev="1"/>
-      <span id="v${qi+1}">3</span>
-    </div>
-    <div style="font-size:12px;color:#6c757d;margin-top:4px">
-      <strong>正向：</strong>${p.pos}<br/>
-      <strong>反向：</strong>${p.neg}
-    </div>
-  `;
-  form.appendChild(box);
-  const a = box.querySelector(`input[name="q${qi}"]`);
-  const b = box.querySelector(`input[name="q${qi+1}"]`);
-  a.addEventListener('input',()=>document.getElementById(`v${qi}`).textContent=a.value);
-  b.addEventListener('input',()=>document.getElementById(`v${qi+1}`).textContent=b.value);
-  qi+=2;
+// 展开成 80 单题
+const QUESTIONS = [];
+PAIRS.forEach(p=>{
+  QUESTIONS.push({ text: p.pos, dim: p.dim, rev: false });
+  QUESTIONS.push({ text: p.neg, dim: p.dim, rev: true  });
 });
 
-/** 计分：大五 **/
+/* -------- 渲染 80 题（无“正/反向”提示） + 滑杆数值联动 -------- */
+const form = document.getElementById('quizForm');
+const movedEl = document.getElementById('movedCount');
+const pgEl = document.getElementById('pg');
+
+function renderQuestions(){
+  form.innerHTML = "";
+  QUESTIONS.forEach((q, idx)=>{
+    const i = idx + 1;
+    const box = document.createElement('div');
+    box.className = 'q';
+    box.innerHTML = `
+      <h4>${i}. ${q.text}</h4>
+      <div class="item">
+        <input type="range" min="1" max="5" step="1" value="3" name="q${i}" data-dim="${q.dim}" data-rev="${q.rev?1:0}"/>
+        <div class="muted">1 ··· 5</div>
+        <div class="val" id="v${i}">3</div>
+      </div>
+    `;
+    form.appendChild(box);
+
+    const slider = box.querySelector(`input[name="q${i}"]`);
+    const valBox = box.querySelector(`#v${i}`);
+    slider.addEventListener('input', ()=>{
+      valBox.textContent = slider.value;            // ✅ 数字联动
+      if(!slider.dataset.moved){ slider.dataset.moved = "1"; updateProgress(); }
+    });
+  });
+}
+
+function updateProgress(){
+  const all = form.querySelectorAll('input[type="range"]');
+  let moved = 0; all.forEach(el=>{ if(el.dataset.moved==="1") moved++; });
+  movedEl.textContent = moved; pgEl.value = moved;
+}
+renderQuestions(); updateProgress();
+
+/* -------- 计分（大五）与四液质映射 -------- */
 function computeBigFive(){
   const dims={O:0,C:0,E:0,A:0,N:0}, counts={O:0,C:0,E:0,A:0,N:0};
   form.querySelectorAll('input[type="range"]').forEach(el=>{
     const v = parseInt(el.value,10);
-    const s = el.dataset.rev==="1" ? (6 - v) : v;
+    const score = el.dataset.rev==="1" ? (6 - v) : v; // 反向转正
     const d = el.dataset.dim;
-    dims[d]+=s; counts[d]+=1;
+    dims[d]+=score; counts[d]+=1;
   });
-  const pct = (sum,cnt)=> Math.round(sum/(cnt*5)*100);
-  return [pct(dims.O,counts.O),pct(dims.C,counts.C),pct(dims.E,counts.E),pct(dims.A,counts.A),pct(dims.N,counts.N)];
+  const pct=(sum,cnt)=> Math.round(sum/(cnt*5)*100);
+  return [pct(dims.O,counts.O), pct(dims.C,counts.C), pct(dims.E,counts.E), pct(dims.A,counts.A), pct(dims.N,counts.N)];
 }
-
-/** 四液质映射 **/
 function bigFiveToTemperaments([O,C,E,A,N]){
   const ES=100-N;
   let S=0.5*E+0.3*O+0.2*ES;
@@ -166,16 +215,21 @@ function bigFiveToTemperaments([O,C,E,A,N]){
   let P=0.4*A+0.3*ES+0.2*C-0.1*E;
   S=Math.max(0,S);Ch=Math.max(0,Ch);M=Math.max(0,M);P=Math.max(0,P);
   const sum=S+Ch+M+P || 1;
-  return {多血质:Math.round(S/sum*100),胆汁质:Math.round(Ch/sum*100),抑郁质:Math.round(M/sum*100),粘液质:Math.round(P/sum*100)};
+  return {
+    多血质:Math.round(S/sum*100),
+    胆汁质:Math.round(Ch/sum*100),
+    抑郁质:Math.round(M/sum*100),
+    粘液质:Math.round(P/sum*100)
+  };
 }
 
-/** 保存并进入 Step2（不展示任何结果） **/
+/* -------- 保存并进入 Step2（不展示结果） -------- */
 document.getElementById('saveNext').addEventListener('click', ()=>{
   const bf = computeBigFive();
   const temp = bigFiveToTemperaments(bf);
 
-  // 出生日期→星座/四象/五行
-  const birth = document.getElementById('birth').value;
+  // 出生日期 → 星座/四象/五行（保存但不展示）
+  const birth = birthEl.value;
   if(birth){
     const d=new Date(birth);
     const z = zodiacFromDate(d.getMonth()+1, d.getDate());
@@ -186,8 +240,8 @@ document.getElementById('saveNext').addEventListener('click', ()=>{
     localStorage.setItem('fiveElement', five);
   }
 
-  localStorage.setItem('selfScores', JSON.stringify(bf));
-  localStorage.setItem('temperamentSelf', JSON.stringify(temp));
+  localStorage.setItem('selfScores', JSON.stringify(bf));            // [O,C,E,A,N]
+  localStorage.setItem('temperamentSelf', JSON.stringify(temp));     // 四液质
 
   window.location.assign('step2.html');
 });
