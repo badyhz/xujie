@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>三层映射雷达图｜结构 → 生态表现 → 潜力</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#0f172a; --ink:#e5e7eb; --muted:#93a4b7; --line:#1f2937;
+      --ring1:#60a5fa; --ring2:#34d399; --ring3:#f472b6; --accent:#f59e0b; --hi:#f43f5e;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:radial-gradient(1200px 800px at 70% -10%, #1e293b 0%, #0b1020 55%) fixed;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans SC",sans-serif}
+    .app{display:grid;grid-template-columns:380px 1fr 360px;grid-template-rows:auto 1fr;gap:14px;height:100%;padding:16px}
+    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:14px;background:linear-gradient(180deg,#0f172a,#0b1226);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.3px}
+    header .formula{font-size:12px;color:var(--muted)}
+    .card{background:linear-gradient(180deg,#0f172a,#0b1226);border:1px solid #0f1d33;border-radius:16px;box-shadow:0 12px 40px rgba(2,6,23,.5);padding:12px}
+    .left,.right{display:flex;flex-direction:column;gap:10px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:#0b1530;border:1px solid #1c2f52;color:var(--ink);cursor:pointer;user-select:none}
+    .pill .dot{width:9px;height:9px;border-radius:50%}
+    .group-title{font-size:12px;color:var(--muted);margin:4px 0 8px}
+    .list{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:8px}
+    .legend{display:flex;gap:8px;flex-wrap:wrap}
+    .legend .pill{background:transparent;border-color:#25324a}
+    .legend .pill .dot{opacity:.9}
+    .slider{display:flex;align-items:center;gap:10px}
+    .slider input{width:100%}
+    .num{font-variant-numeric:tabular-nums}
+    .hint{font-size:12px;color:var(--muted);margin-top:6px}
+    .tip{position:fixed;pointer-events:none;background:#0b1530;border:1px solid #1c2f52;color:var(--ink);padding:8px 10px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.45);font-size:12px;max-width:280px}
+    svg{width:100%;height:100%}
+    .axis-line{stroke:#1f2a44;stroke-width:1}
+    .grid-circle{fill:none;stroke:#162034;stroke-width:1}
+    .label{fill:#b8c1d6;font-size:11px}
+    .label.small{font-size:10px;fill:#93a4b7}
+    .poly{fill-opacity:.12;stroke-width:2.5}
+    .poly.r1{fill:var(--ring1);stroke:var(--ring1)}
+    .poly.r2{fill:var(--ring2);stroke:var(--ring2)}
+    .poly.r3{fill:var(--ring3);stroke:var(--ring3)}
+    .active{filter:drop-shadow(0 0 10px rgba(245,158,11,.65))}
+    .highlight-spoke{stroke:var(--accent);stroke-width:2}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border-radius:10px;background:#0c1a36;border:1px solid #1a2d52;font-size:11px}
+    a.btn{display:inline-flex;gap:8px;align-items:center;background:#15213d;border:1px solid #2a3c64;color:var(--ink);padding:8px 10px;border-radius:10px;text-decoration:none}
+    .muted{color:var(--muted)}
+    .diag{font-size:12px;color:#9ab4ff;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <h1>三层映射雷达图 · 结构 → 生态表现 → 潜力</h1>
+        <span class="badge"><span class="dot" style="background:var(--ring1)"></span>结构（8）</span>
+        <span class="badge"><span class="dot" style="background:var(--ring2)"></span>生态表现（16）</span>
+        <span class="badge"><span class="dot" style="background:var(--ring3)"></span>潜力（8）</span>
+      </div>
+      <div class="formula">潜力 = Σ(生态表现×权重) + 环境适应力×γ + 优化策略×δ − 熵增×ε</div>
+    </header>
+
+    <!-- 左侧控制：结构（材质） & 修正层滑块 -->
+    <section class="left card">
+      <div class="group">
+        <div class="group-title">第 2 层：人格结构（材质性 · 8）</div>
+        <div id="structureList" class="list"></div>
+      </div>
+      <div class="group" style="margin-top:10px">
+        <div class="group-title">修正层（影响生态表现/潜力）</div>
+        <div class="slider"><label style="width:110px" for="env">环境适应力</label><input id="env" type="range" min="0" max="100" value="55"><span class="num" id="envv">55</span></div>
+        <div class="slider"><label style="width:110px" for="opt">优化策略</label><input id="opt" type="range" min="0" max="100" value="60"><span class="num" id="optv">60</span></div>
+        <div class="slider"><label style="width:110px" for="ent">熵增</label><input id="ent" type="range" min="0" max="100" value="35"><span class="num" id="entv">35</span></div>
+        <div class="hint">提示：不同结构的贡献以各自公式加入生态表现，再合成潜力。</div>
+        <div id="diag" class="diag"></div>
+      </div>
+    </section>
+
+    <!-- 中央：雷达图 -->
+    <section id="viz" class="card"></section>
+
+    <!-- 右侧：生态表现 & 潜力实时值 -->
+    <section class="right card">
+      <div class="group">
+        <div class="group-title">第 8 层：生态表现（16）</div>
+        <div id="ecologyList" class="list"></div>
+      </div>
+      <div class="group" style="margin-top:10px">
+        <div class="group-title">第 7 层：发展潜力（8）</div>
+        <div id="potentialList" class="list"></div>
+      </div>
+      <div class="group" style="margin-top:10px">
+        <div class="group-title">图例</div>
+        <div class="legend">
+          <span class="pill"><span class="dot" style="background:var(--ring1)"></span>结构</span>
+          <span class="pill"><span class="dot" style="background:var(--ring2)"></span>生态表现</span>
+          <span class="pill"><span class="dot" style="background:var(--ring3)"></span>潜力</span>
+          <span class="pill"><span class="dot" style="background:var(--accent)"></span>映射高亮</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="tip" class="tip" style="opacity:0"></div>
+
+<script>
+(function(){
+  // ========= 数据接入（与 step1/step2 对齐） =========
+  function toNumArray(x, fallback){
+    try{
+      if(Array.isArray(x)) return x.map(v=>Number(v));
+      if(typeof x === 'string'){
+        const j = JSON.parse(x); if(Array.isArray(j)) return j.map(v=>Number(v));
+      }
+    }catch(e){}
+    return Array.isArray(fallback) ? fallback.slice() : [50,50,50,50,50];
+  }
+
+  const selfScores = toNumArray(localStorage.getItem('selfScores'), [50,50,50,50,50]);
+  const envScores  = toNumArray(localStorage.getItem('envScores'),  [50,50,50,50,50]);
+  const selectedTags = JSON.parse(localStorage.getItem('selectedTags') || '[]');
+
+  // 诊断信息：快速判断是否「接上数据」
+  (function(){
+    const keys = ['selfScores','envScores','selectedTags'];
+    const report = keys.map(k => k + ':' + (localStorage.getItem(k) ? '✅' : '—')).join(' · ');
+    const valSelf = JSON.stringify(selfScores);
+    const valEnv  = JSON.stringify(envScores);
+    document.getElementById('diag').textContent = '数据诊断：' + report + ' ｜ 自评=' + valSelf + ' ｜ 环境=' + valEnv;
+  })();
+
+  // ========= 维度定义（与模板一致） =========
+  const structures = [
+    '镜面（觉察）','筋骨（控制力）','水流（灵活性）','火焰（驱力）',
+    '指南针（价值观）','盾牌（情绪稳定）','桥梁（人际）','岩石（意志力）'
+  ];
+  const ecology = [
+    '信任建立速度','合作倾向','依赖程度','独立程度','冲突处理方式','表达清晰度',
+    '共情能力','关系稳定性','创造力','执行力','适应力','风险感知','学习节奏','情绪感染力','领导气场','幸福感'
+  ];
+  const potentials = [
+    '创新潜力','领导潜力','艺术潜力','学习潜力','社交潜力','创业潜力','科研潜力','幸福潜力'
+  ];
+
+  // ========= 映射与模型（来自模板的思路） =========
+  const mapSE = {
+    0: {eco:[0,5,12], pot:[3,7], formula:'E = 镜面×0.5 + 修正层×0.5'}, // 镜面
+    1: {eco:[3,9,11], pot:[5,6], formula:'E = 筋骨×0.6 + 修正层×0.4'},  // 筋骨
+    2: {eco:[10,8,7], pot:[0,4], formula:'E = 水流×0.5 + (环境适应力−熵增)×0.5'}, // 水流
+    3: {eco:[13,14,4], pot:[1,5], formula:'E = 火焰×0.7 − 熵增×0.3'}, // 火焰
+    4: {eco:[4,1,7], pot:[7,6], formula:'E = 指南针×0.5 + 优化策略×0.5'}, // 指南针
+    5: {eco:[6,4,7], pot:[7,4], formula:'E = 盾牌×0.6 − 熵增×0.4'}, // 盾牌
+    6: {eco:[0,1,6], pot:[4,1], formula:'E = 桥梁×0.5 + 优化策略×0.5'}, // 桥梁
+    7: {eco:[3,9,12], pot:[5,6], formula:'E = 岩石×0.7 + 修正层×0.3'}  // 岩石
+  };
+
+  const potModel = {
+    0: { structures:[{i:2,w:0.4},{i:3,w:0.2}], ecology:[{i:8,w:0.2}], mod:{env:0, opt:0.2, ent:0} },
+    1: { structures:[{i:3,w:0.3},{i:6,w:0.2},{i:7,w:0.2}], ecology:[{i:13,w:0.2}], mod:{env:0, opt:0, ent:-0.1} },
+    2: { structures:[{i:2,w:0.3},{i:4,w:0.1}], ecology:[{i:8,w:0.35},{i:13,w:0.25}], mod:{env:0, opt:0, ent:0} },
+    3: { structures:[{i:0,w:0.25},{i:7,w:0.25}], ecology:[{i:5,w:0.2},{i:12,w:0.3}], mod:{env:0.05, opt:0, ent:0} },
+    4: { structures:[{i:5,w:0.15},{i:6,w:0.3}], ecology:[{i:0,w:0.2},{i:1,w:0.2},{i:6,w:0.15}], mod:{env:0, opt:0, ent:0} },
+    5: { structures:[{i:3,w:0.35},{i:1,w:0.25},{i:7,w:0.2}], ecology:[{i:3,w:0.1},{i:9,w:0.1}], mod:{env:0, opt:0, ent:-0.1} },
+    6: { structures:[{i:1,w:0.25},{i:7,w:0.25},{i:4,w:0.15}], ecology:[{i:11,w:0.15},{i:12,w:0.2}], mod:{env:0, opt:0, ent:0} },
+    7: { structures:[{i:0,w:0.15},{i:4,w:0.2},{i:5,w:0.25}], ecology:[{i:7,w:0.2},{i:1,w:0.1},{i:15,w:0.1}], mod:{env:0, opt:0.05, ent:0} },
+  };
+
+  // ========= Big Five → 结构（8） =========
+  function clamp01(x){ return Math.max(0, Math.min(100, x)); }
+  function toStructures([O,C,E,A,N]){
+    const ES = 100 - N; // 情绪稳定
+    return [
+      clamp01(0.60*O + 0.40*ES),         // 镜面（觉察）
+      clamp01(0.70*C + 0.30*ES),         // 筋骨（控制力）
+      clamp01(0.60*O + 0.40*E),          // 水流（灵活性）
+      clamp01(0.60*E + 0.40*O),          // 火焰（驱力）
+      clamp01(0.60*A + 0.40*O),          // 指南针（价值观）
+      clamp01(0.80*ES + 0.20*C),         // 盾牌（情绪稳定）
+      clamp01(0.60*E + 0.40*A),          // 桥梁（人际）
+      clamp01(0.70*C + 0.30*ES),         // 岩石（意志力）
+    ];
+  }
+
+  // ========= 环境 → 修正层默认值 =========
+  function defaultMods(env){
+    const O=env[0], C=env[1], E=env[2], A=env[3], N=env[4], ES=100-N;
+    const gamma = Math.round((O + A + ES)/3); // 环境适应力 γ
+    const delta = Math.round((O + C)/2);      // 优化策略 δ
+    const epsilon = Math.round(N);            // 熵增 ε
+    return { gamma, delta, epsilon };
+  }
+
+  // ========= 初始化结构/生态/潜力 =========
+  let structureScores = toStructures(selfScores);
+
+  function seedEcologyFromStructures(structureScores){
+    const eco = new Array(16).fill(50);
+    structureScores.forEach((sv, si)=>{
+      const {eco:ecoIdx} = mapSE[si];
+      ecoIdx.forEach(k=>{ eco[k] = clamp01(eco[k] + (sv-50)*0.35); });
+    });
+    return eco;
+  }
+  let ecologyScores   = seedEcologyFromStructures(structureScores);
+  let potentialScores = new Array(8).fill(0);
+
+  // 将环境向量作为滑块默认值
+  const {gamma, delta, epsilon} = defaultMods(envScores);
+  const envEl = document.getElementById('env');
+  const optEl = document.getElementById('opt');
+  const entEl = document.getElementById('ent');
+  const envVal = document.getElementById('envv');
+  const optVal = document.getElementById('optv');
+  const entVal = document.getElementById('entv');
+  envEl.value = gamma; optEl.value = delta; entEl.value = epsilon;
+  envVal.textContent = gamma; optVal.textContent = delta; entVal.textContent = epsilon;
+
+  [envEl,optEl,entEl].forEach(el=>{
+    el.addEventListener('input',()=>{
+      envVal.textContent = envEl.value; optVal.textContent = optEl.value; entVal.textContent = entEl.value;
+      recompute(); draw();
+    })
+  });
+
+  // ========= UI 列表 =========
+  const $S = d3.select('#structureList');
+  const $E = d3.select('#ecologyList');
+  const $P = d3.select('#potentialList');
+  const selected = new Set();
+
+  function renderLists(){
+    $S.selectAll('div.pill').data(structures).join('div')
+      .attr('class','pill')
+      .classed('active',(_,i)=>selected.has(i))
+      .on('click',(_,i)=>{ selected.has(i)?selected.delete(i):selected.add(i); highlightFromSelection(); draw(); })
+      .on('mouseenter', (e, d)=> showTip(e, '点击以高亮映射：\n' + d + '\n' + mapSE[structures.indexOf(d)].formula))
+      .on('mouseleave', hideTip)
+      .html((d,i)=>`<span class="dot" style="background:var(--ring1)"></span>${d}`);
+
+    $E.selectAll('div.pill').data(ecology).join('div')
+      .attr('class','pill')
+      .on('mouseenter', (e,d)=> showTip(e, '生态表现：' + d))
+      .on('mouseleave', hideTip)
+      .html((d,i)=>`<span class="dot" style="background:var(--ring2)"></span>${d}<span class="muted"> ${ecologyScores[i]}%</span>`);
+
+    $P.selectAll('div.pill').data(potentials).join('div')
+      .attr('class','pill')
+      .on('mouseenter', (e,d)=> showTip(e, '潜力：' + d))
+      .on('mouseleave', hideTip)
+      .html((d,i)=>`<span class="dot" style="background:var(--ring3)"></span>${d}<span class="muted"> ${potentialScores[i]}%</span>`);
+  }
+
+  // ========= 计算潜力 =========
+  function normalize(x){ return Math.max(0, Math.min(100, x)); }
+
+  function recompute(){
+    const env = +envEl.value, opt = +optEl.value, ent = +entEl.value;
+    let eco = ecologyScores.slice();
+
+    selected.forEach(si=>{
+      const {eco:ecoIdx} = mapSE[si];
+      ecoIdx.forEach(k=>{ eco[k] = normalize(eco[k] + (structureScores[si]-50)*0.2 + (env-50)*0.05 + (opt-50)*0.05 - (ent-50)*0.04); });
+    });
+
+    potentialScores = potentials.map((_,pi)=>{
+      const spec = potModel[pi];
+      let score = 0;
+      if(spec.structures){ score += spec.structures.reduce((sum, s)=> sum + structureScores[s.i]*s.w, 0); }
+      if(spec.ecology){   score += spec.ecology  .reduce((sum, e)=> sum + eco[e.i]*e.w, 0); }
+      score += (spec.mod.env||0)*env + (spec.mod.opt||0)*opt + (spec.mod.ent||0)*ent;
+      return Math.round(normalize(score));
+    });
+
+    ecologyScores = eco;
+    renderLists();
+  }
+
+  // ========= 画布 & 雷达 =========
+  const W = 900, H = 640;
+  const svg = d3.select('#viz').append('svg').attr('viewBox',`0 0 ${W} ${H}`);
+  const g = svg.append('g').attr('transform',`translate(${W/2},${H/2})`);
+
+  const maxR = Math.min(W,H)*0.42;
+  const radii = { r2: maxR*0.95, r1: maxR*0.70, r0: maxR*0.45 };
+
+  g.selectAll('.grid-circle').data([0.25,0.5,0.75,1]).join('circle')
+    .attr('class','grid-circle')
+    .attr('r', d=>radii.r2*d);
+
+  const K = 16;
+  const angle16 = i => (Math.PI*2) * (i/K) - Math.PI/2;
+  const spoke = g.append('g');
+  spoke.selectAll('line').data(d3.range(K)).join('line')
+    .attr('class','axis-line')
+    .attr('x1', 0).attr('y1', 0)
+    .attr('x2', d=> Math.cos(angle16(d))*radii.r2)
+    .attr('y2', d=> Math.sin(angle16(d))*radii.r2)
+    .attr('data-i', d=>d);
+
+  const ecoLabels = g.append('g');
+  ecoLabels.selectAll('text').data(ecology).join('text')
+    .attr('class','label small')
+    .attr('text-anchor', (d,i)=> Math.cos(angle16(i))>0.1? 'start' : (Math.cos(angle16(i))<-0.1? 'end':'middle'))
+    .attr('x', (d,i)=> Math.cos(angle16(i))*(radii.r2+16))
+    .attr('y', (d,i)=> Math.sin(angle16(i))*(radii.r2+16)+4)
+    .text(d=>d);
+
+  const angle8 = i => angle16(i*2);
+  const structLabels = g.append('g');
+  structLabels.selectAll('text').data(structures).join('text')
+    .attr('class','label')
+    .attr('text-anchor', (d,i)=> Math.cos(angle8(i))>0.1? 'start' : (Math.cos(angle8(i))<-0.1? 'end':'middle'))
+    .attr('x', (d,i)=> Math.cos(angle8(i))*(radii.r1+12))
+    .attr('y', (d,i)=> Math.sin(angle8(i))*(radii.r1+12)+4)
+    .text(d=>d)
+    .style('cursor','pointer')
+    .on('mouseenter', (e,d)=>{ const i = structures.indexOf(d); showTip(e, d + '\n' + mapSE[i].formula); highlightOne(i,true); })
+    .on('mouseleave', ()=>{ hideTip(); highlightOne(null,false); })
+    .on('click', (e,d)=>{ const i=structures.indexOf(d); selected.has(i)?selected.delete(i):selected.add(i); highlightFromSelection(); draw(); });
+
+  const potLabels = g.append('g');
+  potLabels.selectAll('text').data(potentials).join('text')
+    .attr('class','label')
+    .attr('text-anchor', (d,i)=> Math.cos(angle8(i))>0.1? 'start' : (Math.cos(angle8(i))<-0.1? 'end':'middle'))
+    .attr('x', (d,i)=> Math.cos(angle8(i))*(radii.r0-10))
+    .attr('y', (d,i)=> Math.sin(angle8(i))*(radii.r0-10)+4)
+    .text(d=>d);
+
+  function polyPath(values, ring){
+    const R = radii[ring];
+    const n = values.length;
+    const path = d3.path();
+    for(let i=0;i<n;i++){
+      const a = (n===16? angle16(i) : angle8(i));
+      const r = (values[i]/100)*R;
+      const x = Math.cos(a)*r, y=Math.sin(a)*r;
+      if(i===0) path.moveTo(x,y); else path.lineTo(x,y);
+    }
+    path.closePath();
+    return path.toString();
+  }
+
+  const polyE = g.append('path').attr('class','poly r2');
+  const polyS = g.append('path').attr('class','poly r1');
+  const polyP = g.append('path').attr('class','poly r3');
+
+  function draw(){
+    polyE.attr('d', polyPath(ecologyScores,'r2'));
+    polyS.attr('d', polyPath(structureScores,'r1'));
+    polyP.attr('d', polyPath(potentialScores,'r0'));
+  }
+
+  function highlightOne(si, on){
+    g.selectAll('.highlight-spoke').remove();
+    structLabels.classed('active', false);
+    if(on && si!=null){
+      structLabels.selectAll('text').filter((_,i)=>i===si).classed('active',true);
+      const ecoIdx = mapSE[si].eco;
+      ecoIdx.forEach(i=>{
+        g.append('line')
+          .attr('class','highlight-spoke')
+          .attr('x1',0).attr('y1',0)
+          .attr('x2', Math.cos(angle16(i))*radii.r2)
+          .attr('y2', Math.sin(angle16(i))*radii.r2);
+      });
+    }
+  }
+
+  function highlightFromSelection(){
+    g.selectAll('.highlight-spoke').remove();
+    structLabels.classed('active',(_,i)=>selected.has(i));
+    selected.forEach(si=>{
+      mapSE[si].eco.forEach(i=>{
+        g.append('line')
+          .attr('class','highlight-spoke')
+          .attr('x1',0).attr('y1',0)
+          .attr('x2', Math.cos(angle16(i))*radii.r2)
+          .attr('y2', Math.sin(angle16(i))*radii.r2);
+      })
+    });
+  }
+
+  const tip = d3.select('#tip');
+  function showTip(evt, html){ tip.style('opacity',1).html(html.replace(/\n/g,'<br/>')).style('left', (evt.pageX+12)+'px').style('top',(evt.pageY+12)+'px'); }
+  function hideTip(){ tip.style('opacity',0); }
+
+  // ========= 首次渲染 =========
+  function init(){
+    renderLists();
+    recompute();
+    draw();
+  }
+  init();
+})();
+</script>
+</body>
+</html>
