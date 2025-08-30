@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>新零售商城 Demo（内容+交易+导流+会员）</title>
+<style>
+  :root{
+    --bg:#f7f8fb; --card:#fff; --ink:#1f2937; --muted:#6b7280;
+    --brand:#4f46e5; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --line:#e5e7eb;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Noto Sans SC",Helvetica,Arial,sans-serif}
+  a{color:inherit;text-decoration:none}
+  .app{max-width:1100px;margin:0 auto;padding:12px 12px 96px}
+  header.top{position:sticky;top:0;background:rgba(247,248,251,.9);backdrop-filter:blur(6px);z-index:20;border-bottom:1px solid var(--line)}
+  .topbar{display:flex;align-items:center;gap:12px;padding:12px}
+  .logo{font-weight:800;letter-spacing:.5px}
+  .pill{padding:6px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px}
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 12px}
+  nav.tabs button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer}
+  nav.tabs button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:860px){.row{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 10px 20px rgba(0,0,0,.03)}
+  .section-title{font-weight:700;margin:6px 0 10px}
+  .hero{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+  @media (max-width:860px){.hero{grid-template-columns:1fr}}
+  .carousel{position:relative;height:220px;border-radius:12px;overflow:hidden;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px}
+  .carousel .dotbox{position:absolute;bottom:10px;display:flex;gap:6px}
+  .carousel .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.5)}
+  .carousel .dot.on{background:#fff}
+  .chips{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px;cursor:pointer}
+  .chip.on{background:#111;color:#fff;border-color:#111}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media (max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:780px){.grid{grid-template-columns:repeat(2,1fr)}}
+  .prod{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;display:flex;flex-direction:column}
+  .thumb{height:120px;border-radius:8px;background:linear-gradient(135deg,#e9efff,#d1fae5);display:flex;align-items:center;justify-content:center;font-size:40px}
+  .price{font-weight:800}
+  .muted{color:var(--muted);font-size:12px}
+  .btn{appearance:none;border:1px solid var(--brand);color:#fff;background:var(--brand);padding:8px 12px;border-radius:10px;cursor:pointer}
+  .btn.ghost{background:#fff;color:var(--brand)}
+  .btn.warn{background:var(--warn);border-color:var(--warn)}
+  .btn.ok{background:var(--ok);border-color:var(--ok)}
+  .btn.bad{background:var(--bad);border-color:var(--bad)}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  input,select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  @media (max-width:780px){.kpi{grid-template-columns:repeat(2,1fr)}}
+  .kpi .box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+  .toast{position:fixed;right:16px;bottom:16px;background:#111;color:#fff;padding:10px 12px;border-radius:10px;opacity:0;transform:translateY(8px);transition:.25s;z-index:99}
+  .toast.show{opacity:1;transform:none}
+  .drawer{position:fixed;right:16px;top:80px;width:320px;max-height:70vh;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.15);padding:12px;display:none;z-index:50}
+  .drawer.show{display:block}
+  .line{height:1px;background:var(--line);margin:10px 0}
+  .flex{display:flex;align-items:center;gap:8px}
+  .space{flex:1}
+  footer.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:8px 12px;display:flex;gap:8px;align-items:center;z-index:30}
+  .badge{font-size:11px;padding:2px 6px;border-radius:6px;background:#eef2ff;color:#3730a3}
+  .progress{height:8px;background:#eef2ff;border-radius:999px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:var(--brand)}
+  .timeline{border-left:2px solid var(--line);padding-left:10px;margin-left:6px}
+  .timeline div{margin:8px 0}
+  .log{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1020;color:#d1e8ff;border-radius:10px;padding:10px;font-size:12px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="topbar">
+    <div class="logo">🛍️ 新零售商城 Demo</div>
+    <span class="pill">核心路径：商城购物 +（文化 or 导流）</span>
+    <div class="space"></div>
+    <button class="btn ghost" id="btnCart">购物车 <span id="cartCount" class="badge">0</span></button>
+    <button class="btn ghost" id="btnLogs">埋点日志</button>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+
+<div class="app" id="app"></div>
+
+<!-- 抽屉：购物车 / 日志 -->
+<div class="drawer" id="drawerCart"></div>
+<div class="drawer" id="drawerLogs"></div>
+
+<footer class="bar">
+  <div class="flex"><b>模式：</b>
+    <button class="chip" id="modeCulture">文化优先</button>
+    <button class="chip" id="modeDirect">导流优先</button>
+  </div>
+  <div class="space"></div>
+  <div class="muted">本 Demo 仅为体验用，数据保存在浏览器本地。</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ------------------------- 数据与状态 ------------------------- */
+const LS_KEY = "mall_demo_state_v1";
+const defaultData = {
+  mode:"culture", // culture / direct
+  cart:{items:[], couponId:null},
+  coupons:[
+    {id:"C200-20", title:"满200减20", type:"cash", threshold:200, value:20, acquired:false, used:false},
+    {id:"C400-50", title:"满400减50", type:"cash", threshold:400, value:50, acquired:false, used:false},
+    {id:"OFF-COFFEE", title:"线下咖啡券", type:"offline", threshold:0, value:1, code:"COFFEE-2025", acquired:false, used:false}
+  ],
+  products:[
+    {id:"A101", name:"手工木质托盘", price:129, rating:4.7, cat:"家居", icon:"🪵", tags:["天然","手作"]},
+    {id:"A102", name:"北欧香薰蜡烛", price:89, rating:4.5, cat:"家居", icon:"🕯️", tags:["香氛","治愈"]},
+    {id:"B201", name:"原创版画·海风", price:399, rating:4.9, cat:"艺术", icon:"🖼️", tags:["限量","原创"]},
+    {id:"B202", name:"手作陶杯", price:159, rating:4.6, cat:"艺术", icon:"🏺", tags:["匠心"]},
+    {id:"C301", name:"挂耳咖啡 12包", price:98, rating:4.4, cat:"咖啡", icon:"☕", tags:["拼配","清爽"]},
+    {id:"C302", name:"冷萃瓶 600ml", price:69, rating:4.2, cat:"咖啡", icon:"🧊", tags:["夏日"]},
+    {id:"D401", name:"蓝牙音箱 mini", price:299, rating:4.5, cat:"数码", icon:"📻", tags:["便携"]},
+    {id:"D402", name:"阅读台灯", price:189, rating:4.3, cat:"数码", icon:"💡", tags:["护眼"]}
+  ],
+  cases:[
+    {id:"S1", title:"一只托盘的旅行", cover:"🪵", brief:"从废木到餐桌的二次生命", link:"A101"},
+    {id:"S2", title:"画里的风", cover:"🖼️", brief:"原创版画背后的创作手记", link:"B201"}
+  ],
+  orders:[],
+  user:{name:"游客", points:0, address:"", level:"普通"},
+  logs:[]
+};
+let state = loadState();
+
+/* ------------------------- 工具函数 ------------------------- */
+function $(sel,root=document){ return root.querySelector(sel); }
+function $all(sel,root=document){ return Array.from(root.querySelectorAll(sel)); }
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)) || structuredClone(defaultData);}catch(e){return structuredClone(defaultData)}}
+function money(n){ return "¥"+n.toFixed(2); }
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1600); }
+function track(event, payload={}){ const row={t:new Date().toLocaleString(),event,payload}; state.logs.unshift(row); saveState(); console.log("[track]",row); renderCartCount(); }
+
+/* ------------------------- 路由与页面 ------------------------- */
+const PAGES = [
+  {id:"home", label:"首页"},
+  {id:"shop", label:"商城"},
+  {id:"scan", label:"扫码直达"},
+  {id:"cases", label:"案例/文化"},
+  {id:"coupon", label:"优惠券"},
+  {id:"me", label:"个人中心"}
+];
+let current="home";
+
+function renderNav(){
+  const nav=$("#tabs");
+  nav.innerHTML = PAGES.map(p=>`<button data-id="${p.id}" class="${p.id===current?'active':''}">${p.label}</button>`).join("");
+  $all("button", nav).forEach(b=>b.onclick=()=>{ current=b.dataset.id; render(); track("tab_switch",{to:current}); });
+}
+function render(){ renderNav(); const el=$("#app"); el.innerHTML="";
+  if(current==="home") renderHome(el);
+  if(current==="shop") renderShop(el);
+  if(current==="scan") renderScan(el);
+  if(current==="cases") renderCases(el);
+  if(current==="coupon") renderCoupon(el);
+  if(current==="me") renderMe(el);
+  renderCartCount();
+}
+
+/* ------------------------- 首页 ------------------------- */
+function renderHome(root){
+  const wrap=document.createElement("div");
+  // hero
+  const hero=document.createElement("div"); hero.className="hero";
+  hero.innerHTML=`
+    <div class="card">
+      <div class="carousel" id="carousel">
+        <div>新品上架 · 夏日特辑</div>
+        <div class="dotbox">
+          <span class="dot on"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+      <div class="line"></div>
+      <div class="toolbar">
+        <b>快速入口</b>
+        <button class="btn" onclick="goto('shop')">去逛商城</button>
+        <button class="btn warn" onclick="goto('coupon')">领优惠券</button>
+        <button class="btn ghost" onclick="goto('scan')">扫码直达</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">首页布局模式</div>
+      <div class="chips">
+        <span class="chip ${state.mode==='culture'?'on':''}" onclick="setMode('culture')">文化优先</span>
+        <span class="chip ${state.mode==='direct'?'on':''}" onclick="setMode('direct')">导流优先</span>
+      </div>
+      <div class="line"></div>
+      <div class="muted">说明：根据定位选择首页重点。文化优先 → 突出案例故事；导流优先 → 突出优惠券与扫码入口。</div>
+    </div>`;
+  wrap.appendChild(hero);
+
+  // 两列区块：根据模式切换顺序
+  const A = `
+    <div class="card">
+      <div class="section-title">精选寄售案例</div>
+      <div class="grid">
+        ${state.cases.map(s=>`
+          <div class="prod">
+            <div class="thumb">${s.cover}</div>
+            <b>${s.title}</b>
+            <div class="muted">${s.brief}</div>
+            <div class="space"></div>
+            <button class="btn ghost" onclick="openCase('${s.id}')">阅读故事</button>
+          </div>`).join("")}
+      </div>
+    </div>`;
+  const B = `
+    <div class="card">
+      <div class="section-title">热门商品</div>
+      <div class="grid">
+        ${state.products.slice(0,4).map(p=>prodCard(p)).join("")}
+      </div>
+    </div>`;
+  const C = `
+    <div class="card">
+      <div class="section-title">优惠与导流</div>
+      <div class="kpi">
+        <div class="box"><b>优惠券</b><div class="muted">满减券/线下券</div><div class="line"></div><button class="btn" onclick="goto('coupon')">立即领取</button></div>
+        <div class="box"><b>扫码购</b><div class="muted">线下商品二维码直达</div><div class="line"></div><button class="btn ghost" onclick="goto('scan')">去扫码</button></div>
+        <div class="box"><b>直播</b><div class="muted">（占位，后期接入）</div><div class="line"></div><button class="btn" disabled>敬请期待</button></div>
+        <div class="box"><b>预约</b><div class="muted">（占位，后期接入）</div><div class="line"></div><button class="btn" disabled>敬请期待</button></div>
+      </div>
+    </div>`;
+
+  const row=document.createElement("div"); row.className="row";
+  if(state.mode==="culture"){ row.innerHTML=A + B; wrap.appendChild(row); wrap.insertAdjacentHTML("beforeend", C); }
+  else{ row.innerHTML=B + C; wrap.appendChild(row); wrap.insertAdjacentHTML("beforeend", A); }
+
+  root.appendChild(wrap);
+  // 简易轮播
+  let idx=0; setInterval(()=>{ const dots=$all(".carousel .dot"); dots.forEach(d=>d.classList.remove("on")); idx=(idx+1)%dots.length; dots[idx].classList.add("on"); }, 2500);
+}
+function setMode(m){ state.mode=m; saveState(); toast(m==="culture"?"已切换为：文化优先":"已切换为：导流优先"); render(); track("mode_switch",{mode:m}); }
+function goto(id){ current=id; render(); }
+
+/* ------------------------- 商城 ------------------------- */
+function renderShop(root){
+  const cats=[...new Set(state.products.map(p=>p.cat))];
+  let q=""; let cat="全部"; let sort="综合";
+  const card=document.createElement("div"); card.className="card";
+  card.innerHTML=`
+    <div class="section-title">商城</div>
+    <div class="toolbar">
+      <input id="q" placeholder="搜索商品关键字…" />
+      <select id="cat">${["全部",...cats].map(c=>`<option>${c}</option>`).join("")}</select>
+      <select id="sort">
+        <option>综合</option><option>价格⬆</option><option>价格⬇</option><option>评分⬆</option>
+      </select>
+      <div class="space"></div>
+      <button class="btn" onclick="openCart()">查看购物车</button>
+    </div>
+    <div id="grid" class="grid" style="margin-top:12px"></div>`;
+  root.appendChild(card);
+
+  const grid=$("#grid",card);
+  function apply(){
+    let list=[...state.products];
+    if(cat!=="全部") list=list.filter(p=>p.cat===cat);
+    if(q.trim()) list=list.filter(p=>p.name.includes(q) || (p.tags||[]).some(t=>t.includes(q)));
+    if(sort==="价格⬆") list.sort((a,b)=>a.price-b.price);
+    if(sort==="价格⬇") list.sort((a,b)=>b.price-a.price);
+    if(sort==="评分⬆") list.sort((a,b)=>b.rating-a.rating);
+    grid.innerHTML=list.map(p=>prodCard(p)).join("");
+  }
+  $("#q",card).oninput=e=>{q=e.target.value;apply()};
+  $("#cat",card).onchange=e=>{cat=e.target.value;apply()};
+  $("#sort",card).onchange=e=>{sort=e.target.value;apply()};
+  apply();
+}
+function prodCard(p){
+  return `
+  <div class="prod">
+    <div class="thumb">${p.icon}</div>
+    <b>${p.name}</b>
+    <div class="muted">类别：${p.cat} · 评分 ${p.rating}</div>
+    <div class="space"></div>
+    <div class="flex">
+      <div class="price">${money(p.price)}</div><div class="space"></div>
+      <button class="btn ghost" onclick="openDetail('${p.id}')">详情</button>
+      <button class="btn" onclick="addToCart('${p.id}')">加入</button>
+    </div>
+  </div>`;
+}
+function openDetail(id){
+  const p=state.products.find(x=>x.id===id);
+  const code="PROD-"+p.id;
+  const html=`
+    <div class="card">
+      <div class="section-title">${p.name}</div>
+      <div class="row">
+        <div class="card"><div class="thumb" style="height:180px;font-size:60px">${p.icon}</div></div>
+        <div class="card">
+          <div><b>价格：</b>${money(p.price)}</div>
+          <div><b>评分：</b>${p.rating}</div>
+          <div><b>标签：</b>${(p.tags||[]).join(" / ")||"无"}</div>
+          <div class="line"></div>
+          <div class="muted">二维码字符串（用于扫码直达）：<br><b>${code}</b></div>
+          <div class="line"></div>
+          <div class="flex">
+            <button class="btn" onclick="addToCart('${p.id}')">加入购物车</button>
+            <button class="btn ghost" onclick="closeCart();">关闭</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  $("#drawerCart").innerHTML=html; $("#drawerCart").classList.add("show");
+  track("view_detail",{id});
+}
+
+/* ------------------------- 扫码直达 ------------------------- */
+function renderScan(root){
+  const card=document.createElement("div"); card.className="card";
+  card.innerHTML=`
+    <div class="section-title">扫码直达</div>
+    <div class="toolbar">
+      <input id="scanInput" placeholder="请输入二维码字符串，如：PROD-A101" style="flex:1" />
+      <button class="btn" id="btnScan">模拟扫码</button>
+    </div>
+    <div class="muted" style="margin-top:8px">提示：在商品详情页可查看各自的二维码字符串。</div>
+    <div id="scanResult" style="margin-top:12px"></div>`;
+  root.appendChild(card);
+
+  $("#btnScan",card).onclick=()=>{
+    const v=$("#scanInput",card).value.trim();
+    const id=(v.split("PROD-")[1]||"").toUpperCase();
+    const p=state.products.find(x=>x.id===id);
+    const box=$("#scanResult",card);
+    if(!p){ box.innerHTML=`<div class="card">未找到商品，检查二维码字符串是否正确。</div>`; track("scan_fail",{v}); return;}
+    box.innerHTML = `<div class="card">${prodCard(p)}</div>`;
+    track("scan_ok",{id});
+  };
+}
+
+/* ------------------------- 案例/文化 ------------------------- */
+function renderCases(root){
+  const card=document.createElement("div"); card.className="card";
+  card.innerHTML=`
+    <div class="section-title">寄售案例/文化故事</div>
+    <div class="grid">${state.cases.map(s=>`
+      <div class="prod">
+        <div class="thumb" style="height:120px;font-size:40px">${s.cover}</div>
+        <b>${s.title}</b>
+        <div class="muted">${s.brief}</div>
+        <div class="space"></div>
+        <button class="btn" onclick="openCase('${s.id}')">阅读</button>
+      </div>`).join("")}</div>`;
+  root.appendChild(card);
+}
+function openCase(id){
+  const s=state.cases.find(x=>x.id===id);
+  const p=state.products.find(x=>x.id===s.link);
+  const html=`
+    <div class="card">
+      <div class="section-title">📝 ${s.title}</div>
+      <p class="muted">（短文示例）${s.brief}。我们与作者沟通，将作品与生活空间结合……</p>
+      <div class="line"></div>
+      <div><b>文中提到的商品：</b></div>
+      <div style="margin-top:8px">${prodCard(p)}</div>
+    </div>`;
+  $("#drawerCart").innerHTML=html; $("#drawerCart").classList.add("show");
+  track("open_case",{id});
+}
+
+/* ------------------------- 优惠券 & 核销 ------------------------- */
+function renderCoupon(root){
+  const wrap=document.createElement("div"); wrap.className="row";
+  const list=document.createElement("div"); list.className="card";
+  list.innerHTML=`<div class="section-title">可领取的优惠券</div>
+    <div class="grid">
+      ${state.coupons.map(c=>`
+        <div class="prod">
+          <div class="thumb" style="font-size:34px;background:linear-gradient(135deg,#fff7ed,#fee2e2)">${c.type==='offline'?'🏷️':'💸'}</div>
+          <b>${c.title}</b>
+          <div class="muted">${c.type==='offline'?'线下门店扫码核销':'下单自动使用（满足门槛可选用）'}</div>
+          ${c.type==='offline'?`<div class="muted">核销码：<b>${c.code}</b></div>`:""}
+          <div class="space"></div>
+          ${c.acquired?`<span class="badge">已领取</span>`:`<button class="btn" onclick="claimCoupon('${c.id}')">领取</button>`}
+        </div>`).join("")}
+    </div>`;
+  wrap.appendChild(list);
+
+  const verify=document.createElement("div"); verify.className="card";
+  verify.innerHTML=`
+    <div class="section-title">核销台（店员）</div>
+    <div class="toolbar">
+      <input id="verifyCode" placeholder="输入核销码（如：COFFEE-2025）" style="flex:1"/>
+      <button class="btn ok" id="doVerify">核销</button>
+    </div>
+    <div id="verifyResult" style="margin-top:10px"></div>
+    <div class="line"></div>
+    <div class="muted">说明：仅 <b>线下券</b> 可在此核销；线上满减券在结算时使用。</div>`;
+  verify.querySelector("#doVerify").onclick=()=>{
+    const code=verify.querySelector("#verifyCode").value.trim();
+    const c=state.coupons.find(x=>x.type==='offline' && x.code===code);
+    const box=verify.querySelector("#verifyResult");
+    if(!c){ box.innerHTML=`<div class="muted">未找到对应的线下券或券码错误。</div>`; track("verify_fail",{code}); return;}
+    if(!c.acquired){ box.innerHTML=`<div class="muted">用户尚未领取此券，无法核销。</div>`; return;}
+    if(c.used){ box.innerHTML=`<div class="muted">该券已使用。</div>`; return;}
+    c.used=true; saveState(); box.innerHTML=`<div class="muted">✅ 已核销：${c.title}</div>`; track("verify_ok",{id:c.id}); toast("核销成功");
+  };
+  wrap.appendChild(verify);
+  root.appendChild(wrap);
+}
+function claimCoupon(id){
+  const c=state.coupons.find(x=>x.id===id); c.acquired=true; saveState(); render(); toast("已领取："+c.title); track("coupon_claim",{id});
+}
+
+/* ------------------------- 个人中心 ------------------------- */
+function renderMe(root){
+  const u=state.user;
+  const card=document.createElement("div"); card.className="card";
+  const percent = Math.min(100, (u.points%3000)/30); // 只是展示
+  const orders = state.orders.slice(0,20);
+  card.innerHTML=`
+    <div class="section-title">个人中心</div>
+    <div class="row">
+      <div class="card">
+        <b>会员等级：</b> ${getLevel().level}
+        <div class="muted">积分：${u.points}（下单送积分，可解锁更高等级）</div>
+        <div class="progress" style="margin:8px 0"><i style="width:${percent}%"></i></div>
+        <div class="line"></div>
+        <div><b>收货地址</b></div>
+        <div class="flex" style="margin-top:6px">
+          <input id="addr" value="${u.address||''}" placeholder="省市区 + 详细地址" style="flex:1"/>
+          <button class="btn" onclick="saveAddr()">保存</button>
+        </div>
+      </div>
+      <div class="card">
+        <b>我的订单</b>
+        ${orders.length? orders.map(o=>orderCard(o)).join("") : '<div class="muted" style="margin-top:6px">暂无订单</div>'}
+      </div>
+    </div>`;
+  root.appendChild(card);
+}
+function orderCard(o){
+  return `
+  <div class="card" style="margin-top:8px">
+    <div class="flex"><b>订单 ${o.id}</b><div class="space"></div><span class="badge">${o.status}</span></div>
+    <div class="muted">金额：${money(o.pay)}，支付：${o.channel}</div>
+    <div class="muted">商品：${o.items.map(i=>i.id+"×"+i.qty).join("，")}</div>
+    <div class="line"></div>
+    <button class="btn ghost" onclick="showLogistics('${o.id}')">查看物流</button>
+  </div>`;
+}
+function showLogistics(oid){
+  const o=state.orders.find(x=>x.id===oid);
+  const html=`
+    <div class="card">
+      <div class="section-title">物流跟踪</div>
+      <div class="timeline">${o.logistics.map(x=>`<div><b>${x.time}</b> - ${x.desc}</div>`).join("")}</div>
+      <div class="line"></div>
+      <button class="btn ghost" onclick="closeCart()">关闭</button>
+    </div>`;
+  $("#drawerCart").innerHTML=html; $("#drawerCart").classList.add("show");
+}
+function saveAddr(){ state.user.address=$("#addr").value.trim(); saveState(); toast("已保存地址"); track("addr_save"); }
+function getLevel(){
+  const pts=state.user.points;
+  if(pts>=7000) return {level:"VIP", mult:1.2};
+  if(pts>=3000) return {level:"金卡", mult:1.1};
+  if(pts>=1000) return {level:"银卡", mult:1.05};
+  return {level:"普通", mult:1};
+}
+
+/* ------------------------- 购物车 & 结算 ------------------------- */
+function renderCartCount(){
+  const count = state.cart.items.reduce((s,i)=>s+i.qty,0);
+  $("#cartCount").textContent = count;
+}
+function openCart(){
+  const box=$("#drawerCart"); box.classList.add("show");
+  const items = state.cart.items.map(ci=>{
+    const p=state.products.find(x=>x.id===ci.id);
+    return `<div class="flex"><span>${p.name}</span><div class="space"></div>
+      <button class="btn ghost" onclick="dec('${ci.id}')">－</button>
+      <span>${ci.qty}</span>
+      <button class="btn" onclick="inc('${ci.id}')">＋</button>
+      <b>${money(p.price*ci.qty)}</b></div>`;
+  }).join("") || '<div class="muted">购物车空空如也</div>';
+
+  const coupons = state.coupons.filter(c=>c.acquired && !c.used && c.type!=='offline');
+  const total = state.cart.items.reduce((s,ci)=> s + state.products.find(p=>p.id===ci.id).price*ci.qty, 0);
+  const coupon = coupons.find(c=>c.id===state.cart.couponId);
+  const discount = coupon && total>=coupon.threshold ? (coupon.type==='cash'?coupon.value:0) : 0;
+  const pay = Math.max(0, total - discount);
+
+  box.innerHTML = `
+    <div class="section-title">购物车</div>
+    ${items}
+    <div class="line"></div>
+    <div class="flex">
+      <div>优惠券：</div>
+      <select id="applyCoupon">
+        <option value="">不使用</option>
+        ${coupons.map(c=>`<option value="${c.id}" ${state.cart.couponId===c.id?'selected':''}>${c.title}（满${c.threshold}）</option>`).join("")}
+      </select>
+      <div class="space"></div>
+      <div>小计：<b>${money(total)}</b>  &nbsp; 抵扣：<b>${money(discount)}</b>  &nbsp; 应付：<b>${money(pay)}</b></div>
+    </div>
+    <div class="line"></div>
+    <div class="flex">
+      <select id="channel"><option>微信支付</option><option>支付宝</option><option>银行卡</option></select>
+      <div class="space"></div>
+      <button class="btn ok" onclick="checkout()">下单支付</button>
+      <button class="btn ghost" onclick="closeCart()">关闭</button>
+    </div>`;
+  $("#applyCoupon").onchange=e=>{ state.cart.couponId=e.target.value||null; saveState(); openCart(); };
+}
+function closeCart(){ $("#drawerCart").classList.remove("show"); }
+function addToCart(id){
+  const it = state.cart.items.find(x=>x.id===id);
+  if(it) it.qty++; else state.cart.items.push({id,qty:1});
+  saveState(); renderCartCount(); toast("已加入购物车"); track("add_cart",{id});
+}
+function inc(id){ const it=state.cart.items.find(x=>x.id===id); it.qty++; saveState(); openCart(); }
+function dec(id){ const it=state.cart.items.find(x=>x.id===id); if(--it.qty<=0) state.cart.items=state.cart.items.filter(x=>x.id!==id); saveState(); openCart(); }
+function checkout(){
+  if(!state.cart.items.length){ toast("购物车为空"); return; }
+  const channel=$("#channel").value;
+  const coupons = state.coupons.filter(c=>c.acquired && !c.used && c.type!=='offline');
+  const total = state.cart.items.reduce((s,ci)=> s + state.products.find(p=>p.id===ci.id).price*ci.qty, 0);
+  const coupon = coupons.find(c=>c.id===state.cart.couponId);
+  const discount = coupon && total>=coupon.threshold ? (coupon.type==='cash'?coupon.value:0) : 0;
+  const pay = Math.max(0, total - discount);
+
+  // 生成订单
+  const oid = "OD"+Date.now().toString().slice(-6);
+  const logistics=[
+    {time:new Date().toLocaleString(), desc:"订单已创建"},
+    {time:new Date(Date.now()+3600e3).toLocaleString(), desc:"仓库拣货中"},
+    {time:new Date(Date.now()+7200e3).toLocaleString(), desc:"已发出，运输中"},
+  ];
+  state.orders.unshift({id:oid, items:structuredClone(state.cart.items), pay, status:"运输中", channel, logistics});
+  // 积分成长
+  const growth = Math.round(pay*10*getLevel().mult);
+  state.user.points += growth;
+
+  // 券置为已用
+  if(coupon) coupon.used=true;
+  // 清空购物车
+  state.cart={items:[], couponId:null};
+  saveState();
+
+  toast("支付成功，订单已创建"); track("pay_ok",{oid,pay,channel});
+  closeCart(); current="me"; render();
+}
+
+/* ------------------------- 埋点日志 ------------------------- */
+function openLogs(){
+  const box=$("#drawerLogs");
+  box.classList.add("show");
+  const logtxt = state.logs.slice(0,80).map(l=>`${l.t}  [${l.event}]  ${JSON.stringify(l.payload)}`).join("\n");
+  box.innerHTML = `<div class="section-title">埋点日志</div><div class="log">${logtxt||"暂无日志"}</div>
+  <div class="line"></div><button class="btn ghost" onclick="$('#drawerLogs').classList.remove('show')">关闭</button>`;
+}
+
+/* ------------------------- 顶部按钮绑定 ------------------------- */
+$("#btnCart").onclick=openCart;
+$("#btnLogs").onclick=openLogs;
+$("#modeCulture").onclick=()=>setMode('culture');
+$("#modeDirect").onclick=()=>setMode('direct');
+
+/* ------------------------- 启动 ------------------------- */
+function openCaseFromHome(){ current="cases"; render(); }
+function renderCart(){ openCart(); }
+function openDetailFromHome(id){ openDetail(id); }
+function openCartFromHome(){ openCart(); }
+function openCase(id){ openCase = openCase; } // placeholder (已在上方实现)
+function setTabs(){ renderNav(); }
+function openCartDrawer(){ openCart(); }
+function gotoMe(){ current="me"; render(); }
+function addPoint(n){ state.user.points+=n; saveState(); render(); }
+function openCase(id){ // 覆盖前面的占位定义，避免重复声明警告
+  const s=state.cases.find(x=>x.id===id); const p=state.products.find(x=>x.id===s.link);
+  const html=`
+    <div class="card">
+      <div class="section-title">📝 ${s.title}</div>
+      <p class="muted">（短文示例）${s.brief}。我们与作者沟通，将作品与生活空间结合……</p>
+      <div class="line"></div>
+      <div><b>文中提到的商品：</b></div>
+      <div style="margin-top:8px">${prodCard(p)}</div>
+    </div>`;
+  $("#drawerCart").innerHTML=html; $("#drawerCart").classList.add("show");
+}
+function renderInit(){
+  render(); track("app_open");
+}
+renderInit();
+</script>
+</body>
+</html>
