@@ -73,10 +73,10 @@
 
 <div class="screen-container">
 
-    <!-- 屏幕1: 首页 -->
+    <!-- 屏幕1: 首页 (已按新需求修改) -->
     <div>
         <div class="screen-title-wrapper">
-            <h2 class="screen-title">屏幕1: 首页</h2>
+            <h2 class="screen-title">屏幕1: 首页 (新版)</h2>
         </div>
         <div class="phone-mockup bg-white rounded-[44px] overflow-hidden">
             <div class="status-bar">
@@ -98,21 +98,23 @@
                 <!-- 内容区 -->
                 <div class="flex-grow overflow-y-auto no-scrollbar px-4 pb-4">
                     <!-- Banner -->
-                    <div class="h-40 bg-blue-200 rounded-xl flex items-center justify-center mb-6">
+                    <div class="h-40 bg-blue-200 rounded-xl flex items-center justify-center mb-6 relative">
                         <p class="text-blue-700">[活动轮播图 Banner]</p>
+                        <div class="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center animate-pulse">
+                            <i class="fa-solid fa-tower-broadcast mr-1"></i> LIVE
+                        </div>
                     </div>
                     <!-- 核心入口 -->
                     <div class="grid grid-cols-4 gap-4 text-center text-sm mb-8">
-                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-ticket fa-lg"></i></div><span class="mt-2">领券中心</span></div>
-                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-green-100 text-green-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-book-open-reader fa-lg"></i></div><span class="mt-2">品牌故事</span></div>
-                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-gem fa-lg"></i></div><span class="mt-2">寄售精品</span></div>
-                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-cyan-100 text-cyan-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-calendar-check fa-lg"></i></div><span class="mt-2">活动预约</span></div>
+                        <div class="flex flex-col items-center col-span-2"><div class="w-12 h-12 bg-green-100 text-green-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-book-open-reader fa-lg"></i></div><span class="mt-2">寄售案例/文化</span></div>
+                        <div class="flex flex-col items-center col-span-2"><div class="w-12 h-12 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-ticket fa-lg"></i></div><span class="mt-2">优惠券入口</span></div>
                     </div>
                     <!-- 推荐商品 -->
                     <h2 class="font-bold text-xl mb-3">新品推荐</h2>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-white rounded-lg"><div class="h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-sm truncate">手工限定咖啡杯</p><p class="text-red-500 font-bold">¥188.00</p></div></div>
                         <div class="bg-white rounded-lg"><div class="h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-sm truncate">防水帆布托特包</p><p class="text-red-500 font-bold">¥299.00</p></div></div>
+                        <div class="bg-white rounded-lg mt-4"><div class="h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-sm truncate">艺术丝巾</p><p class="text-red-500 font-bold">¥258.00</p></div></div>
                     </div>
                 </div>
             </main>
@@ -126,7 +128,7 @@
         </div>
     </div>
 
-    <!-- 屏幕2: 商城页 -->
+    <!-- 屏幕2: 商城页 (无变化) -->
     <div>
         <div class="screen-title-wrapper">
             <h2 class="screen-title">屏幕2: 商城页</h2>
@@ -170,7 +172,7 @@
         </div>
     </div>
 
-    <!-- 屏幕3: 商品详情 -->
+    <!-- 屏幕3: 商品详情 (无变化) -->
     <div>
         <div class="screen-title-wrapper">
             <h2 class="screen-title">屏幕3: 商品详情页</h2>
@@ -206,7 +208,7 @@
         </div>
     </div>
     
-    <!-- 屏幕4: 购物车 -->
+    <!-- 屏幕4: 购物车 (无变化) -->
     <div>
         <div class="screen-title-wrapper">
             <h2 class="screen-title">屏幕4: 购物车</h2>
@@ -264,10 +266,10 @@
         </div>
     </div>
 
-    <!-- 屏幕5: 我的 -->
+    <!-- 屏幕5: 我的 (已按新需求修改) -->
     <div>
         <div class="screen-title-wrapper">
-            <h2 class="screen-title">屏幕5: 我的</h2>
+            <h2 class="screen-title">屏幕5: 我的 (新版)</h2>
         </div>
         <div class="phone-mockup bg-gray-50 rounded-[44px] overflow-hidden">
             <div class="status-bar">...</div>
@@ -292,7 +294,7 @@
                 <div class="bg-white rounded-xl shadow-sm p-4 mx-4 mt-4">
                     <div class="flex justify-between items-center mb-4">
                         <p class="font-bold">我的订单</p>
-                        <p class="text-sm text-gray-500">查看全部 <i class="fa-solid fa-chevron-right"></i></p>
+                        <p class="text-sm text-gray-500">查看全部 <i class="fa-solid fa-chevron-right text-xs"></i></p>
                     </div>
                     <div class="flex justify-around text-center">
                         <div class="text-gray-600"><i class="fa-solid fa-wallet fa-xl"></i><p class="text-xs mt-2">待付款</p></div>
@@ -304,10 +306,11 @@
                 </div>
                 <!-- 服务列表 -->
                  <div class="bg-white rounded-xl shadow-sm p-2 mx-4 mt-4 text-sm">
-                    <div class="flex items-center p-3"><i class="fa-solid fa-location-dot w-6 text-gray-500"></i><span>地址管理</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
-                    <div class="flex items-center p-3"><i class="fa-solid fa-gift w-6 text-gray-500"></i><span>积分商城</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
-                    <div class="flex items-center p-3"><i class="fa-solid fa-headset w-6 text-gray-500"></i><span>联系客服</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
-                    <div class="flex items-center p-3"><i class="fa-solid fa-gear w-6 text-gray-500"></i><span>设置</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-location-dot w-6 text-gray-500"></i><span>地址管理</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-shield-halved w-6 text-green-500"></i><span class="font-semibold text-green-600">经销商入口</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-gift w-6 text-gray-500"></i><span>积分商城</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-headset w-6 text-gray-500"></i><span>联系客服</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-gear w-6 text-gray-500"></i><span>设置</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300 text-xs"></i></div>
                 </div>
             </main>
             <footer class="tab-bar bg-gray-50 flex items-center justify-around">
@@ -319,8 +322,153 @@
             </footer>
         </div>
     </div>
+    
+    <!-- 屏幕6: 寄售案例/文化页 (新增) -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕6: 品牌故事页</h2>
+        </div>
+        <div class="phone-mockup bg-white rounded-[44px] overflow-hidden">
+            <div class="status-bar">...</div>
+            <div class="app-header border-b">
+                <i class="fa-solid fa-chevron-left absolute left-4"></i>
+                <span>品牌故事</span>
+            </div>
+            <main class="h-[724px] overflow-y-auto no-scrollbar p-4">
+                <!-- 故事卡片 1 -->
+                <div class="rounded-xl shadow-md overflow-hidden mb-5">
+                    <div class="h-40 bg-green-200 flex items-center justify-center text-green-700">[故事主图]</div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg">一杯咖啡背后的匠心</h3>
+                        <p class="text-sm text-gray-600 mt-2">从一颗生豆到一杯香醇的咖啡，我们坚持了20道工序，只为呈现最完美风味...</p>
+                        <div class="text-xs text-gray-400 mt-3">2天前 · 1.2k人阅读</div>
+                    </div>
+                </div>
+                <!-- 故事卡片 2 -->
+                <div class="rounded-xl shadow-md overflow-hidden mb-5">
+                    <div class="h-40 bg-purple-200 flex items-center justify-center text-purple-700">[访谈视频]</div>
+                     <div class="p-4">
+                        <h3 class="font-bold text-lg">专访创始人：关于时间的艺术</h3>
+                        <p class="text-sm text-gray-600 mt-2">他认为，每一件值得收藏的物品，都承载着一段不可复制的时光...</p>
+                        <div class="text-xs text-gray-400 mt-3">5天前 · 8.9k人阅读</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- 屏幕7: 扫码界面 (新增) -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕7: 扫码界面</h2>
+        </div>
+        <div class="phone-mockup bg-black rounded-[44px] overflow-hidden relative flex items-center justify-center">
+             <div class="absolute top-0 left-0 right-0 z-10">
+                <div class="status-bar text-white">
+                    <span>9:41</span>
+                    <div>
+                        <i class="fa-solid fa-signal"></i>
+                        <i class="fa-solid fa-wifi ml-1"></i>
+                        <i class="fa-solid fa-battery-full ml-1"></i>
+                    </div>
+                </div>
+                 <div class="app-header text-white">
+                    <i class="fa-solid fa-xmark absolute left-4"></i>
+                    <span>扫码</span>
+                </div>
+             </div>
+             
+             <!-- 模拟摄像头画面 -->
+             <div class="w-full h-full bg-gray-800 opacity-50"></div>
+             
+             <!-- 扫描框 -->
+             <div class="w-64 h-64 border-4 border-dashed border-gray-300 rounded-lg relative">
+                 <div class="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
+                 <div class="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
+                 <div class="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
+                 <div class="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg"></div>
+                 <div class="absolute top-1/2 left-0 w-full h-0.5 bg-green-400 animate-ping"></div>
+             </div>
+             
+             <p class="absolute bottom-32 text-white text-sm">将二维码放入框内，即可自动扫描</p>
+        </div>
+    </div>
+    
+    <!-- 屏幕8: 活动预约 (新增) -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕8: 活动预约</h2>
+        </div>
+        <div class="phone-mockup bg-gray-50 rounded-[44px] overflow-hidden">
+            <div class="status-bar bg-white">...</div>
+            <div class="app-header bg-white border-b">
+                <i class="fa-solid fa-chevron-left absolute left-4"></i>
+                <span>活动预约</span>
+            </div>
+            <main class="h-[724px] overflow-y-auto no-scrollbar p-4">
+                 <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+                    <p class="font-bold">手冲咖啡品鉴沙龙</p>
+                    <p class="text-sm text-gray-500 mt-2"><i class="fa-solid fa-calendar-days mr-2"></i>每周六 14:00 - 16:00</p>
+                    <p class="text-sm text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-2"></i>总店体验空间</p>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-green-600 font-semibold">可预约</span>
+                        <button class="bg-blue-500 text-white px-5 py-1.5 rounded-full text-sm font-bold">立即预约</button>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm mb-4">
+                    <p class="font-bold">新品鉴赏会 (VIP专场)</p>
+                    <p class="text-sm text-gray-500 mt-2"><i class="fa-solid fa-calendar-days mr-2"></i>2025.09.15 19:00 - 21:00</p>
+                    <p class="text-sm text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-2"></i>城市艺术中心</p>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-orange-500 font-semibold">名额紧张</span>
+                        <button class="bg-blue-500 text-white px-5 py-1.5 rounded-full text-sm font-bold">立即预约</button>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm opacity-60">
+                    <p class="font-bold">品牌历史回顾展</p>
+                    <p class="text-sm text-gray-500 mt-2"><i class="fa-solid fa-calendar-days mr-2"></i>2025.08.01 - 2025.08.30</p>
+                    <p class="text-sm text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-2"></i>总店体验空间</p>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-gray-500 font-semibold">已结束</span>
+                        <button class="bg-gray-300 text-white px-5 py-1.5 rounded-full text-sm font-bold" disabled>查看详情</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- 屏幕9: 优惠券核销 (新增) -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕9: 优惠券核销页</h2>
+        </div>
+        <div class="phone-mockup bg-blue-500 rounded-[44px] overflow-hidden">
+             <div class="status-bar text-white">...</div>
+            <div class="app-header text-white">
+                <i class="fa-solid fa-chevron-left absolute left-4"></i>
+                <span>优惠券详情</span>
+            </div>
+            <main class="p-6 flex flex-col items-center">
+                 <div class="bg-white w-full rounded-xl p-6 text-center">
+                    <p class="text-gray-500 text-sm">向店员出示此码</p>
+                    <div class="w-48 h-48 bg-gray-200 my-4 mx-auto flex items-center justify-center text-gray-500">[核销二维码]</div>
+                    <p class="font-bold text-2xl">手冲咖啡兑换券</p>
+                    <p class="text-sm text-gray-500 mt-2">有效期至 2025-12-31</p>
+                 </div>
+                 <div class="w-full bg-white rounded-xl p-4 mt-4 text-sm">
+                    <p class="font-bold mb-2">使用须知</p>
+                    <ul class="text-gray-600 list-disc list-inside space-y-1 text-xs">
+                        <li>本券仅限线下门店使用。</li>
+                        <li>不可与其他优惠同享。</li>
+                        <li>最终解释权归品牌所有。</li>
+                    </ul>
+                 </div>
+            </main>
+        </div>
+    </div>
 
 </div>
 
 </body>
 </html>
+
