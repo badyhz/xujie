@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+<title>商城 iOS App · 全链路原型（微信支付 / 预约记录 / 员工核销 / 内嵌视频）</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+  :root{
+    --bg:#f6f7fb; --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --card:#ffffff;
+    --brand:#3b82f6; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --vio:#8b5cf6; --brown:#a16207; --green:#059669;
+    --radius:16px; --shadow:0 10px 24px rgba(0,0,0,.06);
+    --tabH:70px; --safeTop:env(safe-area-inset-top); --safeBottom:env(safe-area-inset-bottom);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,Inter,"Noto Sans SC",Helvetica,Arial}
+  a{text-decoration:none;color:inherit}
+  .page{padding:12px 12px calc(var(--tabH) + 20px + var(--safeBottom));max-width:768px;margin:0 auto}
+  .topbar{position:sticky;top:0;z-index:9;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .topbar .title{font-weight:800}
+  .input{flex:1;background:#f6f7fb;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .btn{padding:10px 12px;border-radius:12px;background:var(--brand);color:#fff;border:0;font-weight:600}
+  .btn.ghost{background:#fff;border:1px solid var(--brand);color:var(--brand)}
+  .btn.plain{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px}
+  .row{display:flex;align-items:center;gap:8px}
+  .space{flex:1}
+  .muted{color:var(--muted);font-size:12px}
+  .price{font-weight:800}
+  .chip{padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px}
+  .tag{font-size:11px;padding:2px 6px;border-radius:6px;background:#eef2ff;color:#3730a3}
+  .hero{height:260px;border-radius:16px;background:#0b1020;color:#fff;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .hero .dots{position:absolute;bottom:10px;display:flex;gap:6px}
+  .hero .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.5)}
+  .hero .dot.on{background:#fff}
+  .prod{display:flex;flex-direction:column;gap:6px}
+  .thumb{height:60px;width:60px;border-radius:16px;background:linear-gradient(135deg,#eef2ff,#e8fff4);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 6px}
+  .thumb-lg{height:110px;border-radius:12px;background:linear-gradient(135deg,#eef2ff,#e8fff4);display:flex;align-items:center;justify-content:center;font-size:44px}
+  /* 新的快捷入口样式（颜色区分） */
+  .quick-links{display:flex;justify-content:space-between;gap:12px;margin-top:12px}
+  .quick-item{flex:1;text-align:center;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .2s ease}
+  .quick-item:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+  .quick-item i{font-size:22px;border-radius:50%;padding:14px;color:#fff}
+  .q-book i{background:var(--brand)}
+  .q-culture i{background:var(--vio)}
+  .q-case i{background:var(--green)}
+  .q-coffee i{background:var(--brown)}
+  .quick-item b{font-size:13px}
+  /* 表单控件 */
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:12px;color:#64748b}
+  .field input,.field select,.field textarea{padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+  .list{display:grid;gap:8px}
+  /* 进度条 */
+  .progress{height:8px;background:#eef2ff;border-radius:999px;overflow:hidden}
+  .progress>i{display:block;height:100%;background:var(--brand);width:60%}
+  /* 底部 Tab */
+  .tabbar-wrap{position:fixed;left:0;right:0;bottom:0;padding-bottom:calc(var(--safeBottom));z-index:20}
+  .tabbar{height:var(--tabH);background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;position:relative}
+  .tab{display:flex;flex-direction:column;align-items:center;font-size:11px;color:#64748b}
+  .tab.on{color:#111}
+  .fab{position:absolute;left:50%;transform:translate(-50%,-22%);bottom:calc(var(--tabH) - 40px);width:74px;height:74px;border-radius:999px;background:linear-gradient(145deg,#3b82f6,#2563eb);box-shadow:0 12px 24px rgba(37,99,235,.35);display:flex;align-items:center;justify-content:center;color:#fff;border:6px solid #fff}
+  /* 设备墙布局 */
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+  .side{padding:16px;background:#fff;border-right:1px solid var(--line);position:sticky;top:0;height:100vh;overflow:auto}
+  .side h1{font-size:18px;margin:6px 0 8px}
+  .side .nav{display:grid;gap:6px}
+  .side .nav a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px}
+  .side .nav a:hover,.side .nav a.on{background:#eef2ff;color:#1d4ed8}
+  .canvas{padding:16px}
+  .wall{display:grid;grid-template-columns:repeat(auto-fill, 420px);gap:16px}
+  .device{background:linear-gradient(#fcfdff,#f2f5fb);border:1px solid var(--line);border-radius:34px;box-shadow:0 16px 32px rgba(0,0,0,.08);padding:18px;width:420px}
+  .notch{height:22px;width:120px;background:#0b1020;border-bottom-left-radius:16px;border-bottom-right-radius:16px;margin:0 auto 10px}
+  .screen{background:var(--card);border:1px solid var(--line);border-radius:28px;height:820px;overflow:hidden;display:flex;flex-direction:column}
+  /* 内嵌视频占位样式 */
+  .video{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+  .video .playbar{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:8px;display:flex;align-items:center;gap:8px;color:#fff}
+  .video .prog{flex:1;height:4px;background:rgba(255,255,255,.3);border-radius:999px;overflow:hidden}
+  .video .prog i{display:block;height:100%;width:36%;background:#3b82f6}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <h1>📱 商城 iOS 原型 · 全链路</h1>
+    <div class="nav">
+      <a class="on" href="#home"><i class="fa-solid fa-house"></i> 首页</a>
+      <a href="#booking-list"><i class="fa-regular fa-calendar"></i> 活动预约</a>
+      <a href="#culture-list"><i class="fa-solid fa-landmark"></i> 公司文化</a>
+      <a href="#case-list"><i class="fa-regular fa-newspaper"></i> 案例分享</a>
+      <a href="#coffee-menu"><i class="fa-solid fa-mug-saucer"></i> 咖啡点单</a>
+      <a href="#shop"><i class="fa-solid fa-bag-shopping"></i> 商品</a>
+      <a href="#pdetail"><i class="fa-regular fa-image"></i> 商品详情</a>
+      <a href="#cart-retail"><i class="fa-solid fa-cart-shopping"></i> 零售购物车</a>
+      <a href="#checkout-retail"><i class="fa-regular fa-credit-card"></i> 零售结算/微信支付</a>
+      <a href="#orders-retail"><i class="fa-regular fa-file-lines"></i> 订单列表</a>
+      <a href="#order-retail-detail"><i class="fa-regular fa-clipboard"></i> 订单详情</a>
+      <a href="#booking-records"><i class="fa-regular fa-clock"></i> 预约记录/退改</a>
+      <a href="#staff-verify"><i class="fa-solid fa-id-card-clip"></i> 员工端核销</a>
+      <a href="#qr"><i class="fa-solid fa-qrcode"></i> 会员码</a>
+      <a href="#me"><i class="fa-regular fa-user"></i> 我的</a>
+    </div>
+  </aside>
+  <main class="canvas">
+    <div class="wall">
+      <!-- 首页 -->
+      <div class="device" id="home">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar">
+            <i class="fa-solid fa-location-dot"></i><div class="title">上海</div>
+            <input class="input" placeholder="搜索商品/案例/咖啡">
+            <button class="btn plain"><i class="fa-regular fa-bell"></i></button>
+          </div>
+          <div class="page">
+            <div class="card" style="padding:0;overflow:hidden">
+              <div class="hero">
+                <h2 style="margin:0">品牌故事 · 秋季文化专题</h2>
+                <div class="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+              </div>
+            </div>
+            <!-- 四按钮快捷入口（颜色区分） -->
+            <div class="quick-links">
+              <a class="quick-item q-book" href="#booking-list"><i class="fa-regular fa-calendar"></i><b>活动预约</b></a>
+              <a class="quick-item q-culture" href="#culture-list"><i class="fa-solid fa-landmark"></i><b>公司文化</b></a>
+              <a class="quick-item q-case" href="#case-list"><i class="fa-regular fa-newspaper"></i><b>案例分享</b></a>
+              <a class="quick-item q-coffee" href="#coffee-menu"><i class="fa-solid fa-mug-saucer"></i><b>咖啡点单</b></a>
+            </div>
+            <!-- 商品推荐示例 -->
+            <section class="card" style="margin-top:12px">
+              <div class="row"><b>为你推荐</b></div>
+              <div class="list">
+                <div class="row"><div class="thumb-lg" style="width:80px">🎧</div><div><b>旗舰降噪耳机</b><div class="muted">蓝牙5.3 · 40h续航</div><div class="price">¥1599</div></div><div class="space"></div><button class="chip" onclick="location.hash='#cart-retail'">加入</button></div>
+              </div>
+            </section>
+          </div>
+          <div class="tabbar-wrap">
+            <div class="tabbar">
+              <a class="tab on" href="#home"><i class="fa-solid fa-house"></i><div>首页</div></a>
+              <a class="tab" href="#shop"><i class="fa-solid fa-bag-shopping"></i><div>商品</div></a>
+              <a class="fab" href="#qr"><i class="fa-solid fa-qrcode" style="font-size:26px"></i></a>
+              <a class="tab" href="#culture-list"><i class="fa-solid fa-clapperboard"></i><div>文化/案例</div></a>
+              <a class="tab" href="#me"><i class="fa-regular fa-user"></i><div>我的</div></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= 活动预约：二/三级 + 记录/退改 ========= -->
+      <div class="device" id="booking-list">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">活动预约</div><div class="space"></div><a class="btn plain" href="#booking-records"><i class="fa-regular fa-clock"></i> 预约记录</a></div>
+          <div class="page">
+            <section class="card">
+              <div class="row" style="gap:8px;flex-wrap:wrap">
+                <span class="chip">全部</span><span class="chip">线下</span><span class="chip">线上</span>
+                <div class="space"></div>
+                <span class="chip">本周</span><span class="chip">本月</span>
+              </div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="list">
+                <a class="row" href="#booking-detail"><div class="thumb-lg" style="width:80px">🎤</div><div style="flex:1"><b>品牌分享会</b><div class="muted">10/12 周日 14:00 · 线下/直播</div></div><button class="btn ghost">预约</button></a>
+                <a class="row" href="#booking-detail"><div class="thumb-lg" style="width:80px">🛠️</div><div style="flex:1"><b>手作工坊体验</b><div class="muted">10/18 周六 10:00 · 线下</div></div><button class="btn ghost">预约</button></a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="booking-detail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></button><div class="title">品牌分享会</div><div class="space"></div><a class="btn plain" href="#booking-rules"><i class="fa-regular fa-circle-question"></i> 退改规则</a></div>
+          <div class="page">
+            <section class="card"><div class="thumb-lg" style="height:160px;font-size:64px">🎤</div><div class="muted" style="margin-top:6px">主题：品牌可持续之路 · 地点：展厅A · 名额：30</div></section>
+            <section class="card" style="margin-top:12px">
+              <div class="field"><label>姓名</label><input placeholder="请输入姓名"></div>
+              <div class="field"><label>手机号</label><input placeholder="用于短信确认"></div>
+              <div class="field"><label>到场人数</label><select><option>1</option><option>2</option><option>3</option></select></div>
+              <div class="field"><label>备注</label><textarea rows="3" placeholder="可填写特殊需求"></textarea></div>
+              <div class="row" style="margin-top:10px"><button class="btn" onclick="alert('已预约成功')">提交预约</button><div class="space"></div><button class="btn ghost">加入日历</button></div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <!-- 预约记录 / 退改规则 -->
+      <div class="device" id="booking-records">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">我的预约</div><div class="space"></div><a class="btn plain" href="#booking-rules"><i class="fa-regular fa-circle-question"></i> 退改规则</a></div>
+          <div class="page">
+            <section class="card">
+              <div class="list">
+                <div class="row"><div class="thumb-lg" style="width:80px">🎤</div><div style="flex:1"><b>品牌分享会</b><div class="muted">10/12 14:00 · 已预约</div></div><div class="space"></div><button class="chip">取消</button></div>
+                <div class="row"><div class="thumb-lg" style="width:80px">🛠️</div><div style="flex:1"><b>手作工坊</b><div class="muted">10/18 10:00 · 待开始</div></div><div class="space"></div><button class="chip">改期</button></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="booking-rules">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></button><div class="title">退改规则</div><div class="space"></div></div>
+          <div class="page">
+            <section class="card">
+              <ol class="muted">
+                <li>活动开始前24小时可免费取消或改期；</li>
+                <li>活动开始前24小时内取消，将扣除预约名额，不退还现金；</li>
+                <li>如遇不可抗力，主办方保留改期权；</li>
+                <li>现场签到需出示会员码，逾时作废；</li>
+              </ol>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= 公司文化：二/三级（内嵌视频） ========= -->
+      <div class="device" id="culture-list">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">公司文化</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-link"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="list">
+                <a class="row" href="#culture-detail"><div class="thumb-lg" style="width:80px">🏛️</div><div><b>使命与愿景</b><div class="muted">让匠心走进日常</div></div><div class="space"></div><i class="fa-solid fa-chevron-right"></i></a>
+                <a class="row" href="#culture-detail"><div class="thumb-lg" style="width:80px">🌱</div><div><b>可持续实践</b><div class="muted">材料再生 & 绿色供应链</div></div><div class="space"></div><i class="fa-solid fa-chevron-right"></i></a>
+                <a class="row" href="#culture-detail"><div class="thumb-lg" style="width:80px">🏭</div><div><b>工厂参观</b><div class="muted">720° 全景</div></div><div class="space"></div><i class="fa-solid fa-chevron-right"></i></a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="culture-detail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></button><div class="title">可持续实践</div><div class="space"></div></div>
+          <div class="page">
+            <section class="card">
+              <div class="video">
+                <!-- 内嵌播放器占位：可替换为 <video controls src="..."> -->
+                <div class="playbar"><i class="fa-solid fa-play"></i><div class="prog"><i></i></div><span>03:21/09:42</span></div>
+              </div>
+              <p class="muted" style="margin-top:8px">我们在材料回收、能耗管理、碳足迹等方面的持续投入……（长文占位）</p>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><b>720° 全景参观</b><div class="space"></div><a class="chip" href="#" onclick="alert('打开外部全景链接')"><i class="fa-solid fa-up-right-from-square"></i> 打开</a></div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= 案例分享：二/三级 ========= -->
+      <div class="device" id="case-list">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">案例分享</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="list">
+                <a class="row" href="#case-detail"><div class="thumb-lg" style="width:80px">🪵</div><div style="flex:1"><b>旧木新生</b><div class="muted">从回收至上新</div></div><i class="fa-solid fa-chevron-right"></i></a>
+                <a class="row" href="#case-detail"><div class="thumb-lg" style="width:80px">🏺</div><div style="flex:1"><b>手作与社区</b><div class="muted">与当地手艺人共创</div></div><i class="fa-solid fa-chevron-right"></i></a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="case-detail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></button><div class="title">旧木新生</div><div class="space"></div></div>
+          <div class="page">
+            <section class="card"><div class="thumb-lg" style="height:160px;font-size:64px">🪵</div><p class="muted">案例故事长文占位……</p></section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><b>相关商品</b></div>
+              <div class="list" style="margin-top:8px">
+                <div class="row"><div class="thumb-lg" style="width:80px">🪵</div><div><b>手工木托盘</b><div class="price">¥129</div></div><div class="space"></div><button class="chip" onclick="location.hash='#cart-retail'">加入</button></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= 咖啡点单：二/三级 + 微信支付 ========= -->
+      <div class="device" id="coffee-menu">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">咖啡点单</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-sliders"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="row" style="gap:8px;flex-wrap:wrap"><span class="chip">全部</span><span class="chip">热饮</span><span class="chip">冰饮</span><span class="chip">特调</span></div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="list">
+                <a class="row" href="#coffee-detail"><div class="thumb-lg" style="width:80px">☕</div><div style="flex:1"><b>美式</b><div class="muted">中杯 · 热/冰</div><div class="price">¥15</div></div><i class="fa-solid fa-chevron-right"></i></a>
+                <a class="row" href="#coffee-detail"><div class="thumb-lg" style="width:80px">🥤</div><div style="flex:1"><b>拿铁</b><div class="muted">大杯 · 燕麦奶</div><div class="price">¥22</div></div><i class="fa-solid fa-chevron-right"></i></a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="coffee-detail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></button><div class="title">拿铁</div><div class="space"></div></div>
+          <div class="page">
+            <section class="card"><div class="thumb-lg" style="height:160px;font-size:64px">🥤</div><div class="price" style="font-size:20px">¥22</div></section>
+            <section class="card" style="margin-top:12px">
+              <div class="field"><label>杯型</label><div class="row" style="gap:6px;flex-wrap:wrap"><span class="chip">小杯</span><span class="chip">中杯</span><span class="chip">大杯</span></div></div>
+              <div class="field"><label>冷热</label><div class="row" style="gap:6px;flex-wrap:wrap"><span class="chip">热</span><span class="chip">冰</span></div></div>
+              <div class="field"><label>加料</label><div class="row" style="gap:6px;flex-wrap:wrap"><span class="chip">燕麦奶</span><span class="chip">榛果糖浆</span><span class="chip">去冰</span></div></div>
+              <div class="row" style="margin-top:10px"><button class="btn">加入购物车</button><div class="space"></div><button class="btn ghost" onclick="location.hash='#checkout'">去结算</button></div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="cart">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">购物车</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-ticket"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="list">
+                <div class="row"><div class="thumb-lg" style="width:80px">🥤</div><div><b>拿铁 · 大杯 · 燕麦奶</b><div class="price">¥26</div></div><div class="space"></div><div class="row"><button class="chip">-</button><b>1</b><button class="chip">+</button></div></div>
+              </div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><span class="muted">小计</span><div class="space"></div>¥26</div>
+              <div class="row"><span class="muted">优惠</span><div class="space"></div>-¥5（咖啡券）</div>
+              <div class="row" style="font-weight:800"><span>应付</span><div class="space"></div>¥21</div>
+              <div class="row" style="margin-top:10px"><button class="btn" onclick="location.hash='#checkout'">去支付</button></div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="checkout">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">确认订单</div><div class="space"></div><span class="chip"><i class="fa-brands fa-weixin"></i> 微信支付</span></div>
+          <div class="page">
+            <section class="card"><div class="row"><span class="muted">取餐方式</span><div class="space"></div><span class="chip">到店自取</span></div></section>
+            <section class="card" style="margin-top:12px">
+              <div class="row" style="gap:8px;flex-wrap:wrap"><span class="chip"><i class="fa-brands fa-weixin"></i> 微信支付</span><span class="chip"><i class="fa-brands fa-apple-pay"></i> Apple Pay</span><span class="chip"><i class="fa-regular fa-credit-card"></i> 银行卡</span></div>
+            </section>
+            <section class="card" style="margin-top:12px"><div class="row" style="font-weight:800"><span>应付</span><div class="space"></div>¥21</div><div class="row" style="margin-top:10px"><button class="btn" onclick="location.hash='#order-status'">微信支付 ¥21</button></div></section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="order-status">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">出单状态</div><div class="space"></div><button class="btn plain" onclick="location.hash='#qr'"><i class="fa-solid fa-qrcode"></i> 会员码</button></div>
+          <div class="page">
+            <section class="card">
+              <div class="row"><i class="fa-regular fa-clock"></i><b>订单已接单 · 制作中</b><div class="space"></div><span class="tag">约 3 分钟</span></div>
+              <div class="progress" style="margin-top:8px"><i style="width:40%"></i></div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><i class="fa-solid fa-mug-saucer"></i> 拿铁 · 大杯 · 燕麦奶<div class="space"></div><span class="muted">取餐号 A108</span></div>
+              <div class="muted" style="margin-top:6px">取餐请出示会员码；员工端扫描可核销「咖啡券」。</div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= 商品：列表 / 详情 / 零售购物车 / 结算（含微信支付） / 订单 ========= -->
+      <div class="device" id="shop">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">商品</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="row"><b>分类</b><div class="space"></div><span class="chip">综合</span><span class="chip">销量</span><span class="chip">价格</span></div>
+              <div class="list" style="margin-top:8px">
+                <a class="row" href="#pdetail"><div class="thumb-lg" style="width:80px">📱</div><div style="flex:1"><b>5G 智能机 A1</b><div class="muted">128GB · 旗舰芯片</div><div class="price">¥3999</div></div><i class="fa-solid fa-chevron-right"></i></a>
+                <a class="row" href="#pdetail"><div class="thumb-lg" style="width:80px">🎧</div><div style="flex:1"><b>旗舰降噪耳机</b><div class="muted">蓝牙5.3 · 40h续航</div><div class="price">¥1599</div></div><i class="fa-solid fa-chevron-right"></i></a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="pdetail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></button><div class="title">5G 智能机 A1</div><div class="space"></div><button class="btn plain"><i class="fa-regular fa-heart"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="row" style="gap:8px">
+                <div class="thumb-lg" style="height:160px;font-size:64px;flex:1">📱</div>
+                <div class="thumb-lg" style="height:160px;font-size:64px;flex:1">🖼️</div>
+              </div>
+              <div class="row" style="margin-top:8px"><div class="price" style="font-size:20px">¥3999</div><div class="space"></div><span class="tag">包邮</span><span class="tag">7天无忧</span></div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="field"><label>存储容量</label><div class="row" style="gap:6px;flex-wrap:wrap"><span class="chip">128G</span><span class="chip">256G</span><span class="chip">512G</span></div></div>
+              <div class="field"><label>颜色</label><div class="row" style="gap:6px;flex-wrap:wrap"><span class="chip">黑</span><span class="chip">银</span><span class="chip">蓝</span></div></div>
+              <div class="field"><label>数量</label><div class="row" style="gap:6px"><button class="chip">-</button><b>1</b><button class="chip">+</button></div></div>
+              <div class="row" style="margin-top:10px"><button class="btn" onclick="location.hash='#cart-retail'">加入购物车</button><div class="space"></div><button class="btn ghost" onclick="location.hash='#checkout-retail'">立即购买</button></div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><b>商品详情</b></div>
+              <p class="muted">6.7" 120Hz · 5000mAh · 67W 快充 · 双扬声器 · NFC · 5G 全网通</p>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><b>评价（4.8）</b><div class="space"></div><span class="chip">查看全部</span></div>
+              <div class="list" style="margin-top:8px">
+                <div class="row"><i class="fa-regular fa-user"></i><div><b>小新</b><div class="muted">手感好，拍照清晰</div></div><div class="space"></div><span class="tag">已购</span></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <!-- 零售购物车 -->
+      <div class="device" id="cart-retail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">购物车（零售）</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-ticket"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="list">
+                <div class="row"><div class="thumb-lg" style="width:80px">📱</div><div><b>5G 智能机 A1 · 256G · 黑</b><div class="price">¥3999</div></div><div class="space"></div><div class="row"><button class="chip">-</button><b>1</b><button class="chip">+</button></div></div>
+              </div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><span class="muted">商品金额</span><div class="space"></div>¥3999</div>
+              <div class="row"><span class="muted">优惠</span><div class="space"></div>-¥100</div>
+              <div class="row"><span class="muted">运费</span><div class="space"></div>¥0</div>
+              <div class="row" style="font-weight:800"><span>应付</span><div class="space"></div>¥3899</div>
+              <div class="row" style="margin-top:10px"><button class="btn" onclick="location.hash='#checkout-retail'">去结算</button></div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <!-- 零售结算（含微信支付） -->
+      <div class="device" id="checkout-retail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">确认订单（零售）</div><div class="space"></div><span class="chip"><i class="fa-brands fa-weixin"></i> 微信支付</span></div>
+          <div class="page">
+            <section class="card">
+              <div class="row"><i class="fa-solid fa-location-dot"></i><b>收货地址</b><div class="space"></div><button class="chip">更换</button></div>
+              <div class="muted" style="margin-top:6px">张三 138****8888 · 上海市浦东新区世纪大道 88 号</div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><div class="thumb-lg" style="width:56px">📱</div><div style="flex:1"><b>5G 智能机 A1 · 256G · 黑</b></div><div class="price">¥3999</div></div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row" style="gap:8px;flex-wrap:wrap"><span class="chip"><i class="fa-brands fa-weixin"></i> 微信支付</span><span class="chip"><i class="fa-brands fa-apple-pay"></i> Apple Pay</span><span class="chip"><i class="fa-regular fa-credit-card"></i> 银行卡</span></div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><span class="muted">商品金额</span><div class="space"></div>¥3999</div>
+              <div class="row"><span class="muted">优惠</span><div class="space"></div>-¥100</div>
+              <div class="row" style="font-weight:800"><span>应付</span><div class="space"></div>¥3899</div>
+              <div class="row" style="margin-top:10px"><button class="btn" onclick="location.hash='#orders-retail'">微信支付 ¥3899</button></div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <!-- 订单列表 / 详情 -->
+      <div class="device" id="orders-retail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">我的订单</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="row" style="gap:6px;flex-wrap:wrap">
+                <span class="chip">全部</span><span class="chip">待付款</span><span class="chip">待发货</span><span class="chip">待收货</span><span class="chip">已完成</span><span class="chip">售后</span>
+              </div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="list">
+                <a class="row" href="#order-retail-detail"><div class="thumb-lg" style="width:56px">📱</div><div style="flex:1"><b>5G 智能机 A1 · 256G · 黑</b><div class="muted">已支付（微信） · 待发货</div></div><div class="price">¥3899</div></a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="device" id="order-retail-detail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain" onclick="history.back()"><i class="fa-solid fa-chevron-left"></i></button><div class="title">订单详情</div><div class="space"></div></div>
+          <div class="page">
+            <section class="card">
+              <div class="row"><b>状态</b><div class="space"></div><span class="tag">待发货</span></div>
+              <div class="row" style="margin-top:8px"><span class="muted">订单号</span><div class="space"></div>NO202410010001</div>
+              <div class="row"><span class="muted">支付方式</span><div class="space"></div><i class="fa-brands fa-weixin"></i> 微信支付</div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><div class="thumb-lg" style="width:56px">📱</div><div style="flex:1"><b>5G 智能机 A1 · 256G · 黑</b></div><div class="price">¥3999</div></div>
+              <div class="row"><span class="muted">优惠</span><div class="space"></div>-¥100</div>
+              <div class="row" style="font-weight:800"><span>实付</span><div class="space"></div>¥3899</div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><i class="fa-solid fa-location-dot"></i><b>收货地址</b><div class="space"></div></div>
+              <div class="muted" style="margin-top:6px">张三 · 138****8888 · 上海市浦东新区世纪大道 88 号</div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========= 员工端核销（扫码/手输码/权限态/记录） ========= -->
+      <div class="device" id="staff-verify">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">员工端 · 核销</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-gear"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="row" style="gap:8px;flex-wrap:wrap">
+                <button class="chip"><i class="fa-solid fa-camera"></i> 扫码核销</button>
+                <button class="chip"><i class="fa-regular fa-keyboard"></i> 手动输入码</button>
+                <span class="space"></span>
+                <span class="tag"><i class="fa-regular fa-user"></i> 店员（有权限）</span>
+              </div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><i class="fa-solid fa-qrcode"></i><b>输入/扫描的核销码</b><div class="space"></div><button class="btn ghost" onclick="alert('核销成功')">核销</button></div>
+              <div class="muted" style="margin-top:6px">支持：咖啡券 / 优惠券 / 活动签到</div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><b>核销记录</b><div class="space"></div><span class="muted">最近 5 条</span></div>
+              <div class="list" style="margin-top:8px">
+                <div class="row"><i class="fa-solid fa-mug-saucer"></i> 拿铁 · 咖啡券 <div class="space"></div><span class="muted">今天 14:02</span></div>
+                <div class="row"><i class="fa-solid fa-ticket"></i> 满200-20 券 <div class="space"></div><span class="muted">昨天 19:20</span></div>
+                <div class="row"><i class="fa-solid fa-clapperboard"></i> 品牌沙龙签到 <div class="space"></div><span class="muted">10/01</span></div>
+              </div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row"><b>权限状态</b><div class="space"></div><span class="tag">已授权</span></div>
+              <div class="muted" style="margin-top:6px">若权限不足，将出现 <span class="tag" style="background:#fee2e2;color:#b91c1c">无权限</span> 并引导联系管理员。</div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- 会员二维码 -->
+      <div class="device" id="qr">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">会员码</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-rotate"></i></button></div>
+          <div class="page">
+            <section class="card" style="text-align:center">
+              <div class="row" style="justify-content:center;margin-bottom:8px"><i class="fa-regular fa-circle-user"></i> <b>Winnie</b> <span class="tag">金卡</span></div>
+              <div style="display:inline-block;border:12px solid #fff;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.08);">
+                <div style="width:240px;height:240px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#000 0,#000 6px,#fff 6px,#fff 12px);color:#fff;border-radius:8px">
+                  <i class="fa-solid fa-qrcode" style="font-size:64px"></i>
+                </div>
+              </div>
+              <div class="muted" style="margin-top:8px">店员请使用「员工端」扫码核销：咖啡券 / 优惠券 / 活动签到</div>
+            </section>
+          </div>
+          <div class="tabbar-wrap">
+            <div class="tabbar">
+              <a class="tab" href="#home"><i class="fa-solid fa-house"></i><div>首页</div></a>
+              <a class="tab" href="#shop"><i class="fa-solid fa-bag-shopping"></i><div>商品</div></a>
+              <a class="fab" href="#qr"><i class="fa-solid fa-qrcode" style="font-size:26px"></i></a>
+              <a class="tab" href="#culture-list"><i class="fa-solid fa-clapperboard"></i><div>文化/案例</div></a>
+              <a class="tab" href="#me"><i class="fa-regular fa-user"></i><div>我的</div></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 我的 -->
+      <div class="device" id="me">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">我的</div><div class="space"></div><button class="btn plain"><i class="fa-regular fa-pen-to-square"></i></button></div>
+          <div class="page">
+            <section class="card">
+              <div class="row"><i class="fa-regular fa-circle-user"></i><b>Winnie</b><div class="space"></div><span class="tag">金卡</span></div>
+              <div class="muted" style="margin-top:6px">积分 3680 · 优惠券 3 张</div>
+            </section>
+            <section class="card" style="margin-top:12px">
+              <div class="row" style="gap:8px;flex-wrap:wrap">
+                <a class="chip" href="#orders-retail"><i class="fa-regular fa-file-lines"></i> 我的订单</a>
+                <a class="chip" href="#coupon-center"><i class="fa-solid fa-ticket"></i> 优惠券</a>
+                <a class="chip" href="#address"><i class="fa-solid fa-location-dot"></i> 地址管理</a>
+                <a class="chip" href="#qr"><i class="fa-solid fa-qrcode"></i> 会员码</a>
+              </div>
+            </section>
+          </div>
+          <div class="tabbar-wrap">
+            <div class="tabbar">
+              <a class="tab" href="#home"><i class="fa-solid fa-house"></i><div>首页</div></a>
+              <a class="tab" href="#shop"><i class="fa-solid fa-bag-shopping"></i><div>商品</div></a>
+              <a class="fab" href="#qr"><i class="fa-solid fa-qrcode" style="font-size:26px"></i></a>
+              <a class="tab" href="#culture-list"><i class="fa-solid fa-clapperboard"></i><div>文化/案例</div></a>
+              <a class="tab on" href="#me"><i class="fa-regular fa-user"></i><div>我的</div></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
