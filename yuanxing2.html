@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商城App高保真原型图</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+            color: #1c1c1e;
+        }
+        .phone-mockup {
+            width: 375px;
+            height: 812px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 1px solid #e0e0e0;
+        }
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .tab-bar {
+            height: 83px;
+            padding-bottom: 34px;
+            border-top: 1px solid #e5e5e5;
+        }
+        .home-indicator {
+            width: 134px;
+            height: 5px;
+            background-color: #1c1c1e;
+            border-radius: 100px;
+        }
+        .screen-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            gap: 60px;
+        }
+        .screen-title-wrapper {
+            width: 375px;
+            text-align: center;
+        }
+        .screen-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        .app-header {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 600;
+            position: relative;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+
+<div class="screen-container">
+
+    <!-- 屏幕1: 首页 -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕1: 首页</h2>
+        </div>
+        <div class="phone-mockup bg-white rounded-[44px] overflow-hidden">
+            <div class="status-bar">
+                <span>9:41</span>
+                <div>
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-wifi ml-1"></i>
+                    <i class="fa-solid fa-battery-full ml-1"></i>
+                </div>
+            </div>
+            <main class="h-[685px] flex flex-col">
+                <!-- 搜索框 -->
+                <div class="p-4">
+                    <div class="bg-gray-100 rounded-lg flex items-center px-3 h-9">
+                        <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                        <span class="ml-2 text-gray-500">搜索商品/品牌故事</span>
+                    </div>
+                </div>
+                <!-- 内容区 -->
+                <div class="flex-grow overflow-y-auto no-scrollbar px-4 pb-4">
+                    <!-- Banner -->
+                    <div class="h-40 bg-blue-200 rounded-xl flex items-center justify-center mb-6">
+                        <p class="text-blue-700">[活动轮播图 Banner]</p>
+                    </div>
+                    <!-- 核心入口 -->
+                    <div class="grid grid-cols-4 gap-4 text-center text-sm mb-8">
+                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-ticket fa-lg"></i></div><span class="mt-2">领券中心</span></div>
+                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-green-100 text-green-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-book-open-reader fa-lg"></i></div><span class="mt-2">品牌故事</span></div>
+                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-gem fa-lg"></i></div><span class="mt-2">寄售精品</span></div>
+                        <div class="flex flex-col items-center"><div class="w-12 h-12 bg-cyan-100 text-cyan-500 rounded-full flex items-center justify-center"><i class="fa-solid fa-calendar-check fa-lg"></i></div><span class="mt-2">活动预约</span></div>
+                    </div>
+                    <!-- 推荐商品 -->
+                    <h2 class="font-bold text-xl mb-3">新品推荐</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white rounded-lg"><div class="h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-sm truncate">手工限定咖啡杯</p><p class="text-red-500 font-bold">¥188.00</p></div></div>
+                        <div class="bg-white rounded-lg"><div class="h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-sm truncate">防水帆布托特包</p><p class="text-red-500 font-bold">¥299.00</p></div></div>
+                    </div>
+                </div>
+            </main>
+            <footer class="tab-bar bg-gray-50 flex items-center justify-around">
+                <div class="text-center text-blue-500"><i class="fa-solid fa-house fa-lg"></i><p class="text-xs mt-1">首页</p></div>
+                <div class="text-center text-gray-500"><i class="fa-solid fa-store fa-lg"></i><p class="text-xs mt-1">商城</p></div>
+                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white -mt-10 shadow-lg"><i class="fa-solid fa-qrcode fa-2x"></i></div>
+                <div class="text-center text-gray-500"><i class="fa-solid fa-cart-shopping fa-lg"></i><p class="text-xs mt-1">购物车</p></div>
+                <div class="text-center text-gray-500"><i class="fa-solid fa-user fa-lg"></i><p class="text-xs mt-1">我的</p></div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 屏幕2: 商城页 -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕2: 商城页</h2>
+        </div>
+        <div class="phone-mockup bg-white rounded-[44px] overflow-hidden">
+            <div class="status-bar">...</div>
+            <main class="h-[685px] flex flex-col">
+                <div class="app-header">商城</div>
+                <div class="p-4 border-b border-gray-100">
+                    <div class="bg-gray-100 rounded-lg flex items-center px-3 h-9"><i class="fa-solid fa-magnifying-glass text-gray-400"></i><span class="ml-2 text-gray-500">搜索</span></div>
+                </div>
+                <div class="flex flex-grow overflow-hidden">
+                    <!-- 左侧分类 -->
+                    <nav class="w-24 bg-gray-50 overflow-y-auto no-scrollbar">
+                        <p class="p-4 text-sm font-semibold bg-white text-blue-500 border-l-4 border-blue-500">生活器具</p>
+                        <p class="p-4 text-sm text-gray-600">时尚配饰</p>
+                        <p class="p-4 text-sm text-gray-600">线下体验</p>
+                        <p class="p-4 text-sm text-gray-600">寄售精品</p>
+                        <p class="p-4 text-sm text-gray-600">文化周边</p>
+                    </nav>
+                    <!-- 右侧商品 -->
+                    <div class="flex-grow overflow-y-auto p-4 no-scrollbar">
+                        <div class="flex justify-around text-sm mb-4">
+                            <span>综合</span><span class="text-blue-500 font-semibold">销量</span><span>价格<i class="fa-solid fa-arrow-up-long ml-1"></i></span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                             <div class="bg-white rounded-lg"><div class="h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-xs truncate">手工限定咖啡杯</p><p class="text-red-500 font-bold text-sm">¥188.00</p></div></div>
+                             <div class="bg-white rounded-lg"><div class="h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-xs truncate">艺术丝巾</p><p class="text-red-500 font-bold text-sm">¥258.00</p></div></div>
+                             <div class="bg-white rounded-lg"><div class="h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">[商品图]</div><div class="p-2"><p class="font-semibold text-xs truncate">复刻银质手链</p><p class="text-red-500 font-bold text-sm">¥450.00</p></div></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <footer class="tab-bar bg-gray-50 flex items-center justify-around">
+                <div class="text-center text-gray-500"><i class="fa-solid fa-house fa-lg"></i><p class="text-xs mt-1">首页</p></div>
+                <div class="text-center text-blue-500"><i class="fa-solid fa-store fa-lg"></i><p class="text-xs mt-1">商城</p></div>
+                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white -mt-10 shadow-lg"><i class="fa-solid fa-qrcode fa-2x"></i></div>
+                <div class="text-center text-gray-500"><i class="fa-solid fa-cart-shopping fa-lg"></i><p class="text-xs mt-1">购物车</p></div>
+                <div class="text-center text-gray-500"><i class="fa-solid fa-user fa-lg"></i><p class="text-xs mt-1">我的</p></div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 屏幕3: 商品详情 -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕3: 商品详情页</h2>
+        </div>
+        <div class="phone-mockup bg-gray-50 rounded-[44px] overflow-hidden">
+            <div class="status-bar bg-white">...</div>
+            <div class="app-header bg-white">
+                <i class="fa-solid fa-chevron-left absolute left-4"></i>
+                <span>商品详情</span>
+            </div>
+            <main class="h-[641px] overflow-y-auto no-scrollbar pb-4">
+                <div class="h-96 bg-gray-300 flex items-center justify-center text-gray-500">[商品轮播图]</div>
+                <div class="p-4 bg-white">
+                    <p class="text-2xl font-bold text-red-500">¥188.00 <span class="text-sm text-gray-400 line-through ml-2">¥220.00</span></p>
+                    <h1 class="text-lg font-bold mt-2">品牌故事系列 - 手工制限定咖啡杯</h1>
+                    <p class="text-sm text-gray-500 mt-2">每一只杯子都由匠人手工制作，承载着品牌的温度与故事。</p>
+                </div>
+                <div class="mt-3 p-4 bg-white">
+                    <p class="font-semibold">规格选择</p>
+                    <div class="flex gap-2 mt-3">
+                        <span class="px-4 py-1.5 bg-blue-50 text-blue-600 border border-blue-500 rounded-full text-sm">赤陶色</span>
+                        <span class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-full text-sm">天青色</span>
+                    </div>
+                </div>
+                 <div class="mt-3 p-4 bg-white min-h-64 text-gray-400">[商品图文详情区域]</div>
+            </main>
+            <footer class="h-20 bg-white border-t flex items-center justify-around px-4">
+                 <div class="text-center text-gray-500"><i class="fa-regular fa-heart fa-lg"></i><p class="text-xs mt-1">收藏</p></div>
+                 <div class="text-center text-gray-500"><i class="fa-solid fa-cart-shopping fa-lg"></i><p class="text-xs mt-1">购物车</p></div>
+                 <button class="flex-grow h-12 bg-orange-400 text-white rounded-full font-bold ml-4">加入购物车</button>
+                 <button class="flex-grow h-12 bg-blue-500 text-white rounded-full font-bold ml-2">立即购买</button>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- 屏幕4: 购物车 -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕4: 购物车</h2>
+        </div>
+        <div class="phone-mockup bg-gray-50 rounded-[44px] overflow-hidden">
+            <div class="status-bar bg-white">...</div>
+            <div class="app-header bg-white border-b">
+                 <span>购物车(2)</span>
+                 <span class="absolute right-4 text-sm font-normal">编辑</span>
+            </div>
+            <main class="h-[641px] overflow-y-auto no-scrollbar p-4">
+                <!-- 商品项1 -->
+                <div class="flex bg-white p-3 rounded-xl mb-3">
+                    <i class="fa-solid fa-circle-check text-blue-500 text-xl mr-3 mt-8"></i>
+                    <div class="w-24 h-24 bg-gray-200 rounded-lg">[图]</div>
+                    <div class="flex-grow ml-3">
+                        <p class="font-semibold text-sm">手工制限定咖啡杯</p>
+                        <p class="text-xs text-gray-400 bg-gray-100 inline-block px-2 py-1 rounded mt-1">规格: 赤陶色</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <p class="text-red-500 font-bold">¥188.00</p>
+                            <div class="flex items-center border rounded-md">
+                                <span class="px-2 py-1">-</span><span class="px-3 text-sm border-l border-r">1</span><span class="px-2 py-1">+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 商品项2 -->
+                 <div class="flex bg-white p-3 rounded-xl">
+                    <i class="fa-regular fa-circle text-gray-300 text-xl mr-3 mt-8"></i>
+                    <div class="w-24 h-24 bg-gray-200 rounded-lg">[图]</div>
+                    <div class="flex-grow ml-3">
+                        <p class="font-semibold text-sm">防水帆布托特包</p>
+                        <p class="text-xs text-gray-400 bg-gray-100 inline-block px-2 py-1 rounded mt-1">规格: 卡其色</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <p class="text-red-500 font-bold">¥299.00</p>
+                            <div class="flex items-center border rounded-md">
+                                <span class="px-2 py-1">-</span><span class="px-3 text-sm border-l border-r">1</span><span class="px-2 py-1">+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <footer class="h-20 bg-white border-t flex items-center justify-between px-4">
+                <div class="flex items-center text-sm">
+                    <i class="fa-solid fa-circle-check text-blue-500 text-xl mr-2"></i>全选
+                </div>
+                <div class="flex items-center">
+                    <div class="text-right">
+                        <p>合计: <span class="text-red-500 font-bold text-lg">¥188.00</span></p>
+                        <p class="text-xs text-gray-400">已优惠 ¥22.00</p>
+                    </div>
+                    <button class="h-11 bg-blue-500 text-white rounded-full font-bold ml-4 px-10">结算</button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 屏幕5: 我的 -->
+    <div>
+        <div class="screen-title-wrapper">
+            <h2 class="screen-title">屏幕5: 我的</h2>
+        </div>
+        <div class="phone-mockup bg-gray-50 rounded-[44px] overflow-hidden">
+            <div class="status-bar">...</div>
+            <main class="h-[685px] overflow-y-auto no-scrollbar">
+                <!-- 用户信息 -->
+                <div class="p-4 flex items-center">
+                    <div class="w-16 h-16 bg-gray-300 rounded-full">[头像]</div>
+                    <div class="ml-4">
+                        <p class="font-bold text-xl">Chris</p>
+                        <span class="text-sm bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full font-semibold">金卡会员</span>
+                    </div>
+                </div>
+                <!-- 资产 -->
+                <div class="px-4">
+                    <div class="bg-white rounded-xl shadow-sm p-4 flex justify-around text-center">
+                        <div><p class="font-bold text-lg">5</p><p class="text-sm text-gray-500">优惠券</p></div>
+                        <div><p class="font-bold text-lg">880</p><p class="text-sm text-gray-500">积分</p></div>
+                        <div><p class="font-bold text-lg">12</p><p class="text-sm text-gray-500">收藏</p></div>
+                    </div>
+                </div>
+                <!-- 订单管理 -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mx-4 mt-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="font-bold">我的订单</p>
+                        <p class="text-sm text-gray-500">查看全部 <i class="fa-solid fa-chevron-right"></i></p>
+                    </div>
+                    <div class="flex justify-around text-center">
+                        <div class="text-gray-600"><i class="fa-solid fa-wallet fa-xl"></i><p class="text-xs mt-2">待付款</p></div>
+                        <div class="text-gray-600"><i class="fa-solid fa-box-archive fa-xl"></i><p class="text-xs mt-2">待发货</p></div>
+                        <div class="text-gray-600"><i class="fa-solid fa-truck-fast fa-xl"></i><p class="text-xs mt-2">待收货</p></div>
+                        <div class="text-gray-600"><i class="fa-solid fa-comment-dots fa-xl"></i><p class="text-xs mt-2">待评价</p></div>
+                        <div class="text-gray-600"><i class="fa-solid fa-rotate-left fa-xl"></i><p class="text-xs mt-2">退款/售后</p></div>
+                    </div>
+                </div>
+                <!-- 服务列表 -->
+                 <div class="bg-white rounded-xl shadow-sm p-2 mx-4 mt-4 text-sm">
+                    <div class="flex items-center p-3"><i class="fa-solid fa-location-dot w-6 text-gray-500"></i><span>地址管理</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-gift w-6 text-gray-500"></i><span>积分商城</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-headset w-6 text-gray-500"></i><span>联系客服</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
+                    <div class="flex items-center p-3"><i class="fa-solid fa-gear w-6 text-gray-500"></i><span>设置</span><i class="fa-solid fa-chevron-right ml-auto text-gray-300"></i></div>
+                </div>
+            </main>
+            <footer class="tab-bar bg-gray-50 flex items-center justify-around">
+                <div class="text-center text-gray-500"><i class="fa-solid fa-house fa-lg"></i><p class="text-xs mt-1">首页</p></div>
+                <div class="text-center text-gray-500"><i class="fa-solid fa-store fa-lg"></i><p class="text-xs mt-1">商城</p></div>
+                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white -mt-10 shadow-lg"><i class="fa-solid fa-qrcode fa-2x"></i></div>
+                <div class="text-center text-gray-500"><i class="fa-solid fa-cart-shopping fa-lg"></i><p class="text-xs mt-1">购物车</p></div>
+                <div class="text-center text-blue-500"><i class="fa-solid fa-user fa-lg"></i><p class="text-xs mt-1">我的</p></div>
+            </footer>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
