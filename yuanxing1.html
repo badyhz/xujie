@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>商城 iOS App · 全流程原型 (One-page HTML)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+  :root{
+    --bg:#f6f7fb; --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --card:#ffffff;
+    --brand:#3b82f6; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --vio:#8b5cf6;
+    --radius:16px; --shadow:0 10px 24px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,Inter,"Noto Sans SC",Helvetica,Arial}
+  a{text-decoration:none;color:inherit}
+  /* 布局 */
+  .layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+  .side{padding:16px;background:#fff;border-right:1px solid var(--line);position:sticky;top:0;height:100vh;overflow:auto}
+  .side h1{font-size:18px;margin:6px 0 8px}
+  .side .sub{color:#64748b;font-size:12px;margin-bottom:10px}
+  .side .nav{display:grid;gap:6px}
+  .side .nav a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px}
+  .side .nav a:hover,.side .nav a.on{background:#eef2ff;color:#1d4ed8}
+  .badge{font-size:11px;padding:2px 6px;border-radius:8px;background:#eef2ff;color:#3730a3;margin-left:auto}
+  .canvas{padding:16px}
+  .wall{display:grid;grid-template-columns:repeat(auto-fill, 420px);gap:16px}
+  /* 设备框 */
+  .device{background:linear-gradient(#fcfdff,#f2f5fb);border:1px solid var(--line);border-radius:34px;box-shadow:0 16px 32px rgba(0,0,0,.08);padding:18px;width:420px}
+  .notch{height:22px;width:120px;background:#0b1020;border-bottom-left-radius:16px;border-bottom-right-radius:16px;margin:0 auto 10px}
+  .screen{background:var(--card);border:1px solid var(--line);border-radius:28px;height:820px;overflow:hidden;display:flex;flex-direction:column}
+  /* 顶部栏 */
+  .topbar{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:5}
+  .topbar .title{font-weight:800}
+  .topbar .search{flex:1;display:flex;gap:8px}
+  .input{flex:1;background:#f6f7fb;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+  .btn{padding:10px 12px;border-radius:12px;background:var(--brand);color:#fff;border:0;font-weight:600}
+  .btn.ghost{background:#fff;border:1px solid var(--brand);color:var(--brand)}
+  .btn.plain{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  /* 内容区域滚动 */
+  .page{flex:1;overflow:auto;background:linear-gradient(#fff,#fff)}
+  .section{padding:12px 14px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px}
+  .muted{color:var(--muted);font-size:12px}
+  /* 商品卡片 */
+  .prod{display:flex;flex-direction:column;gap:6px}
+  .thumb{height:110px;border-radius:12px;background:linear-gradient(135deg,#eef2ff,#e8fff4);display:flex;align-items:center;justify-content:center;font-size:44px}
+  .price{font-weight:800}
+  .row{display:flex;align-items:center;gap:8px}
+  .space{flex:1}
+  .chip{padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px}
+  .tag{font-size:11px;padding:2px 6px;border-radius:6px;background:#eef2ff;color:#3730a3}
+  /* 列表 */
+  .list{display:grid;gap:8px}
+  .cell{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;border:1px solid var(--line)}
+  .cell i{width:28px;text-align:center}
+  /* 底部 TabBar */
+  .tabbar{display:flex;align-items:center;justify-content:space-around;height:64px;border-top:1px solid var(--line);background:#fff}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:#64748b}
+  .tab.on{color:#111}
+  /* 统一标题行 */
+  .title-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .title-row b{font-size:15px}
+  /* 表单 */
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:12px;color:#64748b}
+  .field input,.field select{padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+  /* 订单卡 */
+  .order{border:1px solid var(--line);border-radius:12px;padding:10px}
+  .progress{height:8px;background:#eef2ff;border-radius:999px;overflow:hidden}
+  .progress>i{display:block;height:100%;background:var(--brand);width:60%}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- 左侧：信息架构 / 跳转导航 -->
+  <aside class="side">
+    <h1>📱 商城 iOS App 原型</h1>
+    <div class="sub">信息架构 & 快速跳转（点击直达右侧对应画板）</div>
+    <div class="nav">
+      <div class="group">启动 / 账号</div>
+      <a href="#splash"><i class="fa-solid fa-bolt"></i> 启动 & 引导</a>
+      <a href="#auth"><i class="fa-regular fa-circle-user"></i> 登录 / 注册</a>
+      <div class="group">核心路径</div>
+      <a href="#home" class="on"><i class="fa-solid fa-house"></i> 首页（推荐/运营位） <span class="badge">P1</span></a>
+      <a href="#catalog"><i class="fa-solid fa-grid-2"></i> 分类 / 搜索 <span class="badge">P1</span></a>
+      <a href="#plist"><i class="fa-solid fa-list"></i> 商品列表 <span class="badge">P1</span></a>
+      <a href="#pdetail"><i class="fa-regular fa-image"></i> 商品详情 <span class="badge">P1</span></a>
+      <a href="#cart"><i class="fa-solid fa-cart-shopping"></i> 购物车 <span class="badge">P1</span></a>
+      <a href="#checkout"><i class="fa-regular fa-credit-card"></i> 结算 / 支付 <span class="badge">P1</span></a>
+      <a href="#orders"><i class="fa-regular fa-file-lines"></i> 订单 / 物流 <span class="badge">P1</span></a>
+      <div class="group">增长与运营</div>
+      <a href="#coupon"><i class="fa-solid fa-ticket"></i> 优惠券 / 活动</a>
+      <a href="#member"><i class="fa-solid fa-crown"></i> 会员 / 积分</a>
+      <a href="#live"><i class="fa-solid fa-tower-broadcast"></i> 直播 / 拼团</a>
+      <a href="#search"><i class="fa-solid fa-magnifying-glass"></i> 搜索 / 结果</a>
+      <a href="#notice"><i class="fa-regular fa-bell"></i> 通知中心</a>
+      <div class="group">用户体系</div>
+      <a href="#me"><i class="fa-regular fa-user"></i> 我的（账户） <span class="badge">P1</span></a>
+      <a href="#address"><i class="fa-solid fa-location-dot"></i> 地址管理</a>
+      <a href="#service"><i class="fa-regular fa-comments"></i> 客服 / 帮助</a>
+      <a href="#settings"><i class="fa-solid fa-gear"></i> 设置 / 隐私</a>
+    </div>
+  </aside>
+
+  <!-- 右侧：所有原型画板（可交付） -->
+  <main class="canvas">
+    <div class="wall">
+
+      <!-- Splash / Onboarding -->
+      <div class="device" id="splash">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="page" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+            <i class="fa-solid fa-bag-shopping" style="font-size:72px;color:var(--brand)"></i>
+            <h2 style="margin:0">Mall — 更好逛，更好买</h2>
+            <div class="muted">个性化提供你想要的好物与服务</div>
+            <div class="row" style="gap:10px;margin-top:6px">
+              <button class="btn">开始使用</button>
+              <button class="btn ghost">了解更多</button>
+            </div>
+            <div class="list" style="width:80%;margin-top:10px">
+              <div class="cell"><i class="fa-regular fa-circle-check"></i> 个性推荐 <div class="space"></div> <span class="tag">可跳过</span></div>
+              <div class="cell"><i class="fa-regular fa-clock"></i> 便捷下单 <div class="space"></div> <span class="tag">3步到付</span></div>
+              <div class="cell"><i class="fa-solid fa-shield"></i> 交易保障 <div class="space"></div> <span class="tag">7天无忧</span></div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><i class="fa-solid fa-ellipsis"></i><div>引导</div></div>
+            <div class="tab"><i class="fa-regular fa-circle-user"></i><div>登录</div></div>
+            <div class="tab"><i class="fa-regular fa-lightbulb"></i><div>说明</div></div>
+            <div class="tab"><i class="fa-solid fa-angles-right"></i><div>进入</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth -->
+      <div class="device" id="auth">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><i class="fa-regular fa-circle-user"></i><div class="title">登录 / 注册</div><div class="space"></div><button class="btn plain">跳过</button></div>
+          <div class="page">
+            <div class="section">
+              <div class="list">
+                <div class="field"><label>手机号</label><input placeholder="请输入手机号"></div>
+                <div class="field"><label>验证码</label><div class="row"><input placeholder="6位短信验证码" style="flex:1"><button class="btn ghost">获取</button></div></div>
+                <button class="btn" style="width:100%">手机号登录</button>
+                <div class="row" style="justify-content:center;margin:10px 0"><span class="muted">或</span></div>
+                <button class="btn plain" style="width:100%"><i class="fa-brands fa-apple"></i>  使用 Apple 登录</button>
+              </div>
+              <div class="muted" style="margin-top:10px">登录即同意《用户协议》《隐私政策》</div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><i class="fa-regular fa-circle-user"></i><div>账号</div></div>
+            <div class="tab"><i class="fa-solid fa-shield"></i><div>安全</div></div>
+            <div class="tab"><i class="fa-regular fa-message"></i><div>通知</div></div>
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home -->
+      <div class="device" id="home">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar">
+            <i class="fa-solid fa-location-dot"></i><div class="title">上海</div>
+            <div class="search"><input class="input" placeholder="搜索商品/店铺/品牌"><button class="btn ghost"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+            <button class="btn plain"><i class="fa-regular fa-bell"></i></button>
+          </div>
+          <div class="page">
+            <div class="section">
+              <div class="grid grid-4">
+                <div class="card" style="text-align:center"><div class="thumb">🔥</div><b>限时秒杀</b><div class="muted">每日10点开抢</div></div>
+                <div class="card" style="text-align:center"><div class="thumb">🧧</div><b>领券中心</b><div class="muted">满200减20</div></div>
+                <div class="card" style="text-align:center"><div class="thumb">📺</div><b>直播间</b><div class="muted">正在上新</div></div>
+                <div class="card" style="text-align:center"><div class="thumb">🧭</div><b>附近好店</b><div class="muted">到店体验</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>为你推荐</b><div class="space"></div><a class="muted" href="#plist">更多</a></div>
+              <div class="grid">
+                <div class="card prod"><div class="thumb">🧴</div><b>精华液 50ml</b><div class="muted">护肤 · 热销</div><div class="row"><div class="price">¥129</div><div class="space"></div><button class="chip">加入</button></div></div>
+                <div class="card prod"><div class="thumb">🎧</div><b>蓝牙耳机</b><div class="muted">数码 · 新品</div><div class="row"><div class="price">¥399</div><div class="space"></div><button class="chip">加入</button></div></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>热门榜单</b><div class="space"></div><span class="tag">今日TOP</span></div>
+              <div class="list">
+                <div class="cell"><div class="thumb" style="width:60px">🥤</div><div><b>保温杯</b><div class="muted">销量 3.2w</div></div><div class="space"></div><button class="btn ghost">去看看</button></div>
+                <div class="cell"><div class="thumb" style="width:60px">👟</div><div><b>跑步鞋</b><div class="muted">销量 2.7w</div></div><div class="space"></div><button class="btn ghost">去看看</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Catalog / 搜索筛选 -->
+      <div class="device" id="catalog">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">分类</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="grid grid-4">
+                <div class="card" style="text-align:center"><div class="thumb">🍱</div>食品生鲜</div>
+                <div class="card" style="text-align:center"><div class="thumb">💄</div>美妆个护</div>
+                <div class="card" style="text-align:center"><div class="thumb">📱</div>手机数码</div>
+                <div class="card" style="text-align:center"><div class="thumb">🏠</div>家居家电</div>
+                <div class="card" style="text-align:center"><div class="thumb">👕</div>服饰鞋包</div>
+                <div class="card" style="text-align:center"><div class="thumb">🧸</div>母婴玩具</div>
+                <div class="card" style="text-align:center"><div class="thumb">🏋️</div>运动户外</div>
+                <div class="card" style="text-align:center"><div class="thumb">🖥️</div>办公文具</div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>筛选</b></div>
+              <div class="row" style="gap:8px;flex-wrap:wrap">
+                <span class="chip">综合</span>
+                <span class="chip">销量</span>
+                <span class="chip">价格⬆</span>
+                <span class="chip">价格⬇</span>
+                <span class="chip">上新</span>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab on"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product List -->
+      <div class="device" id="plist">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">手机数码</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-filter"></i> 筛选</button></div>
+          <div class="page">
+            <div class="section">
+              <div class="grid">
+                <div class="card prod"><div class="thumb">📱</div><b>5G 智能机 A1</b><div class="muted">128GB · 旗舰芯片</div><div class="row"><div class="price">¥3999</div><div class="space"></div><button class="chip">加入</button></div></div>
+                <div class="card prod"><div class="thumb">📱</div><b>折叠屏 Z</b><div class="muted">2K · 120Hz</div><div class="row"><div class="price">¥6999</div><div class="space"></div><button class="chip">加入</button></div></div>
+                <div class="card prod"><div class="thumb">🎧</div><b>旗舰降噪耳机</b><div class="muted">续航 40h</div><div class="row"><div class="price">¥1599</div><div class="space"></div><button class="chip">加入</button></div></div>
+                <div class="card prod"><div class="thumb">⌚</div><b>运动手表</b><div class="muted">血氧/心率</div><div class="row"><div class="price">¥799</div><div class="space"></div><button class="chip">加入</button></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab on"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Detail -->
+      <div class="device" id="pdetail">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><button class="btn plain"><i class="fa-solid fa-chevron-left"></i></button><div class="title">商品详情</div><div class="space"></div><button class="btn plain"><i class="fa-regular fa-heart"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="grid grid-3">
+                <div class="card" style="text-align:center"><div class="thumb" style="height:140px;font-size:64px">📱</div></div>
+                <div class="card" style="text-align:center"><div class="thumb" style="height:140px;font-size:64px">🖼️</div></div>
+                <div class="card" style="text-align:center"><div class="thumb" style="height:140px;font-size:64px">🎞️</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="row"><h3 style="margin:0">5G 智能机 A1</h3><div class="space"></div><span class="tag">包邮</span></div>
+              <div class="row" style="margin:6px 0"><div class="price" style="font-size:20px">¥3999</div><div class="space"></div><span class="muted">月销 1.2w</span></div>
+              <div class="row" style="gap:6px;flex-wrap:wrap"><span class="chip">128G</span><span class="chip">256G</span><span class="chip">512G</span><span class="chip">黑</span><span class="chip">银</span></div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>商品详情</b></div>
+              <div class="card">
+                <div class="muted">屏幕 6.7" · 120Hz · 5000mAh · 67W 快充 · 双扬声器 · 支持 NFC</div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>评价 (4.8)</b><div class="space"></div><button class="chip">查看全部</button></div>
+              <div class="list">
+                <div class="cell"><i class="fa-regular fa-user"></i><div><b>小新</b><div class="muted">手感很好，拍照很清晰</div></div><div class="space"></div><span class="tag">已购</span></div>
+                <div class="cell"><i class="fa-regular fa-user"></i><div><b>木木</b><div class="muted">续航稳</div></div><div class="space"></div><span class="tag">已购</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-regular fa-comment"></i><div>客服</div></div>
+            <div class="tab"><i class="fa-regular fa-heart"></i><div>收藏</div></div>
+            <div class="tab on"><i class="fa-solid fa-cart-plus"></i><div>加入</div></div>
+            <div class="tab on"><i class="fa-solid fa-bolt"></i><div>立即买</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart -->
+      <div class="device" id="cart">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">购物车</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-trash"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="list">
+                <div class="cell"><input type="checkbox" checked><div class="thumb" style="width:56px">📱</div><div><b>5G 智能机 A1</b><div class="muted">黑 256G</div></div><div class="space"></div><div class="row"><button class="chip">-</button><b>1</b><button class="chip">+</button></div><div class="price">¥3999</div></div>
+                <div class="cell"><input type="checkbox" checked><div class="thumb" style="width:56px">🎧</div><div><b>降噪耳机</b><div class="muted">黑</div></div><div class="space"></div><div class="row"><button class="chip">-</button><b>1</b><button class="chip">+</button></div><div class="price">¥1599</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="card">
+                <div class="row"><b>优惠券</b><div class="space"></div><button class="chip">选择优惠</button></div>
+                <div class="row" style="margin-top:8px"><span class="muted">商品金额</span><div class="space"></div>¥5598</div>
+                <div class="row"><span class="muted">优惠抵扣</span><div class="space"></div>-¥100</div>
+                <div class="row"><span class="muted">运费</span><div class="space"></div>¥0</div>
+                <div class="row" style="font-weight:800"><span>应付</span><div class="space"></div>¥5498</div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><i class="fa-regular fa-square-check"></i><div>全选</div></div>
+            <div class="tab"><i class="fa-solid fa-ticket"></i><div>用券</div></div>
+            <div class="tab"><i class="fa-solid fa-bolt"></i><div>去结算</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkout -->
+      <div class="device" id="checkout">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">确认订单</div><div class="space"></div><button class="btn plain"><i class="fa-regular fa-circle-question"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="card">
+                <div class="row"><i class="fa-solid fa-location-dot"></i><b>收货地址</b><div class="space"></div><button class="chip">更换</button></div>
+                <div class="muted" style="margin-top:6px">张三 138****8888 · 上海市浦东新区世纪大道 88 号</div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="list">
+                <div class="cell"><div class="thumb" style="width:56px">📱</div><div><b>5G 智能机 A1</b><div class="muted">黑 256G</div></div><div class="space"></div><div class="price">¥3999</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="card">
+                <div class="row"><span class="muted">支付方式</span><div class="space"></div><button class="chip"><i class="fa-brands fa-apple-pay"></i> Apple Pay</button></div>
+                <div class="row" style="margin-top:6px"><span class="muted">发票</span><div class="space"></div><button class="chip">个人-电子</button></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="card">
+                <div class="row"><span class="muted">商品金额</span><div class="space"></div>¥3999</div>
+                <div class="row"><span class="muted">优惠抵扣</span><div class="space"></div>-¥100</div>
+                <div class="row" style="font-weight:800"><span>应付</span><div class="space"></div>¥3899</div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><i class="fa-brands fa-apple-pay"></i><div>Apple Pay</div></div>
+            <div class="tab"><i class="fa-regular fa-credit-card"></i><div>银行卡</div></div>
+            <div class="tab on"><i class="fa-solid fa-circle-check"></i><div>支付 ¥3899</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders / Logistics -->
+      <div class="device" id="orders">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">我的订单</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-magnifying-glass"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="row" style="gap:6px;flex-wrap:wrap">
+                <span class="chip">全部</span><span class="chip">待付款</span><span class="chip">待发货</span><span class="chip">待收货</span><span class="chip">已完成</span><span class="chip">售后</span>
+              </div>
+            </div>
+            <div class="section">
+              <div class="order">
+                <div class="row"><b>订单号</b><div class="space"></div><span class="tag">待收货</span></div>
+                <div class="list" style="margin-top:8px">
+                  <div class="cell"><div class="thumb" style="width:56px">📱</div><div><b>5G 智能机 A1</b><div class="muted">黑 256G</div></div><div class="space"></div><div class="price">¥3999</div></div>
+                </div>
+                <div class="row" style="margin:8px 0 6px"><span class="muted">物流进度</span><div class="space"></div><span class="muted">运输中</span></div>
+                <div class="progress"><i></i></div>
+                <div class="row" style="gap:8px;margin-top:8px"><button class="chip">查看物流</button><button class="chip">确认收货</button><div class="space"></div><button class="btn ghost">申请售后</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab on"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coupon / 活动 -->
+      <div class="device" id="coupon">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">领券中心</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-clock-rotate-left"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="grid">
+                <div class="card"><div class="row"><i class="fa-solid fa-ticket"></i><b>满200-20</b><div class="space"></div><button class="btn ghost">领取</button></div><div class="muted">全场通用 · 今日可用</div></div>
+                <div class="card"><div class="row"><i class="fa-solid fa-ticket"></i><b>美妆满300-60</b><div class="space"></div><button class="btn ghost">领取</button></div><div class="muted">类目券</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>活动</b></div>
+              <div class="grid grid-3">
+                <div class="card" style="text-align:center"><div class="thumb">🏃</div><b>拼团</b><div class="muted">一起更省</div></div>
+                <div class="card" style="text-align:center"><div class="thumb">🎁</div><b>新人礼</b><div class="muted">注册即领</div></div>
+                <div class="card" style="text-align:center"><div class="thumb">📺</div><b>直播间</b><div class="muted">限时优惠</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab on"><i class="fa-solid fa-ticket"></i><div>领券</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Member / 积分 -->
+      <div class="device" id="member">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">会员中心</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-crown"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="card">
+                <div class="row"><b>等级</b><div class="space"></div><span class="tag">金卡</span></div>
+                <div class="muted" style="margin:8px 0">积分 3680 · 成长值 7200</div>
+                <div class="progress"><i style="width:72%"></i></div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>权益</b></div>
+              <div class="grid grid-3">
+                <div class="card" style="text-align:center"><div class="thumb">🚚</div><b>免运券</b></div>
+                <div class="card" style="text-align:center"><div class="thumb">🎟️</div><b>专属券</b></div>
+                <div class="card" style="text-align:center"><div class="thumb">☎️</div><b>客服优先</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab on"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live / 拼团 -->
+      <div class="device" id="live">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">直播 / 拼团</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-rotate"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="grid">
+                <div class="card"><div class="thumb" style="height:160px">📺</div><b>晚8点直播</b><div class="muted">关注领券</div><div class="row"><div class="space"></div><button class="btn ghost">进入</button></div></div>
+                <div class="card"><div class="thumb" style="height:160px">👥</div><b>拼团 · 耳机</b><div class="muted">2人成团</div><div class="row"><div class="space"></div><button class="btn ghost">发起</button></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab on"><i class="fa-solid fa-tower-broadcast"></i><div>直播</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="device" id="search">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="search"><input class="input" placeholder="手机 / 耳机 / 跑鞋"><button class="btn ghost"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>
+          <div class="page">
+            <div class="section">
+              <div class="title-row"><b>猜你想搜</b></div>
+              <div class="row" style="gap:8px;flex-wrap:wrap"><span class="chip">降噪耳机</span><span class="chip">苹果手机</span><span class="chip">蓝牙音箱</span><span class="chip">护肤精华</span></div>
+            </div>
+            <div class="section">
+              <div class="title-row"><b>搜索结果</b><div class="space"></div><span class="muted">约 248 条</span></div>
+              <div class="grid">
+                <div class="card prod"><div class="thumb">🎧</div><b>旗舰降噪耳机</b><div class="muted">头戴 · 蓝牙 5.3</div><div class="row"><div class="price">¥1599</div><div class="space"></div><button class="chip">加入</button></div></div>
+                <div class="card prod"><div class="thumb">🎧</div><b>入门无线耳机</b><div class="muted">入耳 · 续航 24h</div><div class="row"><div class="price">¥299</div><div class="space"></div><button class="chip">加入</button></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab on"><i class="fa-solid fa-magnifying-glass"></i><div>搜索</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notice / 消息 -->
+      <div class="device" id="notice">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">消息中心</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-gear"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="list">
+                <div class="cell"><i class="fa-regular fa-bell"></i><div><b>物流通知</b><div class="muted">您的订单已发出</div></div><div class="space"></div><span class="tag">刚刚</span></div>
+                <div class="cell"><i class="fa-regular fa-message"></i><div><b>售后进度</b><div class="muted">退款已原路退回</div></div><div class="space"></div><span class="tag">昨天</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab on"><i class="fa-regular fa-bell"></i><div>消息</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Me / Profile -->
+      <div class="device" id="me">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">我的</div><div class="space"></div><button class="btn plain"><i class="fa-regular fa-pen-to-square"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="card">
+                <div class="row"><i class="fa-regular fa-circle-user"></i><b>Winnie</b><div class="space"></div><span class="tag">金卡</span></div>
+                <div class="muted" style="margin-top:6px">积分 3680 · 优惠券 3 张</div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="grid grid-3">
+                <a class="card" href="#orders" style="text-align:center"><div class="thumb">📦</div>我的订单</a>
+                <a class="card" href="#coupon" style="text-align:center"><div class="thumb">🎫</div>优惠券</a>
+                <a class="card" href="#address" style="text-align:center"><div class="thumb">📍</div>地址管理</a>
+              </div>
+            </div>
+            <div class="section">
+              <div class="list">
+                <div class="cell"><i class="fa-regular fa-heart"></i> 收藏夹 <div class="space"></div> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="cell"><i class="fa-regular fa-comments"></i> 客服与帮助 <div class="space"></div> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="cell"><i class="fa-solid fa-gear"></i> 设置 <div class="space"></div> <i class="fa-solid fa-chevron-right"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab on"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="device" id="address">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">地址管理</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-plus"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="list">
+                <div class="cell"><i class="fa-solid fa-location-dot"></i><div><b>默认</b><div class="muted">上海 · 浦东新区 · 世纪大道 88 号</div></div><div class="space"></div><button class="chip">编辑</button></div>
+                <div class="cell"><i class="fa-solid fa-location-dot"></i><div><b>公司</b><div class="muted">上海 · 徐汇区 · 漕溪北路</div></div><div class="space"></div><button class="chip">编辑</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab on"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service / Help -->
+      <div class="device" id="service">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">客服与帮助</div><div class="space"></div><button class="btn plain"><i class="fa-regular fa-circle-question"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="grid">
+                <div class="card"><div class="row"><i class="fa-regular fa-message"></i><b>在线客服</b><div class="space"></div><button class="btn ghost">开始</button></div><div class="muted">9:00-21:00</div></div>
+                <div class="card"><div class="row"><i class="fa-regular fa-file-lines"></i><b>帮助中心</b><div class="space"></div><button class="btn ghost">查看</button></div><div class="muted">售后 · 退款 · 发票</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab on"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="device" id="settings">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="topbar"><div class="title">设置</div><div class="space"></div><button class="btn plain"><i class="fa-solid fa-rotate"></i></button></div>
+          <div class="page">
+            <div class="section">
+              <div class="list">
+                <div class="cell"><i class="fa-regular fa-bell"></i> 通知设置 <div class="space"></div> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="cell"><i class="fa-regular fa-eye"></i> 隐私与安全 <div class="space"></div> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="cell"><i class="fa-regular fa-circle-question"></i> 关于 <div class="space"></div> <i class="fa-solid fa-chevron-right"></i></div>
+                <div class="cell"><i class="fa-solid fa-arrow-right-from-bracket"></i> 退出登录 <div class="space"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar">
+            <div class="tab"><i class="fa-solid fa-house"></i><div>首页</div></div>
+            <div class="tab"><i class="fa-solid fa-grid-2"></i><div>分类</div></div>
+            <div class="tab"><i class="fa-solid fa-cart-shopping"></i><div>购物车</div></div>
+            <div class="tab on"><i class="fa-regular fa-user"></i><div>我的</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
