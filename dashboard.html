@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Dashboard · 结构-生态-潜力（三层）</title>
+  <!-- CDN：如在离线环境打不开，请点击右上角“注入演示数据”仅用于自检；或换本地 Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root{
@@ -15,7 +16,7 @@
     body{margin:0;background:radial-gradient(1200px 600px at 60% -50%,#162147 0%,#0b1020 48%,#070b17 100%);
          color:var(--text); font:14px/1.55 Inter, "Noto Sans SC", system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;}
     .wrap{display:grid; grid-template-columns: 1.1fr .9fr; gap:20px; padding:22px; max-width:1260px; margin:0 auto;}
-    .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:0 10px 30px rgba(0,0,0,.28)}
+    .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:0 10px 30px rgba(0,0,0,.28); position:relative}
     h1{font-size:18px; margin:0 0 8px 0;}
     h2{font-size:16px; margin:10px 0 10px;}
     .list{display:grid; grid-template-columns: repeat(2, minmax(160px,1fr)); gap:8px}
@@ -27,19 +28,36 @@
     .muted{color:var(--muted)}
     canvas{width:100%; height:520px; max-height:58vh}
     .hint{font-size:12px; color:var(--muted)}
-    .header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px}
+    .header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px}
     .code{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px}
+    .toolbar{display:flex; gap:8px; align-items:center}
+    .btn{border:1px solid var(--line); background:rgba(255,255,255,.04); color:var(--text); padding:6px 10px; border-radius:10px; cursor:pointer}
+    .btn:hover{background:rgba(255,255,255,.08)}
+    .overlay{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+             background:linear-gradient(180deg, rgba(9,12,24,.65), rgba(9,12,24,.65)); border-radius:16px; padding:18px}
+    .overlay b{display:block; font-size:16px; margin-bottom:6px}
+    .ok{color:#22c55e} .warn{color:#f59e0b} .bad{color:#fb7185}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
+    <div class="card" id="chartCard">
       <div class="header">
         <h1>三层雷达：结构（内）→ 生态（中）→ 潜力（外）</h1>
-        <div class="muted code" id="diagnose"></div>
+        <div class="toolbar">
+          <button id="btnDemo" class="btn">注入演示数据</button>
+          <button id="btnClear" class="btn">清空数据</button>
+          <div class="muted code" id="diagnose"></div>
+        </div>
       </div>
       <canvas id="radar"></canvas>
-      <div class="hint">说明：数值与图形全部为<strong>整数</strong>；“关系稳定性”采用<strong>连续性×韧性</strong>；ε 默认取环境 N。</div>
+      <div class="hint">说明：数值为<strong>整数</strong>；“关系稳定性”采用<strong>连续性×韧性</strong>；ε 默认取环境 N。若雷达不显示，优先检查：<b>Chart.js 是否加载成功</b>、<b>Step1/Step2 是否已写入 localStorage</b>。</div>
+      <div id="overlay" class="overlay" style="display:none">
+        <div>
+          <b id="ovTitle">无法渲染</b>
+          <div id="ovMsg" class="muted"></div>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -60,31 +78,51 @@
       <div class="hint">含“耗竭/低落”仅为状态提醒，非医学诊断。</div>
     </div>
   </div>
+
 <script>
+// ========= 工具 =========
 const clamp01 = v => Math.max(0, Math.min(100, v));
 const R = Math.round;
 const pick = (o,k,d=0)=> (o&&k in o)? o[k] : d;
 function parseAny(v){ if(!v) return null; try{return JSON.parse(v)}catch(e){return null} }
+function showOverlay(title, msg){
+  const ov = document.getElementById('overlay');
+  document.getElementById('ovTitle').innerText = title || '无法渲染';
+  document.getElementById('ovMsg').innerText = msg || '';
+  ov.style.display = 'flex';
+}
+function hideOverlay(){ document.getElementById('overlay').style.display='none' }
 
-const selfRaw = parseAny(localStorage.getItem('selfScores')) || parseAny(localStorage.getItem('SELF_SCORES'));
-const envRaw  = parseAny(localStorage.getItem('envScores'))  || parseAny(localStorage.getItem('ENV_SCORES'));
+// ========= 注入/清空 演示数据 =========
+function injectDemo(){
+  const self = {O:68,C:72,E:70,A:60,N:42};
+  const env  = {O:60,C:65,E:62,A:58,N:48};
+  localStorage.setItem('selfScores', JSON.stringify(self));
+  localStorage.setItem('envScores', JSON.stringify(env));
+  return {self, env};
+}
+function clearData(){
+  localStorage.removeItem('selfScores'); localStorage.removeItem('envScores');
+  localStorage.removeItem('SELF_SCORES'); localStorage.removeItem('ENV_SCORES');
+}
 
-function toVector5(any){
-  if (!any) return null;
-  if (Array.isArray(any) && any.length>=5) return {O:any[0],C:any[1],E:any[2],A:any[3],N:any[4]};
-  if (typeof any==='object'){
-    const O=pick(any,'O'), C=pick(any,'C'), E=pick(any,'E'), A=pick(any,'A'), N=pick(any,'N');
-    if ([O,C,E,A,N].every(x=>typeof x==='number')) return {O,C,E,A,N};
+// ========= 读取数据（与 Step1/2 对接） =========
+function loadVectors(){
+  const selfRaw = parseAny(localStorage.getItem('selfScores')) || parseAny(localStorage.getItem('SELF_SCORES'));
+  const envRaw  = parseAny(localStorage.getItem('envScores'))  || parseAny(localStorage.getItem('ENV_SCORES'));
+  function toVector5(any){
+    if (!any) return null;
+    if (Array.isArray(any) && any.length>=5) return {O:any[0],C:any[1],E:any[2],A:any[3],N:any[4]};
+    if (typeof any==='object'){
+      const O=pick(any,'O'), C=pick(any,'C'), E=pick(any,'E'), A=pick(any,'A'), N=pick(any,'N');
+      if ([O,C,E,A,N].every(x=>typeof x==='number')) return {O,C,E,A,N};
+    }
+    return null;
   }
-  return null;
-}
-const SELF=toVector5(selfRaw), ENV=toVector5(envRaw);
-const diagnoseEl=document.getElementById('diagnose');
-if(!SELF||!ENV){ diagnoseEl.innerHTML='<span class="bad">数据未接入：请先完成 Step1 & Step2</span>'; } else {
-  diagnoseEl.innerHTML='<span class="ok">数据已接入</span> · self='+JSON.stringify(SELF)+' · env='+JSON.stringify(ENV);
+  return { SELF: toVector5(selfRaw), ENV: toVector5(envRaw) };
 }
 
-// 结构 8 维
+// ========= 结构 8 维 =========
 function toStructures5({O,C,E,A,N}){
   const ES = 100 - N;
   return [
@@ -92,7 +130,7 @@ function toStructures5({O,C,E,A,N}){
     clamp01(0.70*C + 0.30*ES),            // 筋骨
     clamp01(0.60*O + 0.40*E),             // 水流
     clamp01(0.60*E + 0.40*O),             // 火焰
-    clamp01(0.50*C + 0.30*ES + 0.20*O),   // 指南针
+    clamp01(0.50*C + 0.30*ES + 0.20*O),   // 指南针（方向清晰/一致性）
     clamp01(0.80*ES + 0.20*C),            // 盾牌
     clamp01(0.60*E + 0.40*A),             // 桥梁
     clamp01(0.70*C + 0.30*ES)             // 岩石
@@ -100,53 +138,54 @@ function toStructures5({O,C,E,A,N}){
 }
 const structNames=['镜面','筋骨','水流','火焰','指南针','盾牌','桥梁','岩石'];
 
-// 生态
+// ========= 生态 16 维 =========
 const ecoNames=['信任建立速度','合作倾向','表达清晰度','独立程度','创造力','学习节奏','执行力','关系稳定性','风险感知','适应力','情绪感染力','冲突处理方式','信息组织','优化策略','领导气场','环境适应力'];
 
-const mapSE={
-  0:[0,2,5], 1:[3,6,8], 2:[9,4,7], 3:[10,11,14],
-  4:[3,2,14], 5:[11,7,0], 6:[0,1,7], 7:[6,5,8]
-};
+const mapSE={ 0:[0,2,5], 1:[3,6,8], 2:[9,4,7], 3:[10,11,14], 4:[3,2,14], 5:[11,7,0], 6:[0,1,7], 7:[6,5,8] };
+
 function envParams(ENV){
   const gamma = clamp01((ENV.O + ENV.E)/2);
   const delta = clamp01((ENV.C + ENV.A)/2);
-  const epsilon = clamp01(ENV.N);
-  return {gamma,delta,epsilon};
+  const epsilon = clamp01(ENV.N); // ε = N_env
+  return {gamma, delta, epsilon};
 }
+
 function toEcology(structs, ENV){
   const eco=new Array(16).fill(50);
+  // 播种
   structs.forEach((sv,si)=> (mapSE[si]||[]).forEach(ax=> eco[ax]+=0.35*(sv-50)));
-  const {gamma,delta,epsilon}=envParams(ENV);
-  const corr = 0.05*(gamma-50)+0.05*(delta-50)-0.04*(epsilon-50);
+  // 环境修正
+  const {gamma, delta, epsilon} = envParams(ENV);
+  const corr = 0.05*(gamma-50) + 0.05*(delta-50) - 0.04*(epsilon-50);
   for(let i=0;i<16;i++) eco[i]+=corr;
-
-  // 连续性×韧性
+  // 关系稳定性 = 连续性×韧性（覆盖播种）
   const shield=structs[5], bone=structs[1], bridge=structs[6], water=structs[2], mirror=structs[0], compass=structs[4];
   const continuity = 0.45*shield + 0.35*bone + 0.20*bridge - 0.20*epsilon;
   const resilience = 0.40*water + 0.25*mirror + 0.20*bridge + 0.15*compass - 0.10*epsilon;
-  eco[7]=Math.max(0,Math.min(100, 0.6*continuity+0.4*resilience ));
-
-  for(let i=0;i<16;i++) eco[i]=Math.round(Math.max(0,Math.min(100,eco[i])));
+  eco[7] = clamp01(0.6*continuity + 0.4*resilience);
+  // 截断取整
+  for(let i=0;i<16;i++) eco[i] = Math.round(clamp01(eco[i]));
   return eco;
 }
 
-// 潜力
-const potNames=['创新潜力','领导潜力','执行潜力','协作潜力','韧性潜力','创业潜力','幸福潜力','科研潜力'];
-function toPotentials(structs,eco,ENV){
-  const {epsilon}=envParams(ENV); const s=structs,e=eco; const v=new Array(8).fill(50);
-  v[0]=Math.max(0,Math.min(100, 0.30*s[2]+0.20*s[0]+0.20*e[4]+0.15*e[9]+0.15*e[12] ));
-  v[1]=Math.max(0,Math.min(100, 0.25*s[3]+0.20*s[6]+0.20*s[4]+0.15*e[14]+0.10*s[5]-0.10*epsilon ));
-  v[2]=Math.max(0,Math.min(100, 0.30*s[1]+0.20*s[7]+0.20*e[6]+0.15*e[12]+0.15*e[7] ));
-  v[3]=Math.max(0,Math.min(100, 0.35*s[6]+0.20*e[0]+0.15*e[1]+0.10*e[11]+0.20*s[5] ));
-  v[4]=Math.max(0,Math.min(100, 0.30*s[7]+0.25*s[5]+0.20*e[7]+0.15*e[9]+0.10*e[8] ));
-  v[5]=Math.max(0,Math.min(100, 0.25*s[3]+0.20*s[2]+0.15*e[3]+0.15*e[14]+0.15*e[6]+0.10*s[4]-0.10*epsilon ));
-  v[6]=Math.max(0,Math.min(100, 0.30*s[5]+0.25*s[6]+0.15*e[5]+0.15*e[7]+0.15*e[1] ));
-  v[7]=Math.max(0,Math.min(100, 0.25*s[0]+0.20*s[7]+0.20*e[12]+0.15*e[8]+0.20*e[6] ));
+// ========= 潜力 8 维 =========
+const potNames = ['创新潜力','领导潜力','执行潜力','协作潜力','韧性潜力','创业潜力','幸福潜力','科研潜力'];
+function toPotentials(structs, eco, ENV){
+  const {epsilon} = envParams(ENV);
+  const s=structs,e=eco; const v=new Array(8).fill(50);
+  v[0] = clamp01( 0.30*s[2] + 0.20*s[0] + 0.20*e[4] + 0.15*e[9] + 0.15*e[12] );
+  v[1] = clamp01( 0.25*s[3] + 0.20*s[6] + 0.20*s[4] + 0.15*e[14] + 0.10*s[5] - 0.10*epsilon );
+  v[2] = clamp01( 0.30*s[1] + 0.20*s[7] + 0.20*e[6] + 0.15*e[12] + 0.15*e[7] );
+  v[3] = clamp01( 0.35*s[6] + 0.20*e[0] + 0.15*e[1] + 0.10*e[11] + 0.20*s[5] );
+  v[4] = clamp01( 0.30*s[7] + 0.25*s[5] + 0.20*e[7] + 0.15*e[9] + 0.10*e[8] );
+  v[5] = clamp01( 0.25*s[3] + 0.20*s[2] + 0.15*e[3] + 0.15*e[14] + 0.15*e[6] + 0.10*s[4] - 0.10*epsilon );
+  v[6] = clamp01( 0.30*s[5] + 0.25*s[6] + 0.15*e[5] + 0.15*e[7] + 0.15*e[1] );
+  v[7] = clamp01( 0.25*s[0] + 0.20*s[7] + 0.20*e[12] + 0.15*e[8] + 0.20*e[6] );
   return v.map(Math.round);
 }
 
-// 投影到16轴
-function projectTo16(structs,potentials){
+// ========= 投影到 16 轴（让三层用同一组标签） =========
+function projectTo16(structs, potentials){
   const bucketS=Array.from({length:16},()=>[]);
   Object.entries(mapSE).forEach(([si,arr])=>arr.forEach(ax=>bucketS[ax].push(structs[+si])));
   const struct16=bucketS.map(list=>list.length? Math.round(list.reduce((a,b)=>a+b,0)/list.length):50);
@@ -157,24 +196,26 @@ function projectTo16(structs,potentials){
   return {struct16,pot16};
 }
 
-// 列表
-function renderList(el,names,vals){
+// ========= 列表 =========
+function renderList(el, names, vals){
   el.innerHTML = names.map((n,i)=>{
     const v=Math.round(vals[i]); const cls=v>=75?'ok':(v<=35?'bad':'')
     return `<div class="item"><span>${n}</span><b class="${cls}">${v}</b></div>`
   }).join('');
 }
 
-// 徽章（A–J + 镜面失配）
+// ========= 徽章（A–J + 镜面失配）仅展示不改分 =========
 const badges=[]; function tag(t,sub){badges.push({t,sub:sub||''})}
 function hi(x){return x>=70} function lo(x){return x<=50}
 function midLo(x){return x>50 && x<66} function midHi(x){return x>=66 && x<70}
-function runBadges(structs,eco,ENV){
+function runBadges(structs, eco, ENV){
   const [M,B,W,F,Cp,S,Br,Rk]=structs; const eps=envParams(ENV).epsilon;
+  // 镜面失配
   if (M>=72 && Cp<=55) tag('方向未锚定','高觉察但目标/取舍不清');
   if (M>=72 && B<=55)  tag('决策阻抗','高觉察但控制不足');
   if (M>=72 && S<=55)  tag('情绪复燃','高觉察但稳态不足');
 
+  // A ～ J（省略注释，逻辑与前版一致）
   if (hi(Rk) && hi(eps) && lo(W)) tag('硬扛但恢复慢');
   if (hi(Rk) && hi(eps) && midLo(W)) tag('硬扛并能转圜（恢复一般）');
   if (hi(Rk) && hi(eps) && midHi(W)) tag('硬扛且具韧性','高强度+高噪声，注意恢复与配速');
@@ -229,12 +270,13 @@ function runBadges(structs,eco,ENV){
   if (S>=75 && F>=72 && eps<=50) tag('冷静转强势推进');
   if (S>=75 && F<=55 && hi(eps)) tag('冷静→压抑感','效率下降，注意恢复节律');
 }
+
 function renderBadges(el){
   if(!badges.length){ el.innerHTML='<span class="muted">（暂无触发）</span>'; return; }
   el.innerHTML = badges.map(b=>`<span class="badge"><b>·</b>${b.t}${b.sub?`<small>｜${b.sub}</small>`:''}</span>`).join('');
 }
 
-// 雷达
+// ========= 雷达 =========
 let chart;
 function renderRadar(labels, struct16, eco16, pot16){
   const ctx=document.getElementById('radar').getContext('2d');
@@ -256,25 +298,34 @@ function renderRadar(labels, struct16, eco16, pot16){
   });
 }
 
-// 主流程
-function renderList(el,names,vals){
-  el.innerHTML = names.map((n,i)=>{
-    const v=Math.round(vals[i]); const cls=v>=75?'ok':(v<=35?'bad':'')
-    return `<div class="item"><span>${n}</span><b class="${cls}">${v}</b></div>`
-  }).join('');
+// ========= 主流程（带 Chart.js 加载检测 & 数据检测） =========
+function ensureChart(ready, fail){
+  if (window.Chart) return ready();
+  let n=0, timer=setInterval(()=>{
+    if (window.Chart){ clearInterval(timer); ready(); }
+    else if (++n>80){ clearInterval(timer); fail && fail(); }
+  }, 50);
 }
+
 function main(){
+  const diagnoseEl = document.getElementById('diagnose');
   const listStruct=document.getElementById('listStruct');
   const listEco=document.getElementById('listEco');
   const listPot=document.getElementById('listPot');
   const badgeEl=document.getElementById('badges');
 
-  if(!SELF||!ENV){
-    if(chart) chart.destroy();
+  const {SELF, ENV} = loadVectors();
+  if (!SELF || !ENV){
+    diagnoseEl.innerHTML = '<span class="bad">数据未接入</span> · 请先完成 Step1/Step2 或点击“注入演示数据”';
     listStruct.innerHTML=listEco.innerHTML=listPot.innerHTML='';
-    badgeEl.innerHTML='<span class="muted">等待数据（请先完成 Step1 & Step2）</span>';
+    renderBadges(badgeEl);
+    showOverlay('未接入数据', '未发现 localStorage.selfScores / envScores（或其大写兼容键）。可先注入演示数据自检。');
     return;
+  } else {
+    diagnoseEl.innerHTML = '<span class="ok">数据已接入</span> · self='+JSON.stringify(SELF)+' · env='+JSON.stringify(ENV);
+    hideOverlay();
   }
+
   const structs=toStructures5(SELF).map(Math.round);
   const eco=toEcology(structs,ENV);
   const pots=toPotentials(structs,eco,ENV);
@@ -288,7 +339,13 @@ function main(){
 
   badges.length=0; runBadges(structs,eco,ENV); renderBadges(badgeEl);
 }
-main();
+
+// ========= 事件 =========
+document.getElementById('btnDemo').addEventListener('click', ()=>{ injectDemo(); hideOverlay(); ensureChart(main, ()=>showOverlay('Chart.js 未加载','请联网或将 Chart.js 改为本地文件。')); });
+document.getElementById('btnClear').addEventListener('click', ()=>{ clearData(); location.reload(); });
+
+// 等待 Chart.js
+ensureChart(main, ()=> showOverlay('Chart.js 未加载','CDN 未能加载，请联网或替换为本地 Chart.js 文件。'));
 </script>
 </body>
 </html>
