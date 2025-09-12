@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>团队/项目报告 · 高级版（20%解80%）</title>
+<style>
+:root{
+  --bg:#0b1020; --card:#121833; --ink:#e7ecff; --muted:#9aa3c7; --line:#1c2447; --accent:#6ea8fe;
+  --good:#4ade80; --warn:#f59f0b; --bad:#ff5c9a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(180deg,var(--bg),#0e1430 70%);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;}
+a{color:#9ec5ff;text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:24px auto;padding:0 16px}
+header.hero{margin:24px 0}
+.hero-card{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+  padding:20px;position:relative;overflow:hidden}
+.hero-card::after{content:'';position:absolute;inset:-40px;opacity:.2;background:conic-gradient(from 0deg,#6ea8fe,transparent 40%,#4ade80,transparent 70%,#f59f0b);filter:blur(40px)}
+h1{margin:0 0 8px;font-size:28px}
+h2{margin:10px 0 6px;font-size:20px}
+h3{margin:10px 0 4px;font-size:16px;color:#d8e6ff}
+p.lead{margin:6px 0 10px;color:#cfe1ff}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge{border:1px solid var(--line);padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.03);font-size:12px;color:#cfe1ff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width: 980px){.grid{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.03);padding:14px}
+.small{color:var(--muted);font-size:13px}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:10px 0}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width: 1100px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:12px;background:rgba(255,255,255,.02)}
+.kpi .val{font-size:26px;margin:6px 0}
+.progress{height:12px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);width:0%}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border:1px solid var(--line);padding:8px;vertical-align:top}
+.table th{background:rgba(255,255,255,.04)}
+.tag{border:1px solid var(--line);padding:2px 6px;border-radius:8px;font-size:12px;color:#cfe1ff;margin-right:4px}
+.pill{display:inline-block;border:1px solid var(--line);padding:4px 10px;border-radius:999px;font-size:12px;color:#e7ecff;margin-right:6px}
+.gauge{width:140px;height:140px;border-radius:50%;background:conic-gradient(#22c55e var(--pct),#1c2447 0);
+  display:grid;place-items:center;margin:auto;border:6px solid #0f1733}
+.gauge>span{font-size:18px}
+.warning{color:#ffd9a6}
+.danger{color:#ffc2d6}
+.success{color:#bbffd1}
+.stamp{font-size:12px;color:#aab7e8}
+.footer{color:#9fb2e9;text-align:center;margin:18px 0}
+.print{position:fixed;right:16px;bottom:16px;border:1px solid var(--line);background:#0f1733;color:#e7ecff;border-radius:999px;padding:10px 12px;cursor:pointer}
+@media print{
+  .print{display:none}
+  body{background:white;color:black}
+  .card,.kpi{border-color:#ddd;background:white}
+  a{color:#0645ad}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="hero">
+    <div class="hero-card">
+      <h1>团队/项目报告 · 高级版（20%解80%）</h1>
+      <p class="lead">以“<b>解决前 20%，覆盖约 80%</b>”为主线，聚焦制度/流程/治理的根因修复，12 周内可见 KPI 改善。</p>
+      <div class="badges">
+        <span class="badge">团队/项目版</span>
+        <span class="badge">Pareto 优先级引擎</span>
+        <span class="badge">阶段自适应权重</span>
+        <span class="badge">可打印/可交付</span>
+      </div>
+    </div>
+  </header>
+
+  
+<div class="grid">
+  <div class="card">
+    <h2>冲击页 · 一句话结论</h2>
+    <p class="lead"><b>只需推进前 <span id="shockTopN">5</span> 个主题卡，预计覆盖 <span id="shockCov">78%</span> 的主要卡点，</b>对应 KPI（延期/返工/事故/误解）可在 <b>6–12 周</b>看到显著改善。</p>
+    <div class="badges">
+      <span class="badge">20%→80% 法则验证</span>
+      <span class="badge">阶段：<span id="stageName">1→10 推进/复制</span></span>
+      <span class="badge">治理类优先</span>
+    </div>
+    <div class="hr"></div>
+    <div class="kpis">
+      <div class="kpi">
+        <div>PHI 项目健康指数</div>
+        <div class="val" id="phiVal">62</div>
+        <div class="progress"><i id="phiBar" style="width:62%"></i></div>
+        <div class="small">OFI 58 · CEI 64 · GMI 63</div>
+      </div>
+      <div class="kpi">
+        <div>覆盖卡点占比（Top 20%）</div>
+        <div class="val" id="covVal">78%</div>
+        <div class="progress"><i id="covBar" style="width:78%"></i></div>
+        <div class="small">计算：1−Π(1−频度×信心×惩罚)</div>
+      </div>
+      <div class="kpi">
+        <div>累计贡献度</div>
+        <div class="val" id="contrVal">81%</div>
+        <div class="progress"><i id="contrBar" style="width:81%"></i></div>
+        <div class="small">Top N 的 Priority/总 Priority</div>
+      </div>
+      <div class="kpi">
+        <div>预计节省人天（12 周）</div>
+        <div class="val" id="saveManDays">+420</div>
+        <div class="small">估算：基于返工/等待/事故缩短</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>视觉冲击 · 两大关键</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div class="gauge" style="--pct: 78%"><span>覆盖 78%</span></div>
+        <div class="small" style="text-align:center;margin-top:6px">前 20% 主题卡</div>
+      </div>
+      <div>
+        <div class="gauge" style="--pct: 81%"><span>贡献 81%</span></div>
+        <div class="small" style="text-align:center;margin-top:6px">累计贡献度</div>
+      </div>
+    </div>
+    <div class="hr"></div>
+    <p class="small">提醒：以上为样例数据。真实报告由问卷/访谈/KPI 自动生成。</p>
+  </div>
+</div>
+
+  
+<div class="card">
+  <h2>团队现状与卡点概览（按贡献度）</h2>
+  <table class="table">
+    <thead><tr><th>#</th><th>卡点群</th><th>贡献度（对负向 KPI）</th><th>症状</th></tr></thead>
+    <tbody><tr><td>1</td><td>需求边界/变更管理</td><td><div style='height:10px;background:linear-gradient(90deg,#ff5c9a42%,transparent 0);width:100%'></div><div class='small'>32% 贡献</div></td><td>高误解·返工</td></tr>
+<tr><td>2</td><td>节奏治理/会议效率</td><td><div style='height:10px;background:linear-gradient(90deg,#ff5c9a38%,transparent 0);width:100%'></div><div class='small'>28% 贡献</div></td><td>插单多·节拍乱</td></tr>
+<tr><td>3</td><td>质量门槛/回归覆盖</td><td><div style='height:10px;background:linear-gradient(90deg,#ff5c9a34%,transparent 0);width:100%'></div><div class='small'>24% 贡献</div></td><td>返工率↑·事故</td></tr>
+<tr><td>4</td><td>跨部门 SLA/接口稳定</td><td><div style='height:10px;background:linear-gradient(90deg,#ff5c9a32%,transparent 0);width:100%'></div><div class='small'>22% 贡献</div></td><td>等待长·阻塞</td></tr>
+<tr><td>5</td><td>监控与告警阈值</td><td><div style='height:10px;background:linear-gradient(90deg,#ff5c9a28%,transparent 0);width:100%'></div><div class='small'>18% 贡献</div></td><td>发现晚·恢复慢</td></tr></tbody>
+  </table>
+  <p class="small">说明：贡献度表示该卡点群对延期/返工/事故/误解等 KPI 的影响权重；用于归并“主题卡”。</p>
+</div>
+
+  
+<div class="card">
+  <h2>Top 20% 主题卡（Pareto 排序）</h2>
+  <table class="table">
+    <thead><tr><th>#</th><th>主题卡</th><th>治理权重</th><th>边际覆盖</th><th>Owner</th><th>里程碑</th></tr></thead>
+    <tbody><tr><td>1</td><td><b>统一需求入口与范围基线（模板+门槛）</b><div class='small'>需求边界</div></td><td>治理×1.2</td><td>边际覆盖 +21%</td><td>Owner: PMO</td><td>里程碑: 2周出模板/宣导</td></tr>
+<tr><td>2</td><td><b>固定迭代节拍（站会/评审/回顾）</b><div class='small'>节奏治理</div></td><td>治理×1.1</td><td>边际覆盖 +16%</td><td>Owner: R&D Lead</td><td>里程碑: 1周试运行</td></tr>
+<tr><td>3</td><td><b>验收标准 DoD/DoR 统一落地</b><div class='small'>质量门槛</div></td><td>治理×1.2</td><td>边际覆盖 +14%</td><td>Owner: QA</td><td>里程碑: 2周定义+灰度</td></tr>
+<tr><td>4</td><td><b>跨部门 SLA（接口人/响应窗/升级）</b><div class='small'>跨部门协作</div></td><td>治理×1.2</td><td>边际覆盖 +12%</td><td>Owner: Ops</td><td>里程碑: 3周签署</td></tr>
+<tr><td>5</td><td><b>发布回滚与监控阈值重构</b><div class='small'>发布/监控</div></td><td>治理×1.1</td><td>边际覆盖 +9%</td><td>Owner: DevOps</td><td>里程碑: 2周灰度回滚</td></tr></tbody>
+  </table>
+  <p class="small">选择这 5 项，累计贡献度 ≈81%，覆盖卡点 ≈78%（样例数据）。</p>
+</div>
+
+  
+<div class="grid">
+  <div class="card">
+    <h2>行动计划 · 四周冲刺</h2>
+    <table class="table">
+      <thead><tr><th>周次</th><th>动作</th><th>Owner</th><th>产出/门槛</th><th>KPI</th></tr></thead>
+      <tbody>
+        <tr><td>Week 1</td><td>需求入口统一（模板/表单/接口人）</td><td>PMO</td><td>v1 模板+宣导</td><td>误解率↓</td></tr>
+        <tr><td>Week 2</td><td>DoD/DoR 统一与灰度试点</td><td>QA</td><td>3 项目试点</td><td>返工率↓</td></tr>
+        <tr><td>Week 3</td><td>迭代节拍 Ritural 固化</td><td>R&D Lead</td><td>节拍仪表上线</td><td>延期率↓</td></tr>
+        <tr><td>Week 4</td><td>跨部门 SLA 与监控阈值调整</td><td>Ops/DevOps</td><td>SLA 生效/告警阈值表</td><td>事故率↓</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2>12 周路线图 · 节点</h2>
+    <ul>
+      <li>M4：制度固化与培训完成（模板/DoD/DoR/SLA/回滚）</li>
+      <li>M8：KPI 提升达成（延期率 -30%，返工 -25%，事故 -35%）</li>
+      <li>M12：治理评审与二次 Pareto（权重再校准）</li>
+    </ul>
+    <div class="hr"></div>
+    <h3>风险与对策</h3>
+    <ul>
+      <li>隐性阻力 → 管理层背书+激励；复盘“不找人找机制”。</li>
+      <li>接口依赖变更频繁 → 变更门槛+影响评估。</li>
+      <li>告警噪音 → 阈值分层与排班优化。</li>
+    </ul>
+  </div>
+</div>
+
+  
+<div class="grid">
+  <div class="card">
+    <h2>市场与对标（概览）</h2>
+    <ul>
+      <li>同赛道最佳实践：需求基线模板化、SLA 升级路径、DoD/DoR 统一。</li>
+      <li>对标差距：我们在“节奏治理/监控阈值/接口稳定”存在提升空间。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>财务影响粗算</h2>
+    <table class="table">
+      <thead><tr><th>指标</th><th>当前</th><th>目标</th><th>12 周改善估计</th></tr></thead>
+      <tbody>
+        <tr><td>延期率</td><td>21%</td><td>≤ 14%</td><td>-7%（节奏/对齐）</td></tr>
+        <tr><td>返工率</td><td>18%</td><td>≤ 12%</td><td>-6%（DoD/DoR）</td></tr>
+        <tr><td>事故数</td><td>9次/季</td><td>≤ 5</td><td>-4（回滚/监控）</td></tr>
+      </tbody>
+    </table>
+    <p class="small">注：用于商业评估，详细测算见详尽版。</p>
+  </div>
+</div>
+
+  
+<div class="card">
+  <h2>版本与定价（建议）</h2>
+  <table class="table">
+    <thead><tr><th>版本</th><th>适用</th><th>交付内容</th><th>服务周期</th><th>建议定价（人民币）</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>基础版</b></td>
+        <td>小团队/单项目</td>
+        <td>72问问卷 + 风险盘点 + Pareto 排序 + 4周冲刺方案 + PDF报告</td>
+        <td>2–3 周</td>
+        <td><b>¥ 29,800</b></td>
+      </tr>
+      <tr>
+        <td><b>高级版</b></td>
+        <td>成长期/多干系人项目</td>
+        <td>基础版 + 市场/竞品对标 + KPI 建模 + 12周路线图 + 线上工作坊</td>
+        <td>4–6 周</td>
+        <td><b>¥ 68,000</b></td>
+      </tr>
+      <tr>
+        <td><b>详尽版</b></td>
+        <td>规模化/关键变革项目</td>
+        <td>高级版 + 访谈/影子跟踪 + 财务影响测算 + 治理建议白皮书 + 复盘两次</td>
+        <td>8–12 周</td>
+        <td><b>¥ 128,000</b></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="small">价格可按项目规模/范围微调；可另行签订保密与合规条款。</p>
+</div>
+
+
+  <div class="footer">最后更新：2025-09-12</div>
+</div>
+
+<button class="print" onclick="window.print()">⤓ 打印/导出 PDF</button>
+</body>
+</html>
