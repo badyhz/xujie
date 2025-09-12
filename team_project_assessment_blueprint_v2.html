@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>团队/项目评估系统（团队版 v2 · Team-First）</title>
+<style>
+:root{
+  --bg:#0b1020; --card:#121833; --ink:#e7ecff; --muted:#9aa3c7; --line:#1c2447; --hl:#2a3b7a;
+  --good:#4ade80; --warn:#f59f0b; --bad:#ff5c9a; --accent:#6ea8fe;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(180deg,var(--bg),#0e1430 70%);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;}
+a{color:#9ec5ff;text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+
+header.hero{max-width:1200px;margin:24px auto 0;padding:24px 16px 0}
+.hero-card{background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:16px;
+  padding:20px;backdrop-filter:blur(6px)}
+.hero h1{margin:0 0 8px;font-size:28px;letter-spacing:0.3px}
+.hero p{margin:6px 0 0;color:var(--muted)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.badge{border:1px solid var(--line);background:rgba(255,255,255,0.04);padding:4px 10px;border-radius:999px;font-size:12px;color:#cfe1ff}
+
+.container{display:grid;grid-template-columns:280px 1fr;gap:24px;max-width:1200px;margin:24px auto;padding:0 16px}
+@media (max-width: 960px){.container{grid-template-columns:1fr}}
+
+aside.toc{position:sticky;top:16px;align-self:start;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,0.03);padding:14px}
+aside.toc h3{margin:0 0 8px;font-size:14px;color:#cfe1ff}
+.toc a{display:block;padding:6px 8px;border-radius:8px;color:var(--muted);font-size:14px}
+.toc a:hover{background:rgba(255,255,255,0.05);color:#e7ecff}
+
+section.card{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,0.03);
+  padding:18px;margin-bottom:18px}
+section.card h2{margin:0 0 8px;font-size:20px}
+section.card h3{margin:12px 0 6px;font-size:16px;color:#d7e4ff}
+ul{margin:6px 0 10px 20px;color:#dbe4ff}
+li{margin:4px 0}
+ol{margin:6px 0 10px 20px;color:#dbe4ff}
+
+.kv{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.kv .chip{padding:6px 10px;border-radius:10px;border:1px dashed var(--hl);color:#cfe1ff;font-size:13px}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.segment{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.segment button{background:transparent;border:0;color:#cfe1ff;padding:6px 10px;font-size:13px;cursor:pointer}
+.segment button.active{background:rgba(110,168,254,0.15);color:white}
+
+.tabs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tab-btn{border:1px solid var(--line);background:rgba(255,255,255,0.02);color:#cfe1ff;padding:8px 12px;border-radius:10px;cursor:pointer}
+.tab-btn.active{background:rgba(110,168,254,0.15);color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.meta{display:flex;gap:10px;flex-wrap:wrap}
+.tag{font-size:12px;padding:4px 8px;border-radius:8px;border:1px solid var(--line);color:#d9e6ff}
+.tag.good{border-color:#214b32;background:rgba(74,222,128,.12);color:#caffd2}
+.tag.warn{border-color:#4a3518;background:rgba(245,159,11,.12);color:#ffe5b8}
+.tag.bad{border-color:#522237;background:rgba(255,92,154,.12);color:#ffd4e4}
+
+.formula{background:rgba(255,255,255,0.06);border:1px solid var(--line);border-radius:12px;padding:10px;overflow:auto}
+.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.btn{border:1px solid var(--line);background:rgba(255,255,255,0.04);color:#e7ecff;padding:8px 12px;border-radius:10px;cursor:pointer}
+.btn:hover{background:rgba(255,255,255,0.08)}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:12px 0}
+.small{color:var(--muted);font-size:13px}
+.stamp{font-size:12px;color:#aab7e8}
+.topbtn{position:fixed;right:16px;bottom:16px;border:1px solid var(--line);background:#0f1733;color:#e7ecff;border-radius:999px;padding:10px 12px;cursor:pointer}
+
+details{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,0.02);margin:10px 0}
+details>summary{cursor:pointer;color:#cfe1ff}
+details ul{margin-top:8px}
+.copy{cursor:pointer;margin-left:6px;font-size:12px;color:#beddff;border:1px dashed var(--line);padding:2px 6px;border-radius:8px}
+.copy:hover{background:rgba(255,255,255,0.06)}
+
+@media print{
+  .topbtn, .footer-actions, aside.toc {display:none!important}
+  body{background:white;color:black}
+  section.card{border-color:#ddd;background:white}
+  a{color:#0645ad}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-card hero">
+    <h1>团队/项目评估系统（团队版 v2 · Team-First）</h1>
+    <p>完全以团队与项目为中心：组织基座力（OF）· 协作生态（CE） · 增长势能（GM） · 项目健康指数（PHI）</p>
+    <div class="badges">
+      <span class="badge">72问团队画像 + 24项风险盘点</span>
+      <span class="badge">阶段自适应权重</span>
+      <span class="badge">Pareto 优先级引擎</span>
+      <span class="badge">匿名聚合 · 合规留痕</span>
+    </div>
+    <div class="footer-actions">
+      <button class="btn" onclick="window.print()">⤓ 导出/打印</button>
+      <button class="btn" onclick="location.hash='#toc'">☰ 目录</button>
+      <button class="btn" id="copyAll">⧉ 复制题库</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- TOC -->
+  <aside class="toc" id="toc">
+    <h3>目录</h3>
+    <a href="#principles">设计原则</a>
+    <a href="#pillars">三大支柱（团队命名）</a>
+    <a href="#pipeline">评估链路</a>
+    <a href="#questionnaire">题库 72 题</a>
+    <a href="#risks">风险与约束盘点</a>
+    <a href="#scoring">计分与聚合</a>
+    <a href="#indices">指数体系</a>
+    <a href="#priority">优先级引擎</a>
+    <a href="#outputs">输出与页面</a>
+    <a href="#governance">数据与治理</a>
+    <a href="#stageweights">阶段权重</a>
+    <a href="#implementation">实施建议</a>
+  </aside>
+
+  <!-- CONTENT -->
+  <div>
+
+    <section class="card" id="principles">
+      <h2>一、设计原则（Team-First）</h2>
+      <ul>
+        <li><b>项目优先</b>：围绕 KPI/里程碑达成。</li>
+        <li><b>组织视角</b>：结构/流程/制度/资源/跨团队协作，而非个体特质。</li>
+        <li><b>客观可验证</b>：主观问卷 ↔ 硬指标双轨校验。</li>
+        <li><b>阶段自适应</b>：0→1 / 1→10 / 10→100 权重不同。</li>
+        <li><b>可执行</b>：诊断落向问题池与行动路线图，闭环复盘。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="pillars">
+      <h2>二、三大支柱（团队版命名）</h2>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tabOF">OF 组织基座力（8维）</button>
+        <button class="tab-btn" data-tab="tabCE">CE 协作生态（16维）</button>
+        <button class="tab-btn" data-tab="tabGM">GM 增长势能（8维）</button>
+      </div>
+      <div id="tabOF" class="tab-panel active">
+        <ul>
+          <li>战略指向力、目标对齐度、角色清晰度、流程稳态性、节奏治理力、质量可靠性、跨界联动度、反馈改进力</li>
+        </ul>
+      </div>
+      <div id="tabCE" class="tab-panel">
+        <ul>
+          <li>信任密度、信息透明度、协作契约率、责任闭环率、冲突处理成本、交付节拍稳定性、知识复用率、跨部门带宽、客户共创度、隐性阻力、会议效率、决策速度、学习循环、创新管道、风险预警、恢复弹性</li>
+        </ul>
+      </div>
+      <div id="tabGM" class="tab-panel">
+        <ul>
+          <li>市场扩张势、产品迭代势、运营杠杆、人才飞轮、数据驱动力、品牌扩散力、盈利质量、可持续性</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="card" id="pipeline">
+      <h2>三、评估链路（Team Assessment Pipeline）</h2>
+      <ol>
+        <li><b>T0 项目快照</b>：阶段、北极星指标、迭代节奏、核心 KPI（交付周期/缺陷率/里程碑达成率/营收等）。</li>
+        <li><b>T1 团队画像问卷</b>：72 题（5 级量表）。</li>
+        <li><b>T2 干系人与依赖映射</b>：关键角色、外部依赖、阻塞点、决策链路。</li>
+        <li><b>T3 风险与约束盘点</b>：24 题（二选一/多选）。</li>
+        <li><b>T4 数据校验</b>：主观结论 ↔ 硬指标一致性报告。</li>
+      </ol>
+    </section>
+
+    <section class="card" id="questionnaire">
+      <h2>四、题库（72 题 · 团队/项目表述）</h2>
+
+      <details open>
+        <summary><b>A. OF 组织基座力（8×3=24 题）</b><span class="copy" data-copy="OF">复制此段</span></summary>
+        <h3>A1 战略指向力</h3>
+        <ul>
+          <li>1. 本项目的“北极星指标”已明确并被所有成员理解。</li>
+          <li>2. 里程碑与北极星指标存在可量化关联（非口号）。</li>
+          <li>3. 重要决策会引用该指标作为判断依据并留痕。</li>
+        </ul>
+        <h3>A2 目标对齐度</h3>
+        <ul>
+          <li>4. 目标自上而下分解清晰（年度→季度→迭代→任务）。</li>
+          <li>5. 个人/小队目标与项目目标一致且可追踪。</li>
+          <li>6. 每两周至少一次目标复盘与校正。</li>
+        </ul>
+        <h3>A3 角色清晰度</h3>
+        <ul>
+          <li>7. 关键职责（RACI）在文档中明示到人。</li>
+          <li>8. 责任冲突时有快速判定机制与升级路径。</li>
+          <li>9. 新成员在一周内可弄清自己权责边界。</li>
+        </ul>
+        <h3>A4 流程稳态性</h3>
+        <ul>
+          <li>10. 需求→设计→开发→测试→发布路径标准化。</li>
+          <li>11. 变更管理（Change）有门槛与影响评估。</li>
+          <li>12. 关键流程可被审计与复用（模板/清单）。</li>
+        </ul>
+        <h3>A5 节奏治理力</h3>
+        <ul>
+          <li>13. 迭代长度固定且有 Ritual（站会/评审/回顾）。</li>
+          <li>14. 超负荷发散时能及时“止损/降噪”。</li>
+          <li>15. 关键岗位有轮换/替补防单点故障。</li>
+        </ul>
+        <h3>A6 质量可靠性</h3>
+        <ul>
+          <li>16. 有明确的质量门槛（DoD/DoR/验收标准）。</li>
+          <li>17. 回归/监控/报警覆盖关键路径。</li>
+          <li>18. 上线事故复盘有结论与改进项闭环。</li>
+        </ul>
+        <h3>A7 跨界联动度</h3>
+        <ul>
+          <li>19. 跨部门协作有固定接口人与 SLA。</li>
+          <li>20. 上下游时间窗协同（依赖预告/交付预约）有效执行。</li>
+          <li>21. 与外部团队的合作中“信息丢包”现象较少。</li>
+        </ul>
+        <h3>A8 反馈改进力</h3>
+        <ul>
+          <li>22. 复盘不找人，找机制并立刻改流程。</li>
+          <li>23. 改进项进入下周期并有 Owner 与检查点。</li>
+          <li>24. 常规化收集一线反馈（客户/运营/支持）并纳入决策。</li>
+        </ul>
+      </details>
+
+      <details open>
+        <summary><b>B. CE 协作生态（16×2=32 题）</b><span class="copy" data-copy="CE">复制此段</span></summary>
+        <h3>B1 信任密度</h3>
+        <ul><li>25. 团队成员愿意暴露问题并求助。</li><li>26. 对失败的态度偏向学习而非指责。</li></ul>
+        <h3>B2 信息透明度</h3>
+        <ul><li>27. 决策/变更/里程碑有统一看板可追溯。</li><li>28. 需求与范围边界在同一处保持最新。</li></ul>
+        <h3>B3 协作契约率</h3>
+        <ul><li>29. 任务都有明确“验收标准”。</li><li>30. 任务交接清单齐备且遵守。</li></ul>
+        <h3>B4 责任闭环率</h3>
+        <ul><li>31. 延期会说明原因并给出新承诺。</li><li>32. 重复性问题会被记录到预防清单。</li></ul>
+        <h3>B5 冲突处理成本</h3>
+        <ul><li>33. 冲突能在 48 小时内达成结论。</li><li>34. 重大分歧有 Escalation 的规则。</li></ul>
+        <h3>B6 交付节拍稳定性</h3>
+        <ul><li>35. 每个迭代的承诺完成率较稳定。</li><li>36. 临时插单能被可视化并评估影响。</li></ul>
+        <h3>B7 知识复用率</h3>
+        <ul><li>37. 常用模板/最佳实践可被搜到并复用。</li><li>38. 代码/文档/流程的复用率近两月在上升。</li></ul>
+        <h3>B8 跨部门带宽</h3>
+        <ul><li>39. 关键部门的响应时延在可接受范围。</li><li>40. 与法务/财务/采买等支持线协同顺畅。</li></ul>
+        <h3>B9 客户共创度</h3>
+        <ul><li>41. 需求澄清阶段会邀请真实用户/客户参与。</li><li>42. 关键里程碑前有客户共识评审。</li></ul>
+        <h3>B10 隐性阻力</h3>
+        <ul><li>43. 无“口头支持实际不配合”的情况。</li><li>44. 影子决策/暗门槛很少出现。</li></ul>
+        <h3>B11 会议效率</h3>
+        <ul><li>45. 会议前有议程与材料，后有纪要与行动项。</li><li>46. 例会总时长可控，必要人员才参加。</li></ul>
+        <h3>B12 决策速度</h3>
+        <ul><li>47. 有明确的“谁拍板”的规则。</li><li>48. 重要决策一般 72 小时内定稿。</li></ul>
+        <h3>B13 学习循环</h3>
+        <ul><li>49. 每个迭代都有复盘并产出可用结论。</li><li>50. 新知会被沉淀到知识库且易检索。</li></ul>
+        <h3>B14 创新管道</h3>
+        <ul><li>51. 有轻量试验/灰度通道。</li><li>52. 从试验到产品化有明确门槛。</li></ul>
+        <h3>B15 风险预警</h3>
+        <ul><li>53. 关键指标或进度异常会触发预警。</li><li>54. 风险台账每周更新并评估概率×影响。</li></ul>
+        <h3>B16 恢复弹性</h3>
+        <ul><li>55. 关键岗位有人手冗余或多能工。</li><li>56. 重大挫折后，团队能在一周内恢复节奏。</li></ul>
+      </details>
+
+      <details open>
+        <summary><b>C. GM 增长势能（8×2=16 题）</b><span class="copy" data-copy="GM">复制此段</span></summary>
+        <h3>C1 市场扩张势</h3>
+        <ul><li>57. 项目与目标市场细分/机会窗有明确匹配。</li><li>58. 我们有获取/转化/留存的可检验假设。</li></ul>
+        <h3>C2 产品迭代势</h3>
+        <ul><li>59. 迭代节奏与用户反馈循环形成闭环。</li><li>60. 有中期路线图与技术债偿还节奏。</li></ul>
+        <h3>C3 运营杠杆</h3>
+        <ul><li>61. 重复性工作已流程化/自动化。</li><li>62. 单位成本（人/时/机）在下降。</li></ul>
+        <h3>C4 人才飞轮</h3>
+        <ul><li>63. 招聘/培养/继任机制能支撑增长。</li><li>64. 关键人才保留率稳定。</li></ul>
+        <h3>C5 数据驱动力</h3>
+        <ul><li>65. 关键决策基于数据与实验而非直觉。</li><li>66. 数据采集→处理→可视化链路稳定。</li></ul>
+        <h3>C6 品牌扩散力</h3>
+        <ul><li>67. 对外叙事统一且在目标人群可见。</li><li>68. 案例/口碑/内容增长在正向积累。</li></ul>
+        <h3>C7 盈利质量</h3>
+        <ul><li>69. 单位经济模型健康（毛利/回收期/复购）。</li><li>70. 收入结构与成本结构风险可控。</li></ul>
+        <h3>C8 可持续性</h3>
+        <ul><li>71. 合规/安全/隐私/风控有体系保障。</li><li>72. 环境与社会责任要求得到遵守。</li></ul>
+      </details>
+    </section>
+
+    <section class="card" id="risks">
+      <h2>五、风险与约束盘点（24 题）</h2>
+      <ul id="riskList">
+        <li>R1 需求频繁变更且无影响评估</li>
+        <li>R2 关键人依赖严重（单点故障）</li>
+        <li>R3 预算/资源未锁定</li>
+        <li>R4 外部依赖不确定（供应商/渠道）</li>
+        <li>R5 决策链过长</li>
+        <li>R6 数据不可用或口径不一致</li>
+        <li>R7 工具/平台限制（权限/兼容）</li>
+        <li>R8 法务/合规阻塞</li>
+        <li>R9 品类监管趋严</li>
+        <li>R10 核心技术边界未验证</li>
+        <li>R11 性能/安全隐患</li>
+        <li>R12 交付周期与市场窗口错位</li>
+        <li>R13 组织变更影响项目稳定</li>
+        <li>R14 上游信息不透明</li>
+        <li>R15 KPI 设计不合理导致局部最优</li>
+        <li>R16 成本压力上升</li>
+        <li>R17 竞争对手快速复制/降价</li>
+        <li>R18 价格/合同条款约束</li>
+        <li>R19 客户结构过于集中</li>
+        <li>R20 团队士气下滑</li>
+        <li>R21 培训与上手期不足</li>
+        <li>R22 质量逃逸/返工率高</li>
+        <li>R23 供应链波动</li>
+        <li>R24 外部公共事件（政策/宏观）</li>
+      </ul>
+    </section>
+
+    <section class="card" id="scoring">
+      <h2>六、计分与聚合（团队版）</h2>
+      <p>量表 1–5 → 映射 0–100（线性或分段）。聚合采用 <b>中位数 + MAD</b> 降低极端值影响；核心干系人按职责加权。</p>
+      <div class="controls">
+        <div>阶段：</div>
+        <div class="segment" id="stageSeg">
+          <button class="active" data-stage="0-1">0→1</button>
+          <button data-stage="1-10">1→10</button>
+          <button data-stage="10-100">10→100</button>
+        </div>
+      </div>
+      <div id="weightBox" class="formula" aria-live="polite"></div>
+      <div class="hr"></div>
+      <p><b>一致性偏差（CDI）</b>：问卷推导的“预测 KPI”与真实 KPI 的差值，用以识别乐观/保守偏差。</p>
+    </section>
+
+    <section class="card" id="indices">
+      <h2>七、指数与派生指标</h2>
+      <ul>
+        <li>OFI（组织基座指数）· CEI（协作生态指数）· GMI（增长势能指数）</li>
+        <li>PHI（项目健康指数）= w_OF·OFI + w_CE·CEI + w_GM·GMI（权重随阶段变化）</li>
+        <li>CJ（协作张力）= CE 内部方差 + 隐性阻力加权</li>
+        <li>DFC（决策摩擦系数）= 决策速度 × 冲突成本 × 层级数（归一化）</li>
+        <li>RCI（风险集中度）= 高概率×高影响风险项密度</li>
+      </ul>
+    </section>
+
+    <section class="card" id="priority">
+      <h2>八、优先级引擎（团队化）</h2>
+      <div class="formula">
+<pre>Priority = (Impact×1.6 + Frequency×1.2 + Urgency×1.0 + Confidence×0.8 + Ease×0.5)
+           × StageWeight × GovernanceWeight
+
+Impact：与核心 KPI 的相关强度（0–5）
+Frequency：受影响人群/小队占比（0–5）
+Urgency：窗口/合规/事故风险（0–5）
+Confidence：数据完备与一致性（0–5）
+Ease：解决难度（越易越高）（0–5）
+StageWeight：命中当前阶段关键维 ×1.2
+GovernanceWeight：触及制度/流程类问题 ×1.1
+</pre>
+      </div>
+      <ul>
+        <li>Pareto 切分：按 Priority 累计贡献度至 80% 截断 → <b>Top 20% 重点清单</b> → 合并为“主题卡”。</li>
+        <li>行动蓝图：每卡关联 2–3 条 Playbook（制度/流程/工具/训练/资源），形成 <b>四周冲刺 + 十二周节奏</b> 双视图。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="outputs">
+      <h2>九、输出与页面（团队版）</h2>
+      <ul>
+        <li>项目主页：阶段/KPI、PHI、OFI/CEI/GMI</li>
+        <li>三圈雷达（团队版）：内=OF、中=CE、外=GM（同一 0–100 量纲，三圈视觉分离）</li>
+        <li>缺口热力图（维度×小队/角色）、互补与瓶颈矩阵</li>
+        <li>优先级看板（主题卡流水线）、风险雷达与台账</li>
+        <li>一致性报告（问卷 vs KPI）、路线图与复盘 ROI</li>
+      </ul>
+    </section>
+
+    <section class="card" id="governance">
+      <h2>十、数据与治理</h2>
+      <ul>
+        <li>视角：组织→项目→小队→角色（匿名聚合），个人层面仅作分布分析，不输出个体结论。</li>
+        <li>权限：负责人/治理委员/咨询支持可见不同粒度；导出留痕与审计日志。</li>
+        <li>合规：隐私、安全与企业规范对齐；第三方系统最小权限接入。</li>
+      </ul>
+    </section>
+
+    <section class="card" id="stageweights">
+      <h2>十一、阶段权重建议</h2>
+      <table style="width:100%;border-collapse:collapse;border:1px solid var(--line)">
+        <thead>
+          <tr style="background:rgba(255,255,255,0.04)">
+            <th style="padding:8px;border:1px solid var(--line);text-align:left">阶段</th>
+            <th style="padding:8px;border:1px solid var(--line)">OF</th>
+            <th style="padding:8px;border:1px solid var(--line)">CE</th>
+            <th style="padding:8px;border:1px solid var(--line)">GM</th>
+            <th style="padding:8px;border:1px solid var(--line);text-align:left">重点维提示</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:8px;border:1px solid var(--line)">0→1</td><td style="padding:8px;border:1px solid var(--line)">0.20</td><td style="padding:8px;border:1px solid var(--line)">0.35</td><td style="padding:8px;border:1px solid var(--line)">0.45</td><td style="padding:8px;border:1px solid var(--line);text-align:left">创新管道/客户共创/数据驱动/产品迭代</td></tr>
+          <tr><td style="padding:8px;border:1px solid var(--line)">1→10</td><td style="padding:8px;border:1px solid var(--line)">0.30</td><td style="padding:8px;border:1px solid var(--line)">0.40</td><td style="padding:8px;border:1px solid var(--line)">0.30</td><td style="padding:8px;border:1px solid var(--line);text-align:left">节奏治理/交付节拍/知识复用/质量可靠</td></tr>
+          <tr><td style="padding:8px;border:1px solid var(--line)">10→100</td><td style="padding:8px;border:1px solid var(--line)">0.45</td><td style="padding:8px;border:1px solid var(--line)">0.35</td><td style="padding:8px;border:1px solid var(--line)">0.20</td><td style="padding:8px;border:1px solid var(--line);text-align:left">组织结构化/流程稳态/跨界联动/盈利质量</td></tr>
+        </tbody>
+      </table>
+      <p class="small">注：PHI = w_OF·OFI + w_CE·CEI + w_GM·GMI。</p>
+    </section>
+
+    <section class="card" id="implementation">
+      <h2>十二、实施建议（MVP→v1.2）</h2>
+      <ul>
+        <li><b>MVP（4–6 周）</b>：T0–T3 采集、三指数与 PHI、热力图、优先级看板、路线图、导出。</li>
+        <li><b>v1.1</b>：互补矩阵、阶段自适应推荐、风险台账自动提醒。</li>
+        <li><b>v1.2</b>：KPI 适配器、时序漂移监测、治理指标（DFC/CJ/RCI）趋势图。</li>
+      </ul>
+      <div class="stamp">最后更新：团队版 v2</div>
+    </section>
+
+  </div>
+</main>
+
+<button class="topbtn" onclick="scrollTo({top:0,behavior:'smooth'})">↑ 顶部</button>
+
+<script>
+// Stage weights & formula view
+const weights = {
+  "0-1": {OF:0.20, CE:0.35, GM:0.45},
+  "1-10": {OF:0.30, CE:0.40, GM:0.30},
+  "10-100": {OF:0.45, CE:0.35, GM:0.20}
+};
+const stageSeg = document.getElementById('stageSeg');
+const weightBox = document.getElementById('weightBox');
+function setStage(stage){
+  [...stageSeg.querySelectorAll('button')].forEach(b=>b.classList.toggle('active', b.dataset.stage===stage));
+  const w = weights[stage];
+  weightBox.innerHTML = [
+    'PHI = ' + w.OF.toFixed(2) + '·OFI + ' + w.CE.toFixed(2) + '·CEI + ' + w.GM.toFixed(2) + '·GMI',
+    '（当前阶段：' + stage + '）'
+  ].join('<br>');
+}
+stageSeg.addEventListener('click', e => {
+  if(e.target.matches('button[data-stage]')) setStage(e.target.dataset.stage);
+});
+setStage('0-1');
+
+// Tabs (pillars)
+const tabs = document.querySelectorAll('.tab-btn');
+const panels = document.querySelectorAll('.tab-panel');
+tabs.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    panels.forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Smooth anchor scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const id=a.getAttribute('href').slice(1);
+    const el=document.getElementById(id);
+    if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth',block:'start'}); }
+  });
+});
+
+// Copy helpers
+const blockText = {
+  OF: `A1 战略指向力
+1. 本项目的“北极星指标”已明确并被所有成员理解。
+2. 里程碑与北极星指标存在可量化关联（非口号）。
+3. 重要决策会引用该指标作为判断依据并留痕。
+
+A2 目标对齐度
+4. 目标自上而下分解清晰（年度→季度→迭代→任务）。
+5. 个人/小队目标与项目目标一致且可追踪。
+6. 每两周至少一次目标复盘与校正。
+
+A3 角色清晰度
+7. 关键职责（RACI）在文档中明示到人。
+8. 责任冲突时有快速判定机制与升级路径。
+9. 新成员在一周内可弄清自己权责边界。
+
+A4 流程稳态性
+10. 需求→设计→开发→测试→发布路径标准化。
+11. 变更管理（Change）有门槛与影响评估。
+12. 关键流程可被审计与复用（模板/清单）。
+
+A5 节奏治理力
+13. 迭代长度固定且有 Ritual（站会/评审/回顾）。
+14. 超负荷发散时能及时“止损/降噪”。
+15. 关键岗位有轮换/替补防单点故障。
+
+A6 质量可靠性
+16. 有明确的质量门槛（DoD/DoR/验收标准）。
+17. 回归/监控/报警覆盖关键路径。
+18. 上线事故复盘有结论与改进项闭环。
+
+A7 跨界联动度
+19. 跨部门协作有固定接口人与 SLA。
+20. 上下游时间窗协同（依赖预告/交付预约）有效执行。
+21. 与外部团队的合作中“信息丢包”现象较少。
+
+A8 反馈改进力
+22. 复盘不找人，找机制并立刻改流程。
+23. 改进项进入下周期并有 Owner 与检查点。
+24. 常规化收集一线反馈（客户/运营/支持）并纳入决策。`,
+  CE: `B1 信任密度
+25. 团队成员愿意暴露问题并求助。
+26. 对失败的态度偏向学习而非指责。
+
+B2 信息透明度
+27. 决策/变更/里程碑有统一看板可追溯。
+28. 需求与范围边界在同一处保持最新。
+
+B3 协作契约率
+29. 任务都有明确“验收标准”。
+30. 任务交接清单齐备且遵守。
+
+B4 责任闭环率
+31. 延期会说明原因并给出新承诺。
+32. 重复性问题会被记录到预防清单。
+
+B5 冲突处理成本
+33. 冲突能在 48 小时内达成结论。
+34. 重大分歧有 Escalation 的规则。
+
+B6 交付节拍稳定性
+35. 每个迭代的承诺完成率较稳定。
+36. 临时插单能被可视化并评估影响。
+
+B7 知识复用率
+37. 常用模板/最佳实践可被搜到并复用。
+38. 代码/文档/流程的复用率近两月在上升。
+
+B8 跨部门带宽
+39. 关键部门的响应时延在可接受范围。
+40. 与法务/财务/采买等支持线协同顺畅。
+
+B9 客户共创度
+41. 需求澄清阶段会邀请真实用户/客户参与。
+42. 关键里程碑前有客户共识评审。
+
+B10 隐性阻力
+43. 无“口头支持实际不配合”的情况。
+44. 影子决策/暗门槛很少出现。
+
+B11 会议效率
+45. 会议前有议程与材料，后有纪要与行动项。
+46. 例会总时长可控，必要人员才参加。
+
+B12 决策速度
+47. 有明确的“谁拍板”的规则。
+48. 重要决策一般 72 小时内定稿。
+
+B13 学习循环
+49. 每个迭代都有复盘并产出可用结论。
+50. 新知会被沉淀到知识库且易检索。
+
+B14 创新管道
+51. 有轻量试验/灰度通道。
+52. 从试验到产品化有明确门槛。
+
+B15 风险预警
+53. 关键指标或进度异常会触发预警。
+54. 风险台账每周更新并评估概率×影响。
+
+B16 恢复弹性
+55. 关键岗位有人手冗余或多能工。
+56. 重大挫折后，团队能在一周内恢复节奏。`,
+  GM: `C1 市场扩张势
+57. 项目与目标市场细分/机会窗有明确匹配。
+58. 我们有获取/转化/留存的可检验假设。
+
+C2 产品迭代势
+59. 迭代节奏与用户反馈循环形成闭环。
+60. 有中期路线图与技术债偿还节奏。
+
+C3 运营杠杆
+61. 重复性工作已流程化/自动化。
+62. 单位成本（人/时/机）在下降。
+
+C4 人才飞轮
+63. 招聘/培养/继任机制能支撑增长。
+64. 关键人才保留率稳定。
+
+C5 数据驱动力
+65. 关键决策基于数据与实验而非直觉。
+66. 数据采集→处理→可视化链路稳定。
+
+C6 品牌扩散力
+67. 对外叙事统一且在目标人群可见。
+68. 案例/口碑/内容增长在正向积累。
+
+C7 盈利质量
+69. 单位经济模型健康（毛利/回收期/复购）。
+70. 收入结构与成本结构风险可控。
+
+C8 可持续性
+71. 合规/安全/隐私/风控有体系保障。
+72. 环境与社会责任要求得到遵守。`
+};
+document.querySelectorAll('.copy').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const key = btn.getAttribute('data-copy');
+    navigator.clipboard.writeText(blockText[key]).then(()=>{
+      btn.textContent='已复制';
+      setTimeout(()=>btn.textContent='复制此段',1200);
+    });
+  });
+});
+document.getElementById('copyAll').addEventListener('click', ()=>{
+  const all = [blockText.OF, blockText.CE, blockText.GM].join('\\n\\n');
+  navigator.clipboard.writeText(all).then(()=>{
+    const b=document.getElementById('copyAll'); b.textContent='已复制全部'; setTimeout(()=>b.textContent='⧉ 复制题库',1200);
+  });
+});
+</script>
+</body>
+</html>
