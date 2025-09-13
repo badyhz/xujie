@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>🌌 人格拓扑映射系统 · 融资项目书（强化版）</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans CJK",sans-serif;line-height:1.6;color:#111;padding:24px;max-width:1100px;margin:0 auto;}
+ h1{font-size:28px;margin:0 0 10px}
+ h2{font-size:22px;margin:28px 0 8px}
+ h3{font-size:18px;margin:22px 0 6px}
+ p,li{font-size:15px}
+ code,kbd{background:#f6f6f6;border:1px solid #eee;padding:1px 6px;border-radius:6px}
+ .tag{display:inline-block;background:#111;color:#fff;border-radius:999px;padding:4px 10px;margin-right:6px;font-size:12px}
+ .card{border:1px solid #eee;border-radius:12px;padding:16px 16px 10px;margin:16px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+ .muted{color:#666}
+ table{border-collapse:collapse;width:100%;margin:10px 0}
+ th,td{border:1px solid #eee;padding:8px;text-align:left;font-size:14px}
+ tr:nth-child(even){background:#fafafa}
+ .ok{color:#157f3b;font-weight:600}
+ .warn{color:#b26a00;font-weight:600}
+ .bad{color:#b00020;font-weight:600}
+ details{border:1px dashed #ddd;border-radius:8px;padding:8px 10px;margin:12px 0}
+ summary{cursor:pointer;font-weight:600}
+ .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+ .pill{display:inline-block;border:1px solid #ddd;border-radius:999px;padding:2px 10px;margin-right:6px}
+ .mono{font-family:ui-monospace,Menlo,Consolas,Monaco,monospace}
+ .small{font-size:13px}
+</style>
+</head>
+<body>
+
+<h1>🌌 人格拓扑映射系统 · 融资项目书（强化版）</h1>
+<p>
+  <span class="tag">TRT</span>
+  <span class="tag">EPM</span>
+  <span class="tag">SBC</span>
+  <span class="tag">OPA</span>
+  <span class="tag">RCP</span>
+  <span class="tag">R 指数</span>
+  <span class="tag">团队画像雷达</span>
+  <span class="tag">项目三层模型</span>
+  <span class="tag">外部生态 16</span>
+</p>
+
+<!-- 目录 -->
+<div class="card">
+  <h2>目录</h2>
+  <ol>
+    <li>项目定位与电梯稿</li>
+    <li>核心方法论（TRT / EPM / SBC / OPA / RCP）与 R 指数</li>
+    <li>团队画像雷达（12维）：平均 / Top-2 / P25 的判读与取值</li>
+    <li>项目三层模型：内层结构8｜中层潜力8｜外层生态16</li>
+    <li>外部生态 16 维（可量化口径 + 阈值 + 公式）</li>
+    <li>PTJ 联动与三阶共振（含示例计算）</li>
+    <li>数据包装与呈现：Data → Meaning → Action（样板卡 × 2）</li>
+    <li>“模型能干哪些牛逼的事”——10 个产品化扩展方向</li>
+    <li>自证价值与 30–45 天拿单路径（样板、LOI、签约剧本）</li>
+    <li>小团队与家族私企微场景（10 条处方，含口径与话术）</li>
+    <li>实施落地：两周“首诊包”与 90 天路线图</li>
+    <li>隐私合规与数据边界</li>
+    <li>附录：指标公式、示例数据表、JSON 键名建议</li>
+  </ol>
+</div>
+
+<!-- 1 项目定位 -->
+<div class="card">
+  <h2>1) 项目定位与电梯稿</h2>
+  <p><b>定位升级：</b>从“人格测评工具” → “<b>人-队-项三阶拓扑共振平台</b>”。用 <b>R 指数</b>统一个人、团队、项目的节奏与可行性，红/黄/绿一眼评估“能不能跑、何时放量”。</p>
+  <p><b>电梯稿（15s）：</b>我们把个人、团队、项目放到一张图上，用 R 指数做节奏灯：<span class="mono">红线不过不扩张</span>、<span class="mono">尖刀不到不冲锋</span>。两周能把乱局拉稳并上线一个闭环，六周推动续费和回款，90 天可规模复制。</p>
+</div>
+
+<!-- 2 方法论 -->
+<div class="card">
+  <h2>2) 核心方法论与 R 指数</h2>
+  <div class="grid">
+    <div>
+      <h3>TRT｜三阶拓扑共振</h3>
+      <p>将 <b>个人（P）</b>、<b>团队（T）</b>、<b>项目（J）</b>三层量化，同域对齐。</p>
+      <h3>EPM｜等势面匹配</h3>
+      <p>用“项目需求等势面”与“团队供给等势面”求最小距离，确定谁上、怎么上。</p>
+      <h3>SBC｜尖刀-底盘耦合</h3>
+      <p>先稳底盘（P25 过线）→ 再点尖刀（Top-2 覆盖）→ 才允许提速。</p>
+      <h3>OPA｜组织相位对齐</h3>
+      <p>用“角色边界剧本 / 接口剧本 / 决策 SLA”把“强什么的人”放到“需要什么的位置”。</p>
+      <h3>RCP｜红线约束</h3>
+      <p>底盘不过线（节奏/闭环/合规/稳态），暂停扩张。</p>
+    </div>
+    <div>
+      <h3>R 指数（Resonance Index）</h3>
+      <p><b>口径：</b><span class="mono">R = A_pr^α × A_tb^β × Penalty^γ</span></p>
+      <ul class="small">
+        <li><b>A_pr</b>：个人-角色适配（cos 相似 / 规范化相似）</li>
+        <li><b>A_tb</b>：团队-项目吻合（0.6×平均对齐 + 0.4×Top-2 覆盖）</li>
+        <li><b>Penalty</b>：红线惩罚（P25 未过线则指数衰减）</li>
+        <li>默认权重：α=0.4、β=0.4、γ=0.2（阶段可调）</li>
+      </ul>
+      <p><b>灯塔：</b>R ≥ 0.75（绿：放量）｜0.60–0.75（黄：微调）｜&lt;0.60（红：止血/换人/调项目）</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3 团队雷达 -->
+<div class="card">
+  <h2>3) 团队画像雷达（12维）</h2>
+  <p class="muted">判读原则：<b>基础设施</b>看 <b>平均+P25</b>（底线要过线）；<b>增长杠杆</b>看 <b>Top-2</b>（必须有人能扛）。展示主图画“平均”，并标注 P25–Top-2 区间。</p>
+  <h3>12 维定义</h3>
+  <div class="grid">
+    <ul>
+      <li><b>节奏</b>（Rhythm）— 稳定推进的时间结构</li>
+      <li><b>闭环</b>（Closure）— DoD/回收尾巴的完成度</li>
+      <li><b>桥梁</b>（Bridge）— 对齐共识、接口沟通的能力</li>
+      <li><b>推进</b>（Drive）— 拍板与攻坚</li>
+      <li><b>影响</b>（Influence）— 说服、拉齐干系人</li>
+      <li><b>创新</b>（Innovation）— 快速生成与验证新解</li>
+    </ul>
+    <ul>
+      <li><b>筋骨</b>（Rigor）— 结构化与质量意识</li>
+      <li><b>镜面</b>（Evidence）— 证据链与复盘力</li>
+      <li><b>水流</b>（Flow）— 流程设计与顺滑度</li>
+      <li><b>盾牌</b>（Shield）— 风险兜底与稳态</li>
+      <li><b>合规</b>（Compliance）— 约束/SOP 遵循</li>
+      <li><b>韧性</b>（Resilience）— 挫折后的恢复速度</li>
+    </ul>
+  </div>
+
+  <h3>取值与样例（0–100 正态化）</h3>
+  <table>
+    <thead><tr><th>维度</th><th>个人样例分</th><th>团队平均</th><th>P25</th><th>Top-2（人/分）</th><th>解读</th></tr></thead>
+    <tbody>
+      <tr><td>节奏</td><td>张A 78</td><td>72</td><td class="warn">58</td><td>李B 86</td><td>P25<60 → 底盘未过线，需先上“节律块+回收尾巴”。</td></tr>
+      <tr><td>推进</td><td>李B 90</td><td>74</td><td>65</td><td class="ok">李B 90</td><td>有尖刀可扛，覆盖推进杠杆位。</td></tr>
+      <tr><td>桥梁</td><td>王C 81</td><td>69</td><td>62</td><td>王C 81</td><td>接口位合适，优先放在对齐/客户沟通。</td></tr>
+      <tr><td>创新</td><td>赵D 85</td><td>71</td><td>60</td><td>赵D 85</td><td>创新尖刀与推进尖刀需双轨分离，避免搅动。</td></tr>
+    </tbody>
+  </table>
+
+  <details><summary>分数来源与算法口径（可复现）</summary>
+    <p class="small">
+      原始问卷/行为日志 → 因子载荷与维度映射 → 0–100 线性/分位正态化（按 cohort） → 个人分、团队平均、P25、Top-2。<br>
+      取值建议：样本数≥30 的 cohort 做 P50/P25/P75 分位；跨期对比用同一分布锁定（避免漂移）。
+    </p>
+  </details>
+</div>
+
+<!-- 4 项目三层模型 -->
+<div class="card">
+  <h2>4) 项目三层模型（内 8｜中 8｜外 16）</h2>
+  <h3>内层：结构 8（做事的骨架）</h3>
+  <ol class="small">
+    <li>目标清晰</li><li>流程闭环</li><li>灵活应变</li><li>推进动能</li>
+    <li>方向一致</li><li>稳态风险垫</li><li>干系人对齐</li><li>韧性兑现</li>
+  </ol>
+  <h3>中层：潜力 8（增长与护城河）</h3>
+  <ol class="small">
+    <li>可复制方案率</li><li>场景渗透度</li><li>创新试验速率</li><li>升级/扩容通道</li>
+    <li>伙伴协同</li><li>口碑/推荐</li><li>数据飞轮成熟度</li><li>单位经济健康度</li>
+  </ol>
+  <h3>外层：生态 16（见第 5 节详表）</h3>
+  <p>直接反映“赚钱/亏钱/增长质量”的经营外显。</p>
+</div>
+
+<!-- 5 外部生态16 -->
+<div class="card">
+  <h2>5) 外部生态 16 维（口径 + 阈值 + 公式）</h2>
+  <p class="muted">示例阈值以 SaaS/订阅为模板，其他行业按分位/行业基准调整。</p>
+  <table>
+    <thead><tr><th>#</th><th>名称</th><th>定义与公式</th><th>健康阈值</th><th>动作建议</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>CAC / 回收期</td><td>CAC=获客费/新增付费；回收= CAC/(ARPU×毛利率)</td><td>回收≤6–12月；LTV/CAC≥3</td><td>砍低 ROMI 渠道、引导年付、拉升 ARPU</td></tr>
+      <tr><td>2</td><td>漏斗转化</td><td>访→试→活→付 各阶段转化率</td><td>试→活≥35%；活→付≥15%</td><td>缩短 TTV，增强上手模板</td></tr>
+      <tr><td>3</td><td>激活/首周价值</td><td>首周完成关键动作率</td><td>B2B≥60%</td><td>首登引导、样例数据、一键导入</td></tr>
+      <tr><td>4</td><td>D30 留存/W8</td><td>月/周留存</td><td>B2B≥70%；B2C≥25–35%</td><td>围绕高留存动作产品化</td></tr>
+      <tr><td>5</td><td>MRR/ARR 增长</td><td>环比/同比</td><td>早期 MoM≥10%</td><td>定价分层、席位扩展</td></tr>
+      <tr><td>6</td><td>毛利/贡献毛利</td><td>毛利=(营收-可变成本)/营收</td><td>软件毛利≥70%</td><td>降第三方成本、提升自动化</td></tr>
+      <tr><td>7</td><td>单位经济 / LTV</td><td>LTV=ARPU×毛利率×订阅月数</td><td>LTV/CAC≥3</td><td>提升 ARPU 与续费时长</td></tr>
+      <tr><td>8</td><td>现金转换 / DSO</td><td>DSO=应收/日均收入</td><td>≤45–60天</td><td>年付折扣、账期分层</td></tr>
+      <tr><td>9</td><td>NRR</td><td>(期末存量-缩减+扩张)/期初</td><td>≥110–120%</td><td>上/交叉销售、席位扩容</td></tr>
+      <tr><td>10</td><td>ARPU/ARPA 梯度</td><td>用户/账户平均收入</td><td>中高档占比提升</td><td>阈值激励，拉升档位</td></tr>
+      <tr><td>11</td><td>客户集中度</td><td>Top10 收入占比</td><td>≤40–50%</td><td>拓展长尾、限制独占条款</td></tr>
+      <tr><td>12</td><td>NPS/评分</td><td>净推荐值/公开评分</td><td>NPS≥30，评分≥4.3</td><td>CS 分层、推荐激励</td></tr>
+      <tr><td>13</td><td>渠道 ROI</td><td>ROMI=净收益/投放额</td><td>回收≤6–9月；ROMI≥1</td><td>放大高效渠道</td></tr>
+      <tr><td>14</td><td>伙伴牵引</td><td>伙伴来源成交占比</td><td>≥20–30%</td><td>分成/联合方案</td></tr>
+      <tr><td>15</td><td>合规就绪度</td><td>核心差距项清零</td><td>重大事件=0</td><td>优先补“红线”条款</td></tr>
+      <tr><td>16</td><td>平台/供应依赖</td><td>关键 SLA、策略暴露</td><td>可切换；RTO/RPO 达标</td><td>双供应商、降耦合</td></tr>
+    </tbody>
+  </table>
+
+  <details><summary>示例数据与计算（看懂数字从哪里来）</summary>
+    <div class="small">
+      <h4>样例 A（订阅 B2B）：</h4>
+      <ul>
+        <li>本月新增付费 100，投放 ¥50,000 → CAC = 50,000 / 100 = <b>¥500</b></li>
+        <li>ARPU = ¥150/月，毛利率 75% → 月毛利 = 150 × 0.75 = <b>¥112.5</b></li>
+        <li>回收期 = 500 / 112.5 = <b>4.44 个月</b>（健康 ✅）</li>
+        <li>订阅平均保持 18 月 → LTV = 150 × 0.75 × 18 = <b>¥2,025</b> → LTV/CAC = 2025/500 = <b>4.05</b>（✅）</li>
+        <li>期初存量收入 100k；扩张 +20k；缩减 -5k；流失 -10k → 期末 105k → NRR = 105/100 = <b>105%</b>（需提升）</li>
+        <li>应收账款 1,680,000；日均收入 30,000 → DSO = 1,680,000 / 30,000 = <b>56 天</b>（可优化）</li>
+      </ul>
+      <p>→ <b>结论：</b>回收/LTV 健康；NRR 与 DSO 是下阶段重点；动作：升级演示模板化、年付折扣、催收 SOP。</p>
+    </div>
+  </details>
+</div>
+
+<!-- 6 PTJ 联动 -->
+<div class="card">
+  <h2>6) PTJ 联动与三阶共振（含示例计算）</h2>
+  <p><b>目标：</b>预测“这支队在这个项目上能不能跑”。</p>
+  <details open>
+    <summary><b>R 指数示例（一步步算）</b></summary>
+    <div class="small">
+      <p><b>已知：</b></p>
+      <ul>
+        <li>个人-角色适配 A_pr = 0.82（个人雷达与该里程碑权重的余弦相似）</li>
+        <li>团队-项目吻合：平均对齐 0.75；Top-2 覆盖 0.80 → A_tb = 0.6×0.75 + 0.4×0.80 = <b>0.77</b></li>
+        <li>红线惩罚：P25(节奏)=58（阈 60），缺口 2 分 → 设 <span class="mono">Penalty = exp(−λ×缺口)</span>，取 λ=0.05 → Penalty = exp(−0.1)=<b>0.905</b></li>
+        <li>权重：α=0.4、β=0.4、γ=0.2</li>
+      </ul>
+      <p><b>计算：</b>R = 0.82^0.4 × 0.77^0.4 × 0.905^0.2 ≈ <b>0.77</b>（绿区：可放量）</p>
+      <p><b>如果</b>先把 P25(节奏) 拉到 61，Penalty≈exp(0)=1 → 新 R ≈ <b>0.85</b>（更稳）。</p>
+    </div>
+  </details>
+</div>
+
+<!-- 7 数据包装 -->
+<div class="card">
+  <h2>7) 数据包装与呈现（Data → Meaning → Action）</h2>
+  <p><b>固定“数据卡”六段法：</b>数｜义｜因｜策（7/14/30 天）｜险（红线）｜R 指数连接。</p>
+
+  <h3>样板卡 · 冲刺（两周）</h3>
+  <table>
+    <thead><tr><th>要素</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>数</td><td>最小闭环/周 5.6 → 7.6（+35%）；决策时延 44h → 26h（−41%）</td></tr>
+      <tr><td>义</td><td>闭环与时延直接决定上线节奏与返工率</td></tr>
+      <tr><td>因</td><td>范围冻结、决策 SLA、DoD 质检、节律块</td></tr>
+      <tr><td>策</td><td>7 天：SLA 入看板；14 天：样例包覆盖 80%；30 天：闭环入目标</td></tr>
+      <tr><td>险</td><td>P25(节奏)=61（≥60）；合规 OK</td></tr>
+      <tr><td>R</td><td>R：0.58 → 0.79（Penalty 与 A_tb 同时提升）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>样板卡 · 续费（六周）</h3>
+  <table>
+    <thead><tr><th>要素</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>数</td><td>NRR：104% → 114%；DSO：68 → 56 天</td></tr>
+      <tr><td>义</td><td>NRR 代表复利增长；DSO 代表现金弹性</td></tr>
+      <tr><td>因</td><td>“桥梁强者”做接口；升级演示+成功路线图；年付+催收 SOP</td></tr>
+      <tr><td>策</td><td>7 天：升级演示模板化；14 天：使用深度→扩容提示；30 天：路线图入续费流程</td></tr>
+      <tr><td>险</td><td>P25(节奏/合规)≥60，重大事件 0</td></tr>
+      <tr><td>R</td><td>R：0.61 → 0.82（A_tb 与 Penalty 提升）</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 8 牛逼的事 -->
+<div class="card">
+  <h2>8) 模型能干哪些“牛逼的事”（10 个扩展方向）</h2>
+  <ol>
+    <li><b>角色编排引擎</b>：自动给里程碑配拍板/桥梁/稳盘与“角色边界剧本”。</li>
+    <li><b>任务编组·作战蜂群</b>：3–5 人蜂群两周打点，复盘入“异常词典”。</li>
+    <li><b>客户派单与交付匹配</b>：按客户画像派“桥梁+影响”组合并交付成功路线图。</li>
+    <li><b>招聘/面评配额</b>：雷达凹槽→ JD 权重与面评 Rubric。</li>
+    <li><b>培训跃迁路径</b>：弱边+相邻强边，4–6 周可验证跃迁。</li>
+    <li><b>激励与绩效分配</b>：Top-2 覆盖杠杆→短期激励；底盘红线为前置。</li>
+    <li><b>并购整合雷达</b>：两队叠加，30–60 天整合矩阵。</li>
+    <li><b>事故应急与韧性演习</b>：on-call 地图+桌面演练+24h 无责复盘。</li>
+    <li><b>创新孵化 Pods</b>：创新+推进双核，一周一原型，两周不通即“杀死/转向”。</li>
+    <li><b>远程健康护栏</b>：静默带+接力棒+材料先行，减少夜会内耗。</li>
+  </ol>
+</div>
+
+<!-- 9 自证价值 -->
+<div class="card">
+  <h2>9) 自证价值与 30–45 天拿单路径</h2>
+  <h3>唯一切入场景（建议）</h3>
+  <p><b>在营加速器/孵化器团队</b>（7–15 人）或 <b>客户成功（CS）团队</b>：决策快，对节奏/交付敏感，最容易两周见效。</p>
+  <h3>三页补强（对投资与客户都有效）</h3>
+  <ul>
+    <li>ICP 与切入剧本：三问诊断（卡点/拍板/怕错）→ 承诺“三动作”→ 预约 D0/D1</li>
+    <li>样板一页纸（模板）：现象 → 三动作 → 过程证据 → 体感变化</li>
+    <li>报价与签约路径：首诊包（¥9,800/团队）→ SOP → 嵌入 → API；可附成功费</li>
+  </ul>
+</div>
+
+<!-- 10 微场景（小团队/家族私企） -->
+<div class="card">
+  <h2>10) 小团队与家族私企微场景（文字即可落地）</h2>
+  <ol>
+    <li><b>亲戚当主管、团队不服：</b>岗位边界上墙；验收按 DoD，不讲资历。</li>
+    <li><b>厂里小山头：</b>接口剧本+接口台账，借人借料“走卡不走人情”。</li>
+    <li><b>财务在家里手里：</b>用钱顺序表；先小单再放量。</li>
+    <li><b>老销售口头承诺：</b>承诺白名单；先演最短路径，口头承诺归零入价目表。</li>
+    <li><b>生产小毛病多：</b>三条红线+DoD 过表；高频问题→“异常词典”。</li>
+    <li><b>高学历经理与老班底冲突：</b>经理做示范流程，老班底盯交付；规矩沉淀。</li>
+    <li><b>货品过杂仓库爆：</b>冻结清单+快慢货墙；月度生杀会。</li>
+    <li><b>老板改主意频繁：</b>一页北极星+不做清单；本周范围冻结。</li>
+    <li><b>二代接班：</b>双闸门（质量/现金）+试验田+周汇报三件事。</li>
+    <li><b>采购回扣风险：</b>三单对比+双人复核；月度公开抽检。</li>
+  </ol>
+</div>
+
+<!-- 11 落地 -->
+<div class="card">
+  <h2>11) 实施落地：两周“首诊包”与 90 天路线图</h2>
+  <h3>两周首诊包（SOW）</h3>
+  <ul>
+    <li>D0：轻量 H5 + 一页业务基线</li>
+    <li>D1：解读会（团队/项目雷达 + R 指数）→ 下发三动作：节律块/DoD/角色或接口剧本</li>
+    <li>D2–D14：看板推进；中点校准（范围冻结 + 决策 SLA）</li>
+    <li>交付：样板一页纸 + 成功路线图（文字/截图）</li>
+  </ul>
+  <h3>90 天</h3>
+  <ul>
+    <li>0–30 天：跑通 3 个样板；H5 Quick + R 仪表可用；方法白皮书 v1</li>
+    <li>31–60 天：外部生态 v1；对接 1–2 家渠道；红/黄/绿看板上线</li>
+    <li>61–90 天：复制 10–20 个试点；季度“拓扑榜”；API 路线明确</li>
+  </ul>
+</div>
+
+<!-- 12 合规 -->
+<div class="card">
+  <h2>12) 隐私合规与数据边界</h2>
+  <ul>
+    <li>最小化采集；分级加密；访问审计；可见/可导出/可删除</li>
+    <li>团队/组织视图默认匿名化</li>
+    <li>敏感维度仅监测分布与阈值，不导出个人可识别标签</li>
+  </ul>
+</div>
+
+<!-- 13 附录 -->
+<div class="card">
+  <h2>13) 附录：指标公式 · 示例数据表 · JSON 键名</h2>
+
+  <h3>关键公式（可复现）</h3>
+  <pre class="mono small">
+CAC = 获客总花费 / 新增付费数
+回收期（月） = CAC / (ARPU × 毛利率)
+LTV = ARPU × 毛利率 × 订阅月数
+LTV/CAC ≥ 3 → 健康
+DSO(天) = 应收账款 / 日均收入
+NRR = (期末存量收入 - 缩减 + 扩张) / 期初存量收入
+R = A_pr^α × A_tb^β × Penalty^γ
+Penalty = exp( -λ × max(0, 红线阈值 - P25缺口) )
+A_tb = 0.6×cos(团队均值, 项目基线) + 0.4×coverage(Top-2, 项目杠杆)
+  </pre>
+
+  <h3>示例数据表（片段）</h3>
+  <table>
+    <thead><tr><th>指标</th><th>数值</th><th>过程</th><th>判断</th></tr></thead>
+    <tbody>
+      <tr><td>CAC</td><td>¥500</td><td>¥50,000/100</td><td class="ok">低</td></tr>
+      <tr><td>回收（月）</td><td>4.44</td><td>500/(150×0.75)</td><td class="ok">健康</td></tr>
+      <tr><td>LTV/CAC</td><td>4.05</td><td>(150×0.75×18)/500</td><td class="ok">健康</td></tr>
+      <tr><td>NRR</td><td>105%</td><td>(100k-5k+20k)/100k</td><td class="warn">需提升</td></tr>
+      <tr><td>DSO</td><td>56 天</td><td>1,680,000/30,000</td><td class="warn">需优化</td></tr>
+      <tr><td>R</td><td>0.77</td><td>见第 6 节计算</td><td class="ok">可放量</td></tr>
+    </tbody>
+  </table>
+
+  <h3>JSON 键名建议（仪表盘/智能体）</h3>
+  <pre class="mono small">{
+  "team_radar": {
+    "avg": {"rhythm":72,"closure":70,"bridge":69,"drive":74,"influence":68,"innovation":71,
+            "rigor":67,"evidence":66,"flow":70,"shield":64,"compliance":63,"resilience":68},
+    "p25": {"rhythm":58,"closure":60,"shield":59,"compliance":58},
+    "top2": {"drive":90,"innovation":85}
+  },
+  "project_layers": {
+    "structure8": {...}, "potential8": {...}
+  },
+  "eco_ext16": {
+    "cac":500,"payback_months":4.44,"ltv":2025,"ltv_cac":4.05,"dso_days":56,
+    "nrr_percent":105,"mrr_growth_mom":0.1,"gm_percent":75,
+    "contribution_margin_percent": 12, "channel_romi":1.4, "partner_pull_percent":22
+  },
+  "R_index": {"Apr":0.82,"Atb":0.77,"penalty":0.905,"R":0.77,"status":"green"}
+}</pre>
+</div>
+
+<p class="muted small">注：阈值为模板线；不同业态请按行业基准或 cohort 分位重新标定。</p>
+
+</body>
+</html>
