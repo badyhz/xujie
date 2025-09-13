@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>企业级多维可视化仪表盘 · 团队/项目（隐私优先）</title>
+<style>
+:root{
+  --bg:#0b1020; --card:#111634; --ink:#e7ecff; --muted:#9aa3c7; --line:#1d244a; --accent:#7aa5ff;
+  --good:#4ade80; --warn:#f59f0b; --bad:#ff5c9a; --elev:rgba(255,255,255,.06);
+}
+html[data-theme="light"]{
+  --bg:#f4f7ff; --card:#ffffff; --ink:#1b2340; --muted:#5a6388; --line:#dfe5ff; --accent:#3b82f6;
+  --good:#16a34a; --warn:#d97706; --bad:#e11d48; --elev:rgba(16,24,60,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:1280px;margin:0 auto;padding:0 16px}
+.nav{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,rgba(0,0,0,.25),transparent),var(--bg);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:28px;height:28px;border-radius:8px;background:conic-gradient(from 0deg,var(--accent),transparent 40%,var(--good),transparent 70%,var(--warn))}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer}
+.btn:hover{background:var(--elev)}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);background:var(--elev);padding:2px 8px;border-radius:999px}
+.switch{appearance:none;width:42px;height:24px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;vertical-align:middle}
+.switch:checked{background:var(--accent)}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+.switch:checked::after{left:21px}
+.grid{display:grid;gap:14px;margin:14px 0}
+.grid.cards{grid-template-columns:repeat(7,1fr)}
+.grid.main{grid-template-columns:1.4fr .6fr}
+@media (max-width: 1100px){.grid.cards{grid-template-columns:1fr 1fr 1fr}; .grid.main{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px}
+.card h3,.card h4{margin:0 0 6px}
+.kpi{display:flex;flex-direction:column;gap:6px}
+.kpi .title{font-size:12px;color:var(--muted)}
+.kpi .val{font-weight:700;font-size:22px}
+.spark{width:100%;height:40px;border:1px solid var(--line);border-radius:8px;background:var(--elev)}
+.hr{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:8px 0}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.small{font-size:12px;color:var(--muted)}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border:1px solid var(--line);padding:8px;vertical-align:top}
+.table th{background:var(--elev)}
+.tag{border:1px solid var(--line);background:var(--elev);padding:2px 8px;border-radius:999px;font-size:12px;margin-right:6px}
+.pill{padding:2px 8px;border-radius:999px;font-size:12px}
+.pill.good{background:rgba(74,222,128,.15);color:var(--good);border:1px solid rgba(74,222,128,.35)}
+.pill.warn{background:rgba(245,159,11,.15);color:var(--warn);border:1px solid rgba(245,159,11,.35)}
+.pill.bad{background:rgba(255,92,154,.15);color:var(--bad);border:1px solid rgba(255,92,154,.35)}
+canvas{width:100%;height:260px;border:1px solid var(--line);border-radius:12px;background:var(--elev)}
+.sidebar{display:grid;gap:8px}
+.sidebar .tab{display:flex;justify-content:space-between;align-items:center}
+.sidebar button{width:100%;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px;border-radius:10px;cursor:pointer}
+.sidebar button.active{outline:2px solid var(--accent);box-shadow:0 0 0 3px rgba(122,165,255,.25)}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:.3s}
+.toast.show{opacity:1;transform:translate(-50%,-6px)}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="container row">
+    <div class="brand"><div class="logo"></div><div>
+      <div style="display:flex;align-items:center;gap:8px"><h2 style="margin:0;font-size:16px">企业级多维可视化仪表盘 · 团队/项目</h2><span class="badge">隐私优先</span></div>
+      <div class="small">用 20% 解决 80% 的卡点——复合指数 + Pareto + 8 域深度指标</div>
+    </div></div>
+    <div class="controls">
+      <input type="file" id="fileInput" accept="application/json" class="btn">
+      <button class="btn" id="btnExport">导出 JSON</button>
+      <button class="btn" id="btnDemo">示例数据</button>
+      <button class="btn accent" id="btnSim">一键模拟数据</button>
+      <label class="small">浅色 <input class="switch" id="themeSwitch" type="checkbox"></label>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Top KPIs -->
+  <section class="grid cards" id="kpiCards"></section>
+
+  <!-- Pareto + Domain -->
+  <section class="grid main">
+    <div class="card">
+      <h3>Pareto · Top 20% 覆盖率 & 累计贡献度</h3>
+      <div class="small">我们的目标：优先解决前 20% 高优项，覆盖 ≈80% 卡点；右侧可切换 8 大域查看细节。</div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <canvas id="donutPareto" width="520" height="320"></canvas>
+        <div>
+          <div class="card">
+            <div><span class="tag">覆盖率</span> 选中主题对全部卡点的覆盖比例</div>
+            <div class="hr"></div>
+            <div><span class="tag">累计贡献度</span> 选中主题 Priority / 总 Priority</div>
+            <div class="hr"></div>
+            <div class="small">可通过：Top 比例、重复惩罚、治理加成等参数微调（此演示固定为 Top 20%、惩罚 0.7、加成 1.1）。</div>
+          </div>
+          <div class="card" style="margin-top:12px">
+            <h4>当前数值</h4>
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+              <div class="kpi"><div class="title">覆盖率</div><div class="val" id="covTxt">-</div><div class="pill" id="covBadge">—</div></div>
+              <div class="kpi"><div class="title">累计贡献度</div><div class="val" id="contrTxt">-</div><div class="pill" id="ctrBadge">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="tab"><h3>8 大域</h3><span class="small">点击切换</span></div>
+      <button class="active" data-dom="A_Flow">A. 交付 & 流动</button>
+      <button data-dom="B_Quality">B. 质量 & 可靠性</button>
+      <button data-dom="C_Predict">C. 规划 & 可预测性</button>
+      <button data-dom="D_Collab">D. 协作 & 组织</button>
+      <button data-dom="E_People">E. 人才 & 健康</button>
+      <button data-dom="F_Product">F. 产品 & 增长</button>
+      <button data-dom="G_SecComp">G. 安全 / 合规</button>
+      <button data-dom="H_Finance">H. 财务 & 效能</button>
+    </aside>
+  </section>
+
+  <!-- Domain Detail -->
+  <section class="card" id="domainPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <h3 id="domTitle">A. 交付 & 流动</h3>
+      <div class="controls small">指标趋势：
+        <select id="metricSelect"></select>
+      </div>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+      <canvas id="radarDom" width="520" height="320"></canvas>
+      <canvas id="lineDom" width="520" height="320"></canvas>
+    </div>
+    <div class="hr"></div>
+    <table class="table" id="domTable"><thead><tr><th>指标</th><th>当前</th><th>单位</th><th>好/坏阈值</th><th>方向</th><th>状态</th><th>说明</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <footer class="small" style="text-align:center;margin:16px 0;color:var(--muted)">© 隐私优先 · 单文件演示。数据为示例/模拟，口径与阈值可在代码中配置。</footer>
+</div>
+
+<div class="toast" id="toast">已更新</div>
+
+<script>
+/* =================== 基础工具 =================== */
+function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1200);}
+function setupCanvas(c){const dpr=window.devicePixelRatio||1; const rect=c.getBoundingClientRect(); c.width=rect.width*dpr; c.height=rect.height*dpr; const ctx=c.getContext('2d'); ctx.scale(dpr,dpr); return ctx;}
+function fmt(v,unit){if(unit==='%') return v.toFixed(0)+'%'; if(unit==='天'||unit==='小时') return v.toFixed(1)+unit; if(unit==='项/周') return v.toFixed(0); if(unit==='分') return v.toFixed(0); if(unit==='￥') return '¥'+v.toFixed(0); return String(v.toFixed? v.toFixed(1):v);}
+
+/* =================== 指标元数据/域映射 =================== */
+const DOMAINS = {
+  A_Flow:{label:'A. 交付 & 流动', metrics:['lead_time_days','cycle_time_days','wip','throughput_per_week','flow_efficiency_pct','on_time_pct','scope_change_pct','reopen_pct']},
+  B_Quality:{label:'B. 质量 & 可靠性', metrics:['defect_density','escaped_defects_pct','cfr_pct','mttr_hours','mtbf_days','coverage_pct','hotfix_per_week']},
+  C_Predict:{label:'C. 规划 & 可预测性', metrics:['plan_variance_pct','milestone_hit_pct','forecast_accuracy_pct','velocity_cv','capacity_util_pct']},
+  D_Collab:{label:'D. 协作 & 组织', metrics:['decision_latency_hours','xfn_response_hours','meeting_load_hours_per_fte','async_ratio_pct','handover_count','doc_freshness_days','reuse_pct']},
+  E_People:{label:'E. 人才 & 健康', metrics:['attrition_pct_q','pulse_5','overtime_pct','learning_hours_per_fte','succession_coverage_pct']},
+  F_Product:{label:'F. 产品 & 增长', metrics:['adoption_pct','activation_pct','retention_w12_pct','nps','experiments_per_month','ttv_days']},
+  G_SecComp:{label:'G. 安全 / 合规', metrics:['control_coverage_pct','vuln_sla_pct','audit_open','privacy_incidents_m']},
+  H_Finance:{label:'H. 财务 & 效能', metrics:['unit_cost','coq_pct','budget_burn_pct','cost_variance_pct','vendor_ontime_pct']}
+};
+const META = {
+  // Flow
+  lead_time_days:{name:'端到端交付周期',unit:'天',better:'down',good:10,bad:30,desc:'立项→上线的历时'},
+  cycle_time_days:{name:'开发周期',unit:'天',better:'down',good:5,bad:15,desc:'开始开发→完成'},
+  wip:{name:'在制品',unit:'项',better:'down',good:10,bad:40,desc:'并行导致切换成本'},
+  throughput_per_week:{name:'吞吐量',unit:'项/周',better:'up',good:40,bad:10,desc:'每周完结项'},
+  flow_efficiency_pct:{name:'流动效率',unit:'%',better:'up',good:60,bad:25,desc:'有效时间/总时间'},
+  on_time_pct:{name:'按期交付率',unit:'%',better:'up',good:85,bad:50,desc:'按承诺完成'},
+  scope_change_pct:{name:'范围变更率',unit:'%',better:'down',good:10,bad:35,desc:'冻结后变更'},
+  reopen_pct:{name:'重开率',unit:'%',better:'down',good:3,bad:15,desc:'完成后重开'},
+
+  // Quality
+  defect_density:{name:'缺陷密度',unit:'/点',better:'down',good:0.4,bad:1.2,desc:'每功能点缺陷'},
+  escaped_defects_pct:{name:'逃逸缺陷率',unit:'%',better:'down',good:8,bad:25,desc:'上线后暴露'},
+  cfr_pct:{name:'变更失败率',unit:'%',better:'down',good:10,bad:30,desc:'发布失败占比'},
+  mttr_hours:{name:'平均恢复时长',unit:'小时',better:'down',good:4,bad:12,desc:'故障修复'},
+  mtbf_days:{name:'平均无故障时间',unit:'天',better:'up',good:18,bad:6,desc:'故障间隔'},
+  coverage_pct:{name:'覆盖率',unit:'%',better:'up',good:75,bad:40,desc:'测试/监控覆盖'},
+  hotfix_per_week:{name:'热修次数/周',unit:'次',better:'down',good:0,bad:5,desc:'紧急修复'},
+
+  // Predictability
+  plan_variance_pct:{name:'计划偏差',unit:'%',better:'down',good:10,bad:30,desc:'计划 vs 实际'},
+  milestone_hit_pct:{name:'里程碑命中',unit:'%',better:'up',good:85,bad:55,desc:'按时达成'},
+  forecast_accuracy_pct:{name:'预测精度',unit:'%',better:'up',good:80,bad:55,desc:'预测贴近度'},
+  velocity_cv:{name:'Velocity 变异系数',unit:'Cv',better:'down',good:0.15,bad:0.35,desc:'稳定性'},
+  capacity_util_pct:{name:'产能利用率',unit:'%',better:'up',good:85,bad:60,desc:'承诺/产能'},
+
+  // Collaboration
+  decision_latency_hours:{name:'决策时延',unit:'小时',better:'down',good:24,bad:72,desc:'发起→定稿'},
+  xfn_response_hours:{name:'跨团队响应',unit:'小时',better:'down',good:12,bad:48,desc:'接口响应'},
+  meeting_load_hours_per_fte:{name:'会议负载/人周',unit:'小时',better:'down',good:5,bad:12,desc:'开会时长'},
+  async_ratio_pct:{name:'异步协作占比',unit:'%',better:'up',good:55,bad:25,desc:'文档/系统沟通'},
+  handover_count:{name:'交接次数/链',unit:'次',better:'down',good:2,bad:6,desc:'越多越慢'},
+  doc_freshness_days:{name:'文档新鲜度',unit:'天',better:'down',good:7,bad:30,desc:'多久更新'},
+  reuse_pct:{name:'知识复用率',unit:'%',better:'up',good:45,bad:20,desc:'模板/复用'},
+
+  // People
+  attrition_pct_q:{name:'流失率/季',unit:'%',better:'down',good:3,bad:10,desc:'离职'},
+  pulse_5:{name:'敬业度(1-5)',unit:'分',better:'up',good:4.2,bad:3.2,desc:'脉冲评分'},
+  overtime_pct:{name:'加班强度',unit:'%',better:'down',good:10,bad:30,desc:'>10h/周'},
+  learning_hours_per_fte:{name:'学习时长/人月',unit:'小时',better:'up',good:5,bad:1,desc:'培训/学习'},
+  succession_coverage_pct:{name:'继任覆盖',unit:'%',better:'up',good:60,bad:30,desc:'关键岗位'},
+
+  // Product
+  adoption_pct:{name:'功能采用率',unit:'%',better:'up',good:45,bad:20,desc:'被使用'},
+  activation_pct:{name:'激活率',unit:'%',better:'up',good:55,bad:30,desc:'达成关键动作'},
+  retention_w12_pct:{name:'W12 留存',unit:'%',better:'up',good:35,bad:15,desc:'12周留存'},
+  nps:{name:'NPS',unit:'分',better:'up',good:30,bad:0,desc:'推荐值'},
+  experiments_per_month:{name:'实验数/月',unit:'次',better:'up',good:8,bad:2,desc:'试验速度'},
+  ttv_days:{name:'Time-to-Value',unit:'天',better:'down',good:7,bad:20,desc:'达成价值'},
+
+  // Sec/Comp
+  control_coverage_pct:{name:'控制覆盖',unit:'%',better:'up',good:85,bad:60,desc:'政策/控制'},
+  vuln_sla_pct:{name:'漏洞修复 SLA',unit:'%',better:'up',good:85,bad:60,desc:'按 SLA 修复'},
+  audit_open:{name:'审计未闭环',unit:'项',better:'down',good:0,bad:8,desc:'整改事项'},
+  privacy_incidents_m:{name:'隐私事件/月',unit:'次',better:'down',good:0,bad:2,desc:'投诉/事件'},
+
+  // Finance
+  unit_cost:{name:'单位成本',unit:'￥',better:'down',good:800,bad:1400,desc:'每功能点/交易'},
+  coq_pct:{name:'质量成本占比',unit:'%',better:'down',good:12,bad:25,desc:'预防+失败/总'},
+  budget_burn_pct:{name:'预算消耗',unit:'%',better:'down',good:50,bad:90,desc:'当期消耗'},
+  cost_variance_pct:{name:'成本偏差',unit:'%',better:'down',good:5,bad:20,desc:'预算 vs 实际'},
+  vendor_ontime_pct:{name:'供应商准时',unit:'%',better:'up',good:90,bad:70,desc:'交付准时'}
+};
+
+// 复合指数卡片配置
+const INDICES = [
+  {key:'PHI', name:'PHI 总健康'},
+  {key:'DFI', name:'DFI 交付流动'},
+  {key:'QRI', name:'QRI 质量可靠'},
+  {key:'PPI', name:'PPI 可预测性'},
+  {key:'COLI', name:'COLI 协作组织'},
+  {key:'HCI', name:'HCI 人才健康'},
+  {key:'FGI', name:'FGI 财效'}
+];
+
+/* =================== 示例数据（可导入替换） =================== */
+let DATA = {
+  index:{DFI:62,QRI:60,PPI:58,COLI:61,HCI:59,FGI:57,PHI:60},
+  kpi:{
+    A_Flow:{lead_time_days:18,cycle_time_days:9,wip:24,throughput_per_week:32,flow_efficiency_pct:41,on_time_pct:68,scope_change_pct:22,reopen_pct:7},
+    B_Quality:{defect_density:0.6,escaped_defects_pct:14,cfr_pct:18,mttr_hours:6.5,mtbf_days:12,coverage_pct:62,hotfix_per_week:1},
+    C_Predict:{plan_variance_pct:16,milestone_hit_pct:72,forecast_accuracy_pct:71,velocity_cv:0.22,capacity_util_pct:85},
+    D_Collab:{decision_latency_hours:48,xfn_response_hours:20,meeting_load_hours_per_fte:7.5,async_ratio_pct:35,handover_count:3,doc_freshness_days:18,reuse_pct:28},
+    E_People:{attrition_pct_q:5.2,pulse_5:3.9,overtime_pct:19,learning_hours_per_fte:3.2,succession_coverage_pct:45},
+    F_Product:{adoption_pct:37,activation_pct:42,retention_w12_pct:26,nps:21,experiments_per_month:6,ttv_days:10},
+    G_SecComp:{control_coverage_pct:72,vuln_sla_pct:65,audit_open:4,privacy_incidents_m:0},
+    H_Finance:{unit_cost:950,coq_pct:17,budget_burn_pct:54,cost_variance_pct:8,vendor_ontime_pct:81}
+  }
+};
+
+// 为每个指标生成 12 周趋势（围绕当前值轻微波动，可向“更好”方向收敛）
+let TRENDS = {}; // {metricId: number[]}
+
+/* =================== 标准化/评分 & 趋势 =================== */
+function normalize(value, meta){
+  const {better,good,bad} = meta;
+  if(better==='up'){
+    if(value>=good) return 100;
+    if(value<=bad) return 0;
+    return (value-bad)/(good-bad)*100;
+  }else{ // down
+    if(value<=good) return 100;
+    if(value>=bad) return 0;
+    return (bad-value)/(bad-good)*100;
+  }
+}
+function statusBadge(score){
+  if(score>=70) return {cls:'pill good', txt:'良好'};
+  if(score>=50) return {cls:'pill warn', txt:'需关注'};
+  return {cls:'pill bad', txt:'紧急'};
+}
+function genTrendsFromValue(metricId, val, meta){
+  // 12 周：向 good 方向小幅收敛
+  const arr=[]; const good=meta.good, bad=meta.bad, up=(meta.better==='up');
+  for(let i=0;i<12;i++){
+    const t=i/11;
+    const target = up? Math.min(good, val*(1+0.08)) : Math.max(good, val*(1-0.08));
+    const v = val + (target - val)*t + (Math.sin(i*1.2)+Math.cos(i*0.7))*0.5*(up? (val*0.02):(val*0.02));
+    arr.push(Math.max(0, v));
+  }
+  return arr;
+}
+function buildTrends(){
+  TRENDS={};
+  Object.keys(DOMAINS).forEach(dom=>{
+    DOMAINS[dom].metrics.forEach(m=>{
+      TRENDS[m] = genTrendsFromValue(m, DATA.kpi[dom][m], META[m]||{better:'up',good:1,bad:0});
+    });
+  });
+}
+function recomputeIndices(){
+  // 由各域标准化均值近似复合指数
+  const domScore = {};
+  Object.keys(DOMAINS).forEach(dom=>{
+    const ms = DOMAINS[dom].metrics;
+    const scores = ms.map(m=> normalize(DATA.kpi[dom][m], META[m]));
+    domScore[dom] = scores.reduce((a,b)=>a+b,0)/scores.length;
+  });
+  const w = {A_Flow:0.2,B_Quality:0.2,C_Predict:0.2,D_Collab:0.15,E_People:0.15,H_Finance:0.1}; // PHI 默认权重
+  DATA.index.DFI = Math.round(domScore.A_Flow||0);
+  DATA.index.QRI = Math.round(domScore.B_Quality||0);
+  DATA.index.PPI = Math.round(domScore.C_Predict||0);
+  DATA.index.COLI= Math.round(domScore.D_Collab||0);
+  DATA.index.HCI = Math.round(domScore.E_People||0);
+  DATA.index.FGI = Math.round(domScore.H_Finance||0);
+  DATA.index.PHI = Math.round(
+    (DATA.index.DFI*(w.A_Flow||0) + DATA.index.QRI*(w.B_Quality||0) + DATA.index.PPI*(w.C_Predict||0) +
+     DATA.index.COLI*(w.D_Collab||0) + DATA.index.HCI*(w.E_People||0) + DATA.index.FGI*(w.H_Finance||0))
+  );
+}
+
+/* =================== 可视化：Sparkline / Donut / Radar / Line =================== */
+function drawSparkline(cnv, data){
+  const ctx = setupCanvas(cnv);
+  const w=cnv.clientWidth, h=cnv.clientHeight, m=6;
+  const min=Math.min(...data), max=Math.max(...data);
+  ctx.clearRect(0,0,w,h);
+  // grid
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--elev'); ctx.beginPath();
+  ctx.moveTo(m,h-m); ctx.lineTo(w-m,h-m); ctx.stroke();
+  // line
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent'); ctx.lineWidth=2; ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x = m + (w-2*m)*i/(data.length-1);
+    const y = h-m - (h-2*m)*(v-min)/Math.max(1,(max-min));
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+}
+function drawDonutPareto(cnv, coveragePct, contributionPct){
+  const ctx=setupCanvas(cnv); const w=cnv.clientWidth, h=cnv.clientHeight; ctx.clearRect(0,0,w,h);
+  const cx=w/2, cy=h/2, r1=90, r2=65;
+  // base rings
+  ctx.lineWidth=16; ctx.strokeStyle='#2b3869'; ctx.beginPath(); ctx.arc(cx,cy,r1,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,r2,0,Math.PI*2); ctx.stroke();
+  // arcs
+  const covAng = Math.PI*2*coveragePct/100;
+  const ctrAng = Math.PI*2*contributionPct/100;
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--good'); ctx.beginPath();
+  ctx.arc(cx,cy,r1,-Math.PI/2,-Math.PI/2+covAng); ctx.stroke();
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent'); ctx.beginPath();
+  ctx.arc(cx,cy,r2,-Math.PI/2,-Math.PI/2+ctrAng); ctx.stroke();
+  // labels
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--ink'); ctx.font='16px system-ui';
+  ctx.textAlign='center'; ctx.fillText('Pareto', cx, cy-6);
+  ctx.font='14px system-ui'; ctx.fillText(`覆盖 ${coveragePct.toFixed(1)}%`, cx, cy+16);
+  ctx.fillText(`贡献 ${contributionPct.toFixed(1)}%`, cx, cy+36);
+  // legends
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted'); ctx.textAlign='left'; ctx.fillText('外环：覆盖率', 12, 22);
+  ctx.fillText('内环：累计贡献', 12, 42);
+}
+function drawRadar(cnv, labels, values){ // values: 0-100
+  const ctx=setupCanvas(cnv); const w=cnv.clientWidth, h=cnv.clientHeight; ctx.clearRect(0,0,w,h);
+  const cx=w/2, cy=h/2, r=Math.min(w,h)*0.38; const N=labels.length; const rings=4;
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line');
+  for(let k=1;k<=rings;k++){ctx.beginPath(); for(let i=0;i<N;i++){const ang=-Math.PI/2 + i*2*Math.PI/N; const rr=r*k/rings; const x=cx+rr*Math.cos(ang), y=cy+rr*Math.sin(ang); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);} ctx.closePath(); ctx.stroke();}
+  // axes
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--elev');
+  for(let i=0;i<N;i++){const ang=-Math.PI/2 + i*2*Math.PI/N; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+r*Math.cos(ang), cy+r*Math.sin(ang)); ctx.stroke();}
+  // labels
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted'); ctx.font='12px system-ui';
+  labels.forEach((lab,i)=>{const ang=-Math.PI/2 + i*2*Math.PI/N; const x=cx+(r+12)*Math.cos(ang), y=cy+(r+12)*Math.sin(ang); ctx.textAlign= (Math.cos(ang)>0? 'left':'right'); ctx.fillText(lab, x, y);});
+  // polygon
+  ctx.fillStyle='rgba(122,165,255,.25)'; ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent'); ctx.beginPath();
+  values.forEach((v,i)=>{const ang=-Math.PI/2 + i*2*Math.PI/N; const rr=r*(v/100); const x=cx+rr*Math.cos(ang), y=cy+rr*Math.sin(ang); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);});
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+}
+function drawLine(cnv, labels, series){ // series: [{label, data}]
+  const ctx=setupCanvas(cnv); const w=cnv.clientWidth, h=cnv.clientHeight, m=36; ctx.clearRect(0,0,w,h);
+  const all = series.flatMap(s=>s.data); const max=Math.max(1, ...all)*1.15; const min=Math.min(...all)*0.95;
+  // axes
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--line'); ctx.beginPath();
+  ctx.moveTo(m, h-m); ctx.lineTo(w-m, h-m); ctx.lineTo(w-m, m); ctx.stroke();
+  // grid
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--elev');
+  for(let i=0;i<=4;i++){const y=h-m - (h-2*m)*i/4; ctx.beginPath(); ctx.moveTo(m,y); ctx.lineTo(w-m,y); ctx.stroke();}
+  // lines
+  const colors=['#7aa5ff','#22c55e','#f59f0b','#ff5c9a'];
+  series.forEach((s,si)=>{
+    ctx.strokeStyle=colors[si%colors.length]; ctx.lineWidth=2; ctx.beginPath();
+    s.data.forEach((v,idx)=>{
+      const x = m + (w-2*m)*idx/(labels.length-1);
+      const y = h-m - (h-2*m)*( (v-min)/Math.max(1,(max-min)) );
+      if(idx===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }); ctx.stroke();
+    ctx.fillStyle=colors[si%colors.length]; ctx.fillText(s.label, w-120, m+16*si+6);
+  });
+  // x labels
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted'); ctx.font='12px system-ui';
+  labels.forEach((t,i)=>{const x = m + (w-2*m)*i/(labels.length-1); ctx.fillText(t, x-6, h-m+16);});
+}
+
+/* =================== 渲染：顶部 KPI 卡 =================== */
+function buildKPICards(){
+  const host=document.getElementById('kpiCards'); host.innerHTML='';
+  INDICES.forEach(idx=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `<div class="kpi"><div class="title">${idx.name}</div><div class="val" id="val_${idx.key}">-</div>
+      <canvas class="spark" id="sp_${idx.key}" width="160" height="40"></canvas></div>`;
+    host.appendChild(card);
+  });
+}
+
+/* =================== 渲染：Pareto/域/表格 =================== */
+function renderTop(){
+  // index values
+  INDICES.forEach(idx=>{
+    document.getElementById('val_'+idx.key).textContent = DATA.index[idx.key]?.toFixed(0) || '-';
+    // sparkline: 用指数的 12 周模拟（向当前值收敛）
+    const base = Math.max(20, DATA.index[idx.key]-10);
+    const arr = Array.from({length:12}, (_,i)=> base + (DATA.index[idx.key]-base)*(i/11) + Math.sin(i)*2 );
+    drawSparkline(document.getElementById('sp_'+idx.key), arr);
+  });
+  // Pareto demo: 覆盖/贡献（演示固定范围，或根据指数简单推算）
+  const coverage = Math.min(92, 50 + (DATA.index.PHI||60)*0.4); // 50% + PHI*0.4 ≈ 74
+  const contribution = Math.min(90, 45 + (DATA.index.DFI||60)*0.35); // 45% + DFI*0.35
+  drawDonutPareto(document.getElementById('donutPareto'), coverage, contribution);
+  const covB = statusBadge(coverage), ctrB = statusBadge(contribution);
+  document.getElementById('covTxt').textContent = coverage.toFixed(1)+'%';
+  document.getElementById('contrTxt').textContent = contribution.toFixed(1)+'%';
+  const covBadge = document.getElementById('covBadge'), ctrBadge = document.getElementById('ctrBadge');
+  covBadge.className = covB.cls; covBadge.textContent = covB.txt;
+  ctrBadge.className = ctrB.cls; ctrBadge.textContent = ctrB.txt;
+}
+let currentDom = 'A_Flow';
+function setActiveDom(domKey){
+  currentDom = domKey;
+  document.querySelectorAll('.sidebar button').forEach(b=>b.classList.toggle('active', b.dataset.dom===domKey));
+  const dom = DOMAINS[domKey];
+  document.getElementById('domTitle').textContent = dom.label;
+  // 雷达：取当前域的 6~8 个指标，标准化 0-100
+  const labels = dom.metrics.map(m=>META[m].name);
+  const values = dom.metrics.map(m=> normalize(DATA.kpi[domKey][m], META[m]));
+  drawRadar(document.getElementById('radarDom'), labels, values);
+  // 指标表
+  const tb = document.querySelector('#domTable tbody'); tb.innerHTML='';
+  dom.metrics.forEach(m=>{
+    const meta = META[m]; const v = DATA.kpi[domKey][m]; const score = normalize(v, meta); const badge=statusBadge(score);
+    const tr=document.createElement('tr'); tr.innerHTML = `<td>${meta.name}</td><td>${fmt(v, meta.unit)}</td><td>${meta.unit}</td>
+      <td>${meta.better==='up' ? ('好≥'+fmt(meta.good,meta.unit)+' / 坏≤'+fmt(meta.bad,meta.unit)) : ('好≤'+fmt(meta.good,meta.unit)+' / 坏≥'+fmt(meta.bad,meta.unit))}</td>
+      <td>${meta.better==='up'?'↑ 越高越好':'↓ 越低越好'}</td><td><span class="${badge.cls}">${badge.txt}</span></td><td class="small">${meta.desc}</td>`;
+    tb.appendChild(tr);
+  });
+  // 右上角：指标下拉 + 趋势折线
+  const sel = document.getElementById('metricSelect'); sel.innerHTML='';
+  dom.metrics.forEach(m=>{const opt=document.createElement('option'); opt.value=m; opt.textContent=META[m].name; sel.appendChild(opt);});
+  sel.onchange = ()=> drawMetricTrend(sel.value);
+  drawMetricTrend(dom.metrics[0]);
+}
+function drawMetricTrend(metricId){
+  const arr = TRENDS[metricId] || Array.from({length:12},()=>Math.random()*100);
+  const labels = Array.from({length:12},(_,i)=>'W'+(i+1));
+  const meta = META[metricId];
+  drawLine(document.getElementById('lineDom'), labels, [{label: meta.name, data: arr}]);
+}
+
+/* =================== 交互：导入/导出/模拟/主题 =================== */
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(DATA,null,2)], {type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='enterprise_dashboard_data.json'; a.click();
+}
+function importJSON(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const obj = JSON.parse(e.target.result);
+      if(!obj.kpi || !obj.index) throw new Error('JSON 缺少 {kpi,index}');
+      DATA = obj;
+      buildTrends(); recomputeIndices(); renderTop(); setActiveDom(currentDom); toast('已导入 JSON');
+    }catch(err){ alert('导入失败：'+err.message); }
+  };
+  reader.readAsText(file);
+}
+function simulateData(){
+  // 在当前值基础上，向“好”的方向推进 10~25%
+  Object.keys(DOMAINS).forEach(dom=>{
+    DOMAINS[dom].metrics.forEach(m=>{
+      const meta = META[m], v = DATA.kpi[dom][m];
+      const dir = meta.better==='up'? 1 : -1;
+      const ratio = 0.1 + Math.random()*0.15;
+      const nv = v * (1 + dir*ratio);
+      // 对有上界/下界的做裁剪
+      if(meta.unit==='%') DATA.kpi[dom][m] = Math.max(0, Math.min(100, nv));
+      else DATA.kpi[dom][m] = Math.max(0, nv);
+    });
+  });
+  buildTrends(); recomputeIndices(); renderTop(); setActiveDom(currentDom); toast('已生成模拟数据');
+}
+
+/* =================== 初始化 =================== */
+function init(){
+  buildKPICards(); buildTrends(); recomputeIndices(); renderTop(); setActiveDom('A_Flow');
+  // 事件
+  document.querySelectorAll('.sidebar button').forEach(b=> b.addEventListener('click',()=> setActiveDom(b.dataset.dom)));
+  document.getElementById('btnExport').addEventListener('click', exportJSON);
+  document.getElementById('fileInput').addEventListener('change', (e)=>{ if(e.target.files[0]) importJSON(e.target.files[0]); });
+  document.getElementById('btnSim').addEventListener('click', simulateData);
+  document.getElementById('btnDemo').addEventListener('click', ()=>{ DATA = JSON.parse(JSON.stringify(DATA)); buildTrends(); recomputeIndices(); renderTop(); setActiveDom(currentDom); toast('已填充示例数据');});
+  document.getElementById('themeSwitch').addEventListener('change', e=> document.documentElement.setAttribute('data-theme', e.target.checked?'light':'dark'));
+  // 响应式重绘
+  window.addEventListener('resize', ()=>{ renderTop(); setActiveDom(currentDom); });
+}
+init();
+</script>
+</body>
+</html>
