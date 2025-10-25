@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>项目蓝图：需求与原则</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            background-color: #f7f9fc;
+            padding: 20px;
+            color: #333;
+        }
+        
+        /* 容器样式 */
+        .mindmap-container {
+            max-width: 900px;
+            margin: auto;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+            border: 1px solid #e0e0e0;
+        }
+
+        /* 移除默认列表样式 */
+        .mindmap, .mindmap ul {
+            list-style-type: none;
+            padding-left: 28px;
+            position: relative;
+        }
+
+        /* 节点通用样式 */
+        .mindmap li {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        /* 模拟连接线：垂直线 */
+        .mindmap li::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #d0d7e0;
+        }
+        
+        /* 最后一个子节点不向下延伸垂直线 */
+        .mindmap li:last-child::before {
+            height: 12px; 
+        }
+
+        /* 模拟连接线：水平线 */
+        .mindmap li::after {
+            content: '';
+            position: absolute;
+            left: -18px;
+            top: 12px;
+            width: 16px; 
+            height: 2px;
+            background-color: #d0d7e0;
+        }
+        
+        /* 节点内容样式 */
+        .node-content {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+        
+        .node-content:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+             border-color: #007bff;
+        }
+        
+        /* 一级节点（分支） */
+        .branch-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #007bff; /* 蓝色 */
+            padding: 10px 16px;
+            margin-left: -28px; /* 对齐根节点 */
+            border-radius: 8px;
+        }
+
+        /* 二级节点（叶子） */
+        .leaf-node {
+            font-size: 1em;
+            background-color: #f1f3f5;
+            border-left: 4px solid #007bff;
+        }
+        
+        /* 三级节点（延展） */
+        .sub-leaf-node {
+            font-size: 0.9em;
+            background-color: #ffffff;
+            border-left: 4px solid #28a745; /* 绿色 */
+            color: #454545;
+        }
+        
+        /* 标题 */
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        /* 延展/高亮文本 */
+        .highlight {
+            font-weight: 600;
+            color: #c7254e; /* 深红色 */
+        }
+        
+        .sub-text {
+            font-size: 0.85em;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="mindmap-container">
+        <h2>项目蓝图：需求挖掘与服务基石</h2>
+        
+        <ul class="mindmap">
+            <li>
+                <span class="node-content branch-title">一、 需求挖掘 (交付清单)</span>
+                <ul>
+                    <li><span class="node-content leaf-node">《老板核心痛点与1v1复盘诊断报告》</span></li>
+                    <li><span class="node-content leaf-node">《“潜行”诊断证据库》 <span class="sub-text">（历史合同、失效制度、流程手册等）</span></span></li>
+                    <li><span class="node-content leaf-node">《核心管理者（“诸侯”）画像与真实痛点矩阵》</span></li>
+                    <li><span class="node-content leaf-node">《As-Is 现状流程图（全景版）》 <span class="sub-text">（标注断点、堵点、老板介入点）</span></span></li>
+                    <li><span class="node-content leaf-node">《组织架构缺陷与跨部门协作问题分析报告》</span></li>
+                    <li><span class="node-content leaf-node">《现有技术栈与AI能力评估报告》 <span class="sub-text">（含服务器现状评估）</span></span></li>
+                    <li><span class="node-content leaf-node">《“新游戏规则”初步框架》 <span class="sub-text">（SOP、激励、话术）</span></span></li>
+                    <li><span class="node-content leaf-node">《AI赋能方法论 (或 AI工具PRD) 初稿》</span></li>
+                </ul>
+            </li>
+            
+            <li>
+                <span class="node-content branch-title">二、 服务原则与策略基石 (客户出发点)</span>
+                <ul>
+                    <li>
+                        <span class="node-content leaf-node">资料会有保密的需求。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 数据安全基石：</span> 本地化部署是必须满足的前提条件，与保密协议共同构成合作的刚性基础。</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="node-content leaf-node">核心策略：通过小动作实现大作用，减少变革阻力。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 规避“空降”抗力：</span> 深刻理解“文臣武将天然的对空降军事的对抗”，我们的介入必须避免给现有人员造成压力或产生天然抗力。</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="node-content leaf-node">交互设计：采用“润物细无声”策略，降低抵触。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 心理减压优先：</span> 方案设计不仅要解决“理”（业务问题），更要照顾“情”，优先减少老板（赵爽）的心理压力。</span></li>
+                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 人性化设计，确保采纳：</span> 必须结合人性化设计，确保工具和流程的最终采纳率，而不是高高在上的理论。</span></li>
+                        </ul>
+                    </li>
+                    <li><span class="node-content leaf-node">需求的挖掘标准在1-3基础上进行。</span></li>
+                    <li>
+                        <span class="node-content leaf-node">目标导向：成就客户，而非彰显自我。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node">最终目标是让老板（赵爽）的感受最重要，让他自己觉得“我变牛逼了”， 而不是我们（咨询方）显得牛逼。</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="node-content leaf-node">角色定位：“白手套”与“清醒的军师”。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node">我们愿意扮演“打手”或“白手套”的角色，去执行老板想做但不方便明说的变革。</span></li>
+                            <li><span class="node-content sub-leaf-node">但在做“打手”之前，必须 <span class="highlight">“真相先行”</span> ——即必须先提供客观、真实的局势分析，确保老板在知晓情况的基础上做决策。</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="node-content leaf-node">价值前置：拒绝“复读”已知问题。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node">服务前期（如前10天）必须产出小样或验证性成果，必须是我们“尝试了”的结论，而绝不是把老板已经知道的问题复述一遍。</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="node-content leaf-node">方案严谨：杜绝“一拍脑袋”的结论。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node">任何核心建议（如AI是否为最优选）都必须给出充分理由，并证明已考虑过其他替代方案，结论绝非“一拍脑袋”得来。</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="node-content leaf-node">边界清晰：提供建议，而非包办决策。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node">我们可以给方向和建议，但绝不帮客户“改任何一个字”。 最终的决策权和修改权必须在客户自己手中。</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <span class="node-content leaf-node">战略模糊：隐藏我方（乙方）的长远意图。</span>
+                        <ul>
+                            <li><span class="node-content sub-leaf-node">对于我方（咨询方）可能的“资本路径”或“技术模块可独立拆分融资” 等长远商业目的，必须保持战略性模糊，不能让客户觉得我们的目的性太强。</span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        
+    </div>
+
+</body>
+</html>
