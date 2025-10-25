@@ -2,217 +2,186 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>项目蓝图：需求与原则</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目蓝图：需求挖掘与服务基石</title>
     <style>
-        /* 基础样式 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.7;
-            background-color: #f7f9fc;
+            line-height: 1.8;
+            background-color: #f8f9fa; /* 非常浅的灰色背景 */
+            color: #343a40; /* 深灰文字，易于阅读 */
+            margin: 0;
             padding: 20px;
-            color: #333;
         }
-        
-        /* 容器样式 */
-        .mindmap-container {
+
+        .container {
             max-width: 900px;
-            margin: auto;
-            padding: 25px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-            border: 1px solid #e0e0e0;
+            margin: 20px auto;
+            padding: 30px 40px;
+            background-color: #ffffff; /* 纯白卡片 */
+            border-radius: 12px; /* 圆角 */
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); /* 柔和阴影 */
+            border: 1px solid #e9ecef; /* 浅边框 */
         }
 
-        /* 移除默认列表样式 */
-        .mindmap, .mindmap ul {
-            list-style-type: none;
-            padding-left: 28px;
-            position: relative;
-        }
-
-        /* 节点通用样式 */
-        .mindmap li {
-            position: relative;
-            margin-bottom: 12px;
-        }
-
-        /* 模拟连接线：垂直线 */
-        .mindmap li::before {
-            content: '';
-            position: absolute;
-            left: -18px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: #d0d7e0;
-        }
-        
-        /* 最后一个子节点不向下延伸垂直线 */
-        .mindmap li:last-child::before {
-            height: 12px; 
-        }
-
-        /* 模拟连接线：水平线 */
-        .mindmap li::after {
-            content: '';
-            position: absolute;
-            left: -18px;
-            top: 12px;
-            width: 16px; 
-            height: 2px;
-            background-color: #d0d7e0;
-        }
-        
-        /* 节点内容样式 */
-        .node-content {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 6px;
-            background-color: #f8f9fa;
-            border: 1px solid #e9ecef;
-            transition: all 0.2s ease;
-        }
-        
-        .node-content:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-             border-color: #007bff;
-        }
-        
-        /* 一级节点（分支） */
-        .branch-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: #ffffff;
-            background-color: #007bff; /* 蓝色 */
-            padding: 10px 16px;
-            margin-left: -28px; /* 对齐根节点 */
-            border-radius: 8px;
-        }
-
-        /* 二级节点（叶子） */
-        .leaf-node {
-            font-size: 1em;
-            background-color: #f1f3f5;
-            border-left: 4px solid #007bff;
-        }
-        
-        /* 三级节点（延展） */
-        .sub-leaf-node {
-            font-size: 0.9em;
-            background-color: #ffffff;
-            border-left: 4px solid #28a745; /* 绿色 */
-            color: #454545;
-        }
-        
-        /* 标题 */
-        h2 {
+        h1 {
             text-align: center;
-            color: #2c3e50;
-            border-bottom: 3px solid #007bff;
-            padding-bottom: 10px;
+            color: #0056b3; /* 稳重的蓝色 */
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 15px;
             margin-top: 0;
         }
-        
-        /* 延展/高亮文本 */
-        .highlight {
-            font-weight: 600;
-            color: #c7254e; /* 深红色 */
+
+        h2 {
+            color: #007bff; /* 蓝色标题 */
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-top: 35px;
+            font-size: 1.6em;
+        }
+
+        /* 需求挖掘 (清单) */
+        .demand-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .demand-list li {
+            position: relative;
+            padding: 10px 0 10px 30px; /* 左侧留出空间给图标 */
+            font-size: 1.05em;
+            border-bottom: 1px dashed #e0e0e0; /* 虚线分隔 */
+            transition: background-color 0.2s ease;
+        }
+
+        .demand-list li:last-child {
+            border-bottom: none;
         }
         
-        .sub-text {
-            font-size: 0.85em;
-            color: #6c757d;
-            font-style: italic;
+        .demand-list li:hover {
+            background-color: #fdfdfd;
+        }
+
+        /* 使用::before伪元素创建自定义图标 */
+        .demand-list li::before {
+            content: '📋'; /* 文档图标 */
+            position: absolute;
+            left: 0;
+            top: 10px;
+            font-size: 1.2em;
+        }
+
+        /* 服务原则 (有序列表) */
+        .principles-list {
+            padding-left: 25px; /* 保留默认数字的缩进 */
+        }
+
+        .principles-list > li {
+            font-size: 1.1em;
+            font-weight: 600; /* 加粗主原则 */
+            color: #333;
+            margin-top: 20px;
+        }
+
+        /* 嵌套的子点 (延展说明) */
+        .principles-list ul {
+            list-style-type: none; /* 移除默认圆点 */
+            padding-left: 15px;
+            margin-top: 10px;
+        }
+
+        .principles-list ul li {
+            position: relative;
+            font-size: 0.95em;
+            font-weight: normal; /* 恢复正常字重 */
+            color: #555; /* 稍浅的文字颜色 */
+            padding-left: 25px; /* 为自定义图标留出空间 */
+            margin-top: 8px;
+        }
+
+        /* 子点的自定义图标 */
+        .principles-list ul li::before {
+            content: '↳'; /* 箭头或分支符号 */
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #007bff; /* 蓝色图标 */
+        }
+        
+        /* 高亮关键词 */
+        .highlight {
+            font-weight: bold;
+            color: #0056b3; /* 深蓝色高亮 */
         }
 
     </style>
 </head>
 <body>
 
-    <div class="mindmap-container">
-        <h2>项目蓝图：需求挖掘与服务基石</h2>
-        
-        <ul class="mindmap">
-            <li>
-                <span class="node-content branch-title">一、 需求挖掘 (交付清单)</span>
-                <ul>
-                    <li><span class="node-content leaf-node">《老板核心痛点与1v1复盘诊断报告》</span></li>
-                    <li><span class="node-content leaf-node">《“潜行”诊断证据库》 <span class="sub-text">（历史合同、失效制度、流程手册等）</span></span></li>
-                    <li><span class="node-content leaf-node">《核心管理者（“诸侯”）画像与真实痛点矩阵》</span></li>
-                    <li><span class="node-content leaf-node">《As-Is 现状流程图（全景版）》 <span class="sub-text">（标注断点、堵点、老板介入点）</span></span></li>
-                    <li><span class="node-content leaf-node">《组织架构缺陷与跨部门协作问题分析报告》</span></li>
-                    <li><span class="node-content leaf-node">《现有技术栈与AI能力评估报告》 <span class="sub-text">（含服务器现状评估）</span></span></li>
-                    <li><span class="node-content leaf-node">《“新游戏规则”初步框架》 <span class="sub-text">（SOP、激励、话术）</span></span></li>
-                    <li><span class="node-content leaf-node">《AI赋能方法论 (或 AI工具PRD) 初稿》</span></li>
-                </ul>
-            </li>
-            
-            <li>
-                <span class="node-content branch-title">二、 服务原则与策略基石 (客户出发点)</span>
-                <ul>
-                    <li>
-                        <span class="node-content leaf-node">资料会有保密的需求。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 数据安全基石：</span> 本地化部署是必须满足的前提条件，与保密协议共同构成合作的刚性基础。</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="node-content leaf-node">核心策略：通过小动作实现大作用，减少变革阻力。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 规避“空降”抗力：</span> 深刻理解“文臣武将天然的对空降军事的对抗”，我们的介入必须避免给现有人员造成压力或产生天然抗力。</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="node-content leaf-node">交互设计：采用“润物细无声”策略，降低抵触。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 心理减压优先：</span> 方案设计不仅要解决“理”（业务问题），更要照顾“情”，优先减少老板（赵爽）的心理压力。</span></li>
-                            <li><span class="node-content sub-leaf-node"><span class="highlight">(延展) 人性化设计，确保采纳：</span> 必须结合人性化设计，确保工具和流程的最终采纳率，而不是高高在上的理论。</span></li>
-                        </ul>
-                    </li>
-                    <li><span class="node-content leaf-node">需求的挖掘标准在1-3基础上进行。</span></li>
-                    <li>
-                        <span class="node-content leaf-node">目标导向：成就客户，而非彰显自我。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node">最终目标是让老板（赵爽）的感受最重要，让他自己觉得“我变牛逼了”， 而不是我们（咨询方）显得牛逼。</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="node-content leaf-node">角色定位：“白手套”与“清醒的军师”。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node">我们愿意扮演“打手”或“白手套”的角色，去执行老板想做但不方便明说的变革。</span></li>
-                            <li><span class="node-content sub-leaf-node">但在做“打手”之前，必须 <span class="highlight">“真相先行”</span> ——即必须先提供客观、真实的局势分析，确保老板在知晓情况的基础上做决策。</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="node-content leaf-node">价值前置：拒绝“复读”已知问题。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node">服务前期（如前10天）必须产出小样或验证性成果，必须是我们“尝试了”的结论，而绝不是把老板已经知道的问题复述一遍。</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="node-content leaf-node">方案严谨：杜绝“一拍脑袋”的结论。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node">任何核心建议（如AI是否为最优选）都必须给出充分理由，并证明已考虑过其他替代方案，结论绝非“一拍脑袋”得来。</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="node-content leaf-node">边界清晰：提供建议，而非包办决策。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node">我们可以给方向和建议，但绝不帮客户“改任何一个字”。 最终的决策权和修改权必须在客户自己手中。</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="node-content leaf-node">战略模糊：隐藏我方（乙方）的长远意图。</span>
-                        <ul>
-                            <li><span class="node-content sub-leaf-node">对于我方（咨询方）可能的“资本路径”或“技术模块可独立拆分融资” 等长远商业目的，必须保持战略性模糊，不能让客户觉得我们的目的性太强。</span></li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        
+    <div class="container">
+        <h1>项目蓝图：需求挖掘与服务基石</h1>
+
+        <div class="section">
+            <h2>一、 需求挖掘</h2>
+            <ul class="demand-list">
+                <li>《核心痛点与1v1复盘诊断报告》</li>
+                <li>《“诊断”证据库》（包含：历史文档、低效制度、流程手册、激励政策文件）</li>
+                <li>《核心管理者（“店长”）画像与真实痛点矩阵》</li>
+                <li>《As-Is 现状流程图（全景版）》（标注所有断点、堵点、与boss介入点）</li>
+                <li>《组织架构缺陷与跨部门协作问题分析报告》</li>
+                <li>《现有技术栈与AI能力评估报告》（含服务器现状评估？？？）</li>
+                <li>《“手册”初步框架》（SOP、激励、话术）</li>
+                <li>《AI赋能方法论 (或 AI工具PRD？？？) 初稿》</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>二、 服务原则与策略基石</h2>
+            <span style="font-style: italic; color: #666;">(需求的挖掘与持续延展标准在1-3基础上进行)</span>
+
+            <ol class="principles-list">
+                <li>资料会有保密的需求。
+                    <ul>
+                        <li><span class="highlight">数据安全基石：</span> 全部动作资料本地化是必须满足的前提条件 ，与保密协议共同构成合作的刚性基础。</li>
+                    </ul>
+                </li>
+                <li>核心策略：通过小动作实现大作用，减少变革阻力。
+                    <ul>
+                        <li><span class="highlight">规避“空降”抗力：</span> 深刻理解“文臣武将天然的对空降军事的对抗” ，我们的介入必须避免给现有人员造成压力或产生天然抗力。</li>
+                    </ul>
+                </li>
+                <li value="3">采用“润物细无声”策略，降低抵触。
+                    <ul>
+                        <li><span class="highlight">三大困境陪练优先：</span> 方案设计不仅要解决“理”（业务问题），更要照顾“情”，争取理解 boss（您）的“孤独”“停滞”“囚徒”困境。</li>
+                        <li><span class="highlight">人性化设计，确保采纳：</span> 必须结合人性化设计，确保工具（如有）和流程的最终采纳率，而不是高高在上的理论。</li>
+                    </ul>
+                </li>
+                <li value="3">角色定位：“演员”与“陪练”。
+                    <ul>
+                        <li><span class="highlight">前提是：必须“真相先行”</span> ——即必须先提供客观、真实的局势分析，确保boss在知晓情况的基础上做决策。</li>
+                    </ul>
+                </li>
+                <li value>价值前置：拒绝“复读”已知问题。
+                    <ul>
+                        <li>服务前期（如前10天）产出小样或验证性成果，必须是我们“尝试了”的结论 ，而绝不是把boss已经知道的问题复述一遍。</li>
+                    </ul>
+                </li>
+                <li>方案严谨：杜绝“一拍脑袋”的结论。
+                    <ul>
+                        <li>任何核心建议（如AI是否为最优选）都必须给出充分理由，并证明已考虑过其他替代方案，结论绝非“一拍脑袋”得来。</li>
+                    </ul>
+                </li>
+                <li>边界清晰：提供建议，而非包办决策。
+                    <ul>
+                        <li>我们可以给方向和建议，但绝不主观臆断。 最终的决策权和修改权必须在boss自己手中。</li>
+                    </ul>
+                </li>
+                <li>目标导向：成就客户，而非彰显自我。</li>
+            </ol>
+        </div>
+
     </div>
 
 </body>
