@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“战略抽身”AI 决策系统方案</title>
+    <style>
+        :root {
+            --color-primary: #0056b3;
+            --color-primary-light: #f0f6ff;
+            --color-secondary: #ffc107; /* B方案高亮色 */
+            --color-success: #28a745; /* C方案色 */
+            --color-text: #333;
+            --color-text-light: #555;
+            --color-border: #dee2e6;
+            --color-bg: #f8f9fa;
+            --color-disabled: #adb5bd;
+            --color-white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 960px;
+            margin: 20px auto;
+            background-color: var(--color-white);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        header {
+            padding: 24px;
+            border-bottom: 1px solid var(--color-border);
+            background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-white) 70%);
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--color-primary);
+            font-size: 1.8rem;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            font-size: 1rem;
+            color: var(--color-text-light);
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #fdfdfd;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 16px 12px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-light);
+            text-align: center;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background-color: #fdfdfd;
+            color: #000;
+        }
+
+        .tab-button.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        
+        .tab-button.active[onclick*="'B'"] {
+            color: var(--color-secondary);
+            border-bottom-color: var(--color-secondary);
+        }
+        .tab-button.active[onclick*="'B'"] .recommend-badge {
+            color: var(--color-secondary);
+        }
+        
+        .tab-button.active[onclick*="'C'"] {
+            color: var(--color-success);
+            border-bottom-color: var(--color-success);
+        }
+
+        .tab-button .recommend-badge {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--color-text-light);
+            line-height: 1.2;
+            transition: color 0.3s ease;
+        }
+
+        .content-area {
+            padding: 24px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .package-price {
+            margin-bottom: 24px;
+        }
+
+        .package-price .strategic-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        .package-price .original-price {
+            font-size: 1rem;
+            color: var(--color-text-light);
+            text-decoration: line-through;
+            margin: 0 0 0 8px;
+        }
+
+        .value-visual {
+            margin-top: 24px;
+        }
+
+        .value-visual h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--color-text);
+        }
+
+        .value-bar {
+            margin-bottom: 12px;
+        }
+
+        .value-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            margin-bottom: 4px;
+        }
+
+        .value-bar-track {
+            height: 8px;
+            background-color: var(--color-bg);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .value-bar-fill {
+            height: 100%;
+            background-color: var(--color-primary);
+            border-radius: 4px;
+            transition: width 0.5s ease-out;
+        }
+        
+        #pkg-b .strategic-price { color: var(--color-secondary); }
+        #pkg-b .value-bar-fill { background-color: var(--color-secondary); }
+        #pkg-c .strategic-price { color: var(--color-success); }
+        #pkg-c .value-bar-fill { background-color: var(--color-success); }
+
+
+        .product-library {
+            padding: 24px;
+            background-color: #fdfdfd;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .product-library h2 {
+            margin-top: 0;
+            font-size: 1.3rem;
+            color: var(--color-text);
+            border-bottom: 2px solid var(--color-primary-light);
+            padding-bottom: 8px;
+        }
+        
+        .product-library .total-value {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--color-text-light);
+            margin-bottom: 16px;
+        }
+
+        #product-library-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* 产品列表项 */
+        #product-library-list > li {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        #product-library-list .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        #product-library-list .product-header .product-name {
+            flex: 1;
+        }
+
+        #product-library-list .product-total-price {
+            font-weight: 700;
+            color: var(--color-primary);
+            width: 100px;
+            text-align: right;
+            flex-shrink: 0;
+            margin-left: 16px;
+            font-size: 1rem;
+        }
+        
+        /* “连线”样式 - 产品详情容器 */
+        #product-library-list .product-details {
+            margin-top: 10px;
+            padding-left: 1.5em; /* “连线”的内边距 */
+            border-left: 3px solid var(--color-primary-light); /* “连线”本人 */
+        }
+        
+        /* 产品化描述 */
+        .productization-block {
+            padding: 8px 0;
+        }
+        .productization-block .productization-title {
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 0.9rem;
+        }
+        .productization-block .productization-desc {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+            margin: 4px 0 0 0;
+            font-style: italic;
+        }
+
+        /* 价值构成 */
+        #product-library-list .deliverables {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--color-border);
+        }
+        #product-library-list .deliverables span { /* “价值构成:” */
+             font-weight: 600;
+        }
+        
+        #product-library-list .deliverables ul {
+            margin: 4px 0 0 0;
+            padding-left: 1.5em;
+            list-style-type: disc;
+        }
+        
+        /* 交付物列表项 (已移除价格) */
+        #product-library-list .deliverables li {
+            font-size: 0.85rem;
+            padding: 2px 0;
+        }
+        #product-library-list .deliverables .deliverable-name {
+            flex: 1;
+        }
+
+        /* 动作来源 */
+        #product-library-list .action-src {
+            display: block;
+            font-style: italic;
+            color: var(--color-disabled);
+            font-size: 0.8rem;
+            margin-top: 10px;
+            border-top: 1px dashed var(--color-border);
+            padding-top: 8px;
+        }
+
+        /* 包含 / 排除 状态 */
+        #product-library-list > li.included {
+            border-left: 4px solid var(--color-success);
+            background-color: #f6fff8;
+            color: #222;
+        }
+        
+        #product-library-list > li.included .product-header::before {
+            content: '✓ ';
+            color: var(--color-success);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        #product-library-list > li.included .product-total-price {
+            color: var(--color-success);
+        }
+        #product-library-list > li.included .product-details {
+             border-left-color: var(--color-success); /* 连线也变绿 */
+        }
+
+
+        #product-library-list > li.excluded {
+            color: var(--color-disabled);
+            background-color: var(--color-bg);
+            border-color: #eee;
+            border-left: 4px solid var(--color-border);
+            text-decoration: line-through;
+        }
+        
+        #product-library-list > li.excluded .product-header::before {
+            content: '✕ ';
+            color: var(--color-disabled);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        #product-library-list > li.excluded .product-total-price,
+        #product-library-list > li.excluded .product-details,
+        #product-library-list > li.excluded .action-src {
+            text-decoration: line-through;
+            color: var(--color-disabled);
+        }
+         #product-library-list > li.excluded .product-details {
+             border-left-color: var(--color-border); /* 连线变灰 */
+         }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab-button {
+                font-size: 1rem;
+                padding: 18px;
+                border-bottom: 1px solid var(--color-border);
+            }
+            .tab-button.active {
+                border-bottom: 1px solid var(--color-border);
+                border-left: 4px solid var(--color-primary);
+                background-color: var(--color-primary-light);
+            }
+            .tab-button.active[onclick*="'B'"] { border-left-color: var(--color-secondary); }
+            .tab-button.active[onclick*="'C'"] { border-left-color: var(--color-success); }
+            
+            .content-area, .product-library, header {
+                padding: 16px;
+            }
+            header h1 { font-size: 1.5rem; }
+            .package-price .strategic-price { font-size: 2rem; }
+            
+            #product-library-list .product-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #product-library-list .product-total-price {
+                width: 100%;
+                text-align: left;
+                margin-top: 4px;
+                margin-left: 24px;
+                font-size: 1rem;
+            }
+            #product-library-list .product-details {
+                padding-left: 1em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>“战略抽身”AI 决策系统 & 团队赋能方案</h1>
+            <p>解放您的核心精力，去布局新战场</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button" onclick="showPackage('A', [0, 1, 2, 4])">
+                方案 A <span class="recommend-badge">团队演练包</span>
+            </button>
+            <button class="tab-button active" onclick="showPackage('B', [0, 3, 4, 5])">
+                方案 B <span class="recommend-badge">明智之选</span>
+            </button>
+            <button class="tab-button" onclick="showPackage('C', [0, 1, 2, 3, 4, 5, 6])">
+                方案 C <span class="recommend-badge">全景赋能包</span>
+            </button>
+        </div>
+
+        <div class="content-area">
+
+            <div id="pkg-A" class="tab-content">
+                <h2>《“接班人”诊断 & 实战演练包》</h2>
+                <div class="package-price">
+                    <p class="strategic-price">￥89,800</p>
+                    <span class="original-price">原价值: ￥120,000</span>
+                </div>
+                <p>帮您“看清”团队。交付“决策蓝图”并让团队“实战演练”，但不交付核心的“AI 决策代理”系统，团队有心无力。</p>
+                
+                <div class="value-visual">
+                    <h3>4D 价值评估 (老板视角)</h3>
+                    </div>
+            </div>
+
+            <div id="pkg-B" class="tab-content active">
+                <h2>《“AI 决策”系统 & 团队接班包》</h2>
+                <div class="package-price">
+                    <p class="strategic-price">￥149,800</p>
+                    <span class="original-price">原价值: ￥220,000</span>
+                </div>
+                <p>帮您“造好武器”并“练好兵”。交付一套从 Alpha 到最终部署的“AI 决策”系统，并完成“接班人演练”，确保团队能承接。</p>
+                
+                <div class="value-visual">
+                    <h3>4D 价值评估 (老板视角)</h3>
+                    </div>
+            </div>
+
+            <div id="pkg-C" class="tab-content">
+                <h2>《“战略抽身”全景交付 & 团队赋能包》</h2>
+                <div class="package-price">
+                    <p class="strategic-price">￥199,800</p>
+                    <span class="original-price">原价值: ￥300,000</span>
+                </div>
+                <p>帮您“彻底抽身”。交付所有系统、蓝图、并完成深度团队赋能，确保系统被团队承接，让您真正解放，布局新战场。</p>
+                
+                <div class="value-visual">
+                    <h3>4D 价值评估 (老板视角)</h3>
+                    </div>
+            </div>
+        </div>
+
+        <div class="product-library">
+            <h2>交付产品总库 (对照表)</h2>
+            <p class="total-value">总价值锚定: ￥300,000</p>
+            <ul id="product-library-list">
+                
+                <li data-index="0">
+                    <div class="product-header">
+                        <span class="product-name">《“老板决策”解码与“战略瓶颈”诊断》</span>
+                        <span class="product-total-price">￥20,000</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="productization-block">
+                            <span class="productization-title">产品化 (新):</span>
+                            <p class="productization-desc">咱不是来做“现状评估”的。咱是来“解码”您脑子里的“决策秘诀”的。您平时怎么摆平“销售和技术扯皮”、怎么搞定客户的“奇葩需求”——这些“艺术”操作，我们给它变成一套“科学”的SOP。</p>
+                        </div>
+                        <div class="deliverables">
+                            <span>价值构成:</span>
+                            <ul>
+                                <li><span class="deliverable-name">《“老板决策”逻辑树与规则图》</span></li>
+                                <li><span class="deliverable-name">《“战略机会成本”与“人才断层”瓶颈诊断报告》</span></li>
+                            </ul>
+                        </div>
+                        <span class="action-src">动作 (源自p1)：访谈、诊断、梳理痛点</span>
+                    </div>
+                </li>
+                
+                <li data-index="1">
+                    <div class="product-header">
+                        <span class="product-name">《“自动驾驶”蓝图与“共识场”构建》</span>
+                        <span class="product-total-price">￥20,000</span>
+                    </div>
+                    <div class="product-details">
+                         <div class="productization-block">
+                            <span class="productization-title">产品化 (新):</span>
+                            <p class="productization-desc">这不叫“统一思想”，这叫“拉着团队一起造轮子”。造一个“解放老板”的“自动驾驶”蓝图。得让大伙儿都明白，这系统不是来“管”他们的，是来给他们“发武器”的。</p>
+                        </div>
+                        <div class="deliverables">
+                            <span>价值构成:</span>
+                            <ul>
+                                <li><span class="deliverable-name">《“自动驾驶”运营蓝图 (共识版)》</span></li>
+                                <li><span class="deliverable-name">《核心管理层“赋能”承诺书》</span></li>
+                            </ul>
+                        </div>
+                        <span class="action-src">动作 (源自p2)：渗透松土、与核心管理者共识</span>
+                    </div>
+                </li>
+                
+                <li data-index="2">
+                    <div class="product-header">
+                        <span class="product-name">《“老板决策引擎”规则库 (V1.0)》</span>
+                        <span class="product-total-price">￥35,000</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="productization-block">
+                            <span class="productization-title">产品化 (新):</span>
+                            <p class="productization-desc">这可不是啥“需求文档”，这是您“决策大脑”的“源代码”。您脑子里的“规矩”，我们给它翻译成白话，让人和电脑都能看懂。</p>
+                        </div>
+                        <div class="deliverables">
+                            <span>价值构成:</span>
+                            <ul>
+                                <li><span class="deliverable-name">《“AI 决策代理”系统 (PRD)》</span></li>
+                                <li><span class="deliverable-name">《“标准-例外”情景应对词库》</span></li>
+                                <li><span class="deliverable-name">《动态合同匹配模板库》</span></li>
+                            </ul>
+                        </div>
+                        <span class="action-src">动作 (源自p3)：确定PRD、话术词库、合同模板</span>
+                    </div>
+                </li>
+                
+                <li data-index="3">
+                    <div class="product-header">
+                        <span class="product-name">《“AI 决策代理”原型系统 (Alpha 版)》</span>
+                        <span class="product-total-price">￥65,000</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="productization-block">
+                            <span class="productization-title">产品化 (新):</span>
+                            <p class="productization-desc">给您交个“数字版克隆人”的底稿（原型）。它开始学着像您一样，自动分拣“销售需求”、配对“技术模块”、提示“合同风险”。</p>
+                        </div>
+                        <div class="deliverables">
+                            <span>价值构成:</span>
+                            <ul>
+                                <li><span class="deliverable-name">《“AI 决策代理” (Alpha 版)》（含三大核心模块）</span></li>
+                                <li><span class="deliverable-name">《Alpha 版内部压力测试报告》</span></li>
+                            </ul>
+                        </div>
+                        <span class="action-src">动作 (源自p4)：开发与内部验证</span>
+                    </div>
+                </li>
+                
+                <li data-index="4">
+                    <div class="product-header">
+                        <span class="product-name">《“中层赋能”与“接班人”实战演练 (UAT)》</span>
+                        <span class="product-total-price">￥45,000</span>
+                    </div>
+                     <div class="product-details">
+                        <div class="productization-block">
+                            <span class="productization-title">产品化 (新):</span>
+                            <p class="productization-desc">这不叫“软件测试”，这叫“中层接班人”的实战演习。我们建议您的核心员工，用上您这套“决策引擎”（AI工具），自己上手去解决问题。</p>
+                        </div>
+                        <div class="deliverables">
+                            <span>价值构成:</span>
+                            <ul>
+                                <li><span class="deliverable-name">《“AI 决策代理” (Beta 版)》</span></li>
+                                <li><span class="deliverable-name">《中层干部“独立决策”UAT 测试报告》</span></li>
+                                <li><span class="deliverable-name">《“接班人”赋能培训材料包》</span></li>
+                            </ul>
+                        </div>
+                        <span class="action-src">动作 (源自p5)：UAT 验收、Bug 修复、培训</span>
+                    </div>
+                </li>
+                
+                <li data-index="5">
+                    <div class="product-header">
+                        <span class="product-name">《“战略抽身”资产包 (本地化部署)》</span>
+                        <span class="product-total-price">￥90,000</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="productization-block">
+                            <span class="productization-title">产品化 (新):</span>
+                            <p class="productization-desc">咱最后交的不是“一套软件”，是您“腾出手来”的“底气”。一套是“固化了您智慧的系统”，一套是“学会了独立思考的团队”。</p>
+                        </div>
+                        <div class="deliverables">
+                            <span>价值构成:</span>
+                            <ul>
+                                <li><span class="deliverable-name">《“AI 决策代理”系统 (本地化部署正式版)》</span></li>
+                                <li><span class="deliverable-name">《“公司系统资产”SOP 手册 (含 AI 操作指南)》</span></li>
+                                <li><span class="deliverable-name">《“老板抽身”90 天运营护航计划》</span></li>
+                            </ul>
+                        </div>
+                        <span class="action-src">动作 (源自p6)：本地部署、项目结项、交付手册</span>
+                    </div>
+                </li>
+                
+                <li data-index="6">
+                    <div class="product-header">
+                        <span class="product-name">《“老板驾驶舱”数据看板 (成品)》</span>
+                        <span class="product-total-price">￥25,000</span>
+                    </div>
+                    <div class="product-details">
+                        <div class="productization-block">
+                            <span class="productization-title">产品化 (新):</span>
+                            <p class="productization-desc">这不是“数据报表”，这是您的“遥控器”。就算您人不在公司，也能随时“遥控”业务，核心数据有啥风吹草动，您第一个知道。</p>
+                        </div>
+                        <div class="deliverables">
+                            <span>价值构成:</span>
+                            <ul>
+                                <li><span class="deliverable-name">《全景数据驾驶舱 (PC 端 + 移动端)》</span></li>
+                                <li><span class="deliverable-name">《核心 KPI 异动自动告警配置》</span></li>
+                            </ul>
+                        </div>
+                        <span class="action-src">动作 (源自p7)：数据看板开发与部署</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll('.tab-button');
+        const contents = document.querySelectorAll('.tab-content');
+        const productListItems = document.querySelectorAll('#product-library-list > li');
+
+        function showPackage(packageId, includedIndices) {
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.tab-button[onclick*="'${packageId}'"]`).classList.add('active');
+
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`pkg-${packageId}`).classList.add('active');
+
+            productListItems.forEach((item, index) => {
+                item.classList.remove('included', 'excluded');
+                
+                if (includedIndices.includes(index)) {
+                    item.classList.add('included');
+                } else {
+                    item.classList.add('excluded');
+                }
+            });
+        }
+
+        // 默认加载“方案 B (明智之选)”
+        // 索引: 0, 3, 4, 5 (p1, p4, p5, p6)
+        document.addEventListener('DOMContentLoaded', () => {
+            showPackage('B', [0, 3, 4, 5]);
+        });
+    </script>
+
+</body>
+</html>
