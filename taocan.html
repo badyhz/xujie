@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>黄金三套餐 (移动版)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <style>
+        /* --- 基础样式 --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #212529;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased; /* 字体抗锯齿 */
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px; /* 移动端最大宽度 */
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .main-title {
+            text-align: center;
+            font-size: 24px;
+            color: #004a99;
+            padding: 20px 15px 15px 15px;
+            margin: 0;
+            background-color: #fff;
+        }
+
+        /* --- 1. Tab 切换按钮 --- */
+        .tab-navigation {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky; /* 粘性定位 */
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px 10px;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: center;
+            background-color: transparent;
+            border: none;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #007bff;
+            font-weight: 600;
+            border-bottom: 3px solid #007bff;
+        }
+        
+        .tab-btn.target { /* 突出B套餐 */
+            font-weight: 600;
+        }
+
+        /* --- 2. Tab 内容卡片 --- */
+        .content-card {
+            display: none; /* 默认隐藏 */
+            padding: 20px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .content-card.active {
+            display: block; /* 激活时显示 */
+        }
+        
+        .content-card h3 {
+            font-size: 20px;
+            color: #0056b3;
+            margin-top: 0;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .content-card .subtitle {
+            font-size: 14px;
+            color: #495057;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .price-box {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #fdfdfd;
+            border-radius: 8px;
+            padding: 15px 10px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .price-box .value {
+            font-size: 15px;
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+        
+        .price-box .price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #dc3545;
+        }
+        
+        /* 4D价值分布 */
+        .radar-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            margin: 10px auto;
+        }
+        
+        /* 显式列出4D百分比 */
+        .dims-list-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .dims-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px 15px;
+        }
+        
+        .dims-list li {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 6px 0;
+        }
+        .dims-list li strong {
+            font-weight: 600;
+            color: #212529;
+        }
+        .dims-list li .percent {
+            font-weight: 600;
+            color: #0056b3;
+        }
+
+        /* --- 3. 交付产品清单 --- */
+        .products-section {
+            padding: 15px;
+        }
+        
+        .products-title {
+            text-align: center;
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .product-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-item .product-name {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .product-item .product-value {
+            font-size: 12px;
+            color: #6c757d;
+            display: block;
+        }
+
+        /* 激活（包含）状态 */
+        .product-item.active {
+            background-color: #e6f7ec;
+            border-color: #5cb85c;
+            color: #155724;
+            padding-left: 35px; /* 为勾留出空间 */
+        }
+        
+        .product-item.active::before {
+            content: "✓"; /* 包含的标记 */
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #28a745;
+            font-size: 16px;
+        }
+
+        /* 灰色（不包含）状态 */
+        .product-item.inactive {
+            background-color: #f8f9fa;
+            border-color: #e9ecef;
+            opacity: 0.6;
+            padding-left: 35px; /* 为叉留出空间 */
+        }
+        
+        .product-item.inactive::before {
+            content: "✕"; /* 缺失的标记 */
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #dc3545;
+            font-size: 16px;
+        }
+        
+        .product-item.inactive .product-name {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <h1 class="main-title">为“刷漆老板”定制的黄金三套餐</h1>
+
+        <div class="tab-navigation">
+            <button class="tab-btn" data-target="pkg-a">
+                A. “急诊”诊断包
+            </button>
+            <button class="tab-btn target active" data-target="pkg-b">
+                B. “流程”标准包
+            </button>
+            <button class="tab-btn" data-target="pkg-c">
+                C. “老板”全能包
+            </button>
+        </div>
+
+        <div class="content-card" id="pkg-a"
+             data-products="p2,p4,p10"
+             data-dims="70,10,20,0"> <h3>A. “急诊止血”诊断包</h3>
+            <p class="subtitle">[聚焦] 快速诊断，锁定核心问题</p>
+            
+            <div class="price-box">
+                <div class="value">总价值: ￥65,000</div>
+                <div class="price">￥65,000</div>
+            </div>
+            
+            <div class="radar-chart-container">
+                <canvas id="radar-a"></canvas>
+            </div>
+            
+            <h4 class="dims-list-title">4D价值百分比分布</h4>
+            <ul class="dims-list">
+                <li><strong>【老板省力】</strong><span class="percent">70%</span></li>
+                <li><strong>【业绩/利润】</strong><span class="percent">20%</span></li>
+                <li><strong>【组织增效】</strong><span class="percent">10%</span></li>
+                <li><strong>【团队复制】</strong><span class="percent">0%</span></li>
+            </ul>
+        </div>
+
+        <div class="content-card active" id="pkg-b"
+             data-products="p1,p2,p4,p6,p7,p10"
+             data-dims="30,30,30,10">
+            
+            <h3>B. “流程复制”标准包</h3>
+            <p class="subtitle" style="color:#007bff;">[推荐方案] 诊断+SOP工具，建立标准化流程</p>
+            
+            <div class="price-box">
+                <div class="value">总价值: ￥225,000</div>
+                <div class="price">￥158,000</div>
+            </div>
+
+            <div class="radar-chart-container">
+                <canvas id="radar-b"></canvas>
+            </div>
+            
+            <h4 class="dims-list-title">4D价值百分比分布</h4>
+            <ul class="dims-list">
+                <li><strong>【老板省力】</strong><span class="percent">30%</span></li>
+                <li><strong>【组织增效】</strong><span class="percent">30%</span></li>
+                <li><strong>【业绩/利润】</strong><span class="percent">30%</span></li>
+                <li><strong>【团队复制】</strong><span class="percent">10%</span></li>
+            </ul>
+        </div>
+
+        <div class="content-card" id="pkg-c"
+             data-products="p1,p2,p3,p4,p5,p6,p7,p8,p9,p10"
+             data-dims="25,30,25,20">
+            
+            <h3>C. “老板解放”全能包</h3>
+            <p class="subtitle">[全能方案] 诊断+工具+数据，一站式解决</p>
+            
+            <div class="price-box">
+                <div class="value">总价值: ￥410,000</div>
+                <div class="price">￥200,000</div>
+            </div>
+
+            <div class="radar-chart-container">
+                <canvas id="radar-c"></canvas>
+            </div>
+            
+            <h4 class="dims-list-title">4D价值百分比分布</h4>
+            <ul class="dims-list">
+                <li><strong>【组织增效】</strong><span class="percent">30%</span></li>
+                <li><strong>【老板省力】</strong><span class="percent">25%</span></li>
+                <li><strong>【业绩/利润】</strong><span class="percent">25%</span></li>
+                <li><strong>【团队复制】</strong><span class="percent">20%</span></li>
+            </ul>
+        </div>
+        
+
+        <div class="products-section">
+            <h2 class="products-title">交付产品清单 (总价值 ￥410,000)</h2>
+            <div class="products-list" id="products-list">
+                <div class="product-item" id="p1">
+                    <span class="product-name">P1: “正负值”专项诊断与建模</span>
+                    <span class="product-value">(价值 ￥70,000)</span>
+                </div>
+                <div class="product-item" id="p2">
+                    <span class="product-name">P2: 老板精力解放路径图</span>
+                    <span class="product-value">(价值 ￥30,000)</span>
+                </div>
+                <div class="product-item" id="p3">
+                    <span class="product-name">P3: 核心团队“八维人才”画像</span>
+                    <span class="product-value">(价值 ￥60,000)</span>
+                </div>
+                <div class="product-item" id="p4">
+                    <span class="product-name">P4: 优先优化项(WIIFM)清单</span>
+                    <span class="product-value">(价值 ￥30,000)</span>
+                </div>
+                <div class="product-item" id="p5">
+                    <span class="product-name">P5: “老板驾驶舱”数据看板</span>
+                    <span class="product-value">(价值 ￥105,000)</span>
+                </div>
+                <div class="product-item" id="p6">
+                    <span class="product-name">P6: SOP标准化手册 V1.0</span>
+                    <span class="product-value">(价值 ￥80,000)</span>
+                </div>
+                <div class="product-item" id="p7">
+                    <span class="product-name">P7: SOP产品化交付包</span>
+                    <span class="product-value">(价值 ￥10,000)</span>
+                </div>
+                <div class="product-item" id="p8">
+                    <span class="product-name">P8: 试点项目优化复盘报告</span>
+                    <span class="product-value">(价值 ￥10,000)</span>
+                </div>
+                <div class="product-item" id="p9">
+                    <span class="product-name">P9: 90天项目总结报告</span>
+                    <span class="product-value">(价值 ￥10,000)</span>
+                </div>
+                <div class="product-item" id="p10">
+                    <span class="product-name">P10: 项目全程周报</span>
+                    <span class="product-value">(价值 ￥5,000)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const DIMS_LABELS = ['老板省力', '组织增效', '业绩/利润', '团队复制'];
+            const ALL_PRODUCT_IDS = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10'];
+            
+            const tabButtons = document.querySelectorAll(".tab-btn");
+            const contentCards = document.querySelectorAll(".content-card");
+            const allProducts = document.querySelectorAll(".product-item");
+            let charts = {}; // 存储所有图表实例
+
+            // 辅助函数：创建雷达图
+            function createRadar(canvasId, dataValues) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                charts[canvasId] = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: DIMS_LABELS,
+                        datasets: [{
+                            label: '价值分布',
+                            data: dataValues,
+                            fill: true,
+                            backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            pointBackgroundColor: 'rgba(0, 123, 255, 1)',
+                            pointBorderColor: '#fff',
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            r: {
+                                min: 0,
+                                ticks: { display: false, stepSize: 20 },
+                                pointLabels: { 
+                                    font: { size: 12, weight: '500' },
+                                    color: '#333'
+                                }
+                            }
+                        },
+                        plugins: { legend: { display: false } },
+                        responsive: true,
+                        maintainAspectRatio: true
+                    }
+                });
+            }
+
+            // 初始化所有雷达图 (页面加载时)
+            contentCards.forEach(card => {
+                const canvasId = card.querySelector('canvas').id;
+                const dims = card.dataset.dims.split(',').map(Number);
+                createRadar(canvasId, dims);
+            });
+
+            // 核心函数：更新显示
+            function updateDisplay(targetId) {
+                // 1. 更新Tab按钮状态
+                tabButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.target === targetId);
+                });
+                
+                // 2. 切换内容卡片显示
+                let includedProductIds = [];
+                contentCards.forEach(card => {
+                    const isActive = card.id === targetId;
+                    card.classList.toggle('active', isActive);
+                    if (isActive) {
+                        includedProductIds = card.dataset.products.split(',');
+                    }
+                });
+                
+                // 3. 更新产品清单高亮
+                ALL_PRODUCT_IDS.forEach(id => {
+                    const productEl = document.getElementById(id);
+                    if (includedProductIds.includes(id)) {
+                        productEl.classList.add("active");
+                        productEl.classList.remove("inactive");
+                    } else {
+                        productEl.classList.add("inactive");
+                        productEl.classList.remove("active");
+                    }
+                });
+            }
+
+            // 绑定点击事件
+            tabButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    updateDisplay(button.dataset.target);
+                });
+            });
+            
+            // 默认选中中间的“目标”套餐
+            updateDisplay('pkg-b');
+        });
+    </script>
+
+</body>
+</html>
