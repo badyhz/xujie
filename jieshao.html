@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>须芥文化 · 人才系统官网（HTML单页）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="description" content="须芥文化 · 以结构洞察驱动成长：八维结构—生态—潜力模型的人才系统官网演示。" />
+  <style>
+    /* 备用：动态 SVG 直接设色，避免 Tailwind JIT 对动态 class 的丢失 */
+    .radar-ring { stroke: rgba(255,255,255,0.10); fill: none; }
+    .radar-axis { stroke: rgba(255,255,255,0.10); }
+    .radar-poly { fill: rgba(56,189,248,0.15); stroke: rgb(56,189,248); }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
+  <!-- 顶部导航 -->
+  <header class="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
+      <div class="flex items-center gap-3">
+        <div class="h-7 w-7 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500"></div>
+        <div>
+          <p class="text-sm font-semibold">须芥文化</p>
+          <p class="-mt-0.5 text-[10px] tracking-widest text-white/60">以结构洞察驱动成长</p>
+        </div>
+      </div>
+      <nav class="hidden gap-6 text-sm md:flex">
+        <a href="#system" class="text-white/80 hover:text-white">系统</a>
+        <a href="#dimensions" class="text-white/80 hover:text-white">八维</a>
+        <a href="#roles" class="text-white/80 hover:text-white">岗位画像</a>
+        <a href="#how" class="text-white/80 hover:text-white">落地路径</a>
+        <a href="#cta" class="text-white/80 hover:text-white">预约演示</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 首屏 -->
+  <section class="relative overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_40%_at_50%_0%,rgba(56,189,248,0.20),transparent_60%)]"></div>
+    <div class="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-5 py-16 md:grid-cols-2 md:py-24">
+      <div>
+        <h1 class="text-3xl font-semibold leading-tight md:text-5xl">
+          人才·岗位·组织，一张图说清
+          <span class="block text-sky-300">八维结构驱动团队增长</span>
+        </h1>
+        <p class="mt-4 max-w-xl text-white/80">
+          我们用“八维结构—生态—潜力”模型，对应不同岗位的核心胜任力，并提供可落地的测—解—训—用全链路方案。
+        </p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/90">结构8 · 生态16 · 潜力8</span>
+          <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/90">三源合成：自评/环境/纠偏/本质</span>
+          <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/90">岗位优先级雷达</span>
+        </div>
+        <div class="mt-8 flex gap-3">
+          <a href="#roles" class="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:opacity-90">查看岗位画像</a>
+          <a href="#cta" class="rounded-xl border border-white/15 px-4 py-2 text-sm text-white/90 hover:bg-white/5">预约演示</a>
+        </div>
+      </div>
+      <div class="relative mx-auto w-full max-w-sm rounded-3xl bg-white/5 p-4 shadow-[0_0_60px_rgba(79,124,172,0.35)]">
+        <div class="rounded-2xl bg-gradient-to-br from-white/5 to-white/0 p-4">
+          <div id="hero-radar" class="flex items-center justify-center"></div>
+          <p class="mt-3 text-center text-xs text-white/60">示例：销售岗位优先级雷达</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 系统介绍 -->
+  <section id="system" class="relative border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-5 py-16">
+      <div class="mb-8 flex items-end justify-between">
+        <div>
+          <p class="text-xs tracking-widest text-white/60">SYSTEM</p>
+          <h2 class="mt-1 text-2xl font-semibold text-white">我们如何度量与提升人才？</h2>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <h3 class="text-lg font-semibold text-white">结构洞察（S8）</h3>
+          <p class="mt-2 text-sm text-white/80">镜面/筋骨/水流/火焰/指南针/盾牌/桥梁/岩石，识别个人稳定结构与张力组合。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <h3 class="text-lg font-semibold text-white">生态映射（E16）</h3>
+          <p class="mt-2 text-sm text-white/80">从环境标签与纠偏，估算人-岗-环匹配度与系统噪声（熵增）。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <h3 class="text-lg font-semibold text-white">潜力刻度（P8）</h3>
+          <p class="mt-2 text-sm text-white/80">注意力、情绪调节、学习迁移等8个底层可塑能力，提供提升路径。</p>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5">
+          <p class="text-sm text-white/60">Step1 自评</p>
+          <p class="mt-1 text-white">Big Five 自评问卷，形成个体基线。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5">
+          <p class="text-sm text-white/60">Step2 环境</p>
+          <p class="mt-1 text-white">岗位/组织环境标签，构建外部约束。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5">
+          <p class="text-sm text-white/60">Step3 纠偏</p>
+          <p class="mt-1 text-white">识别伪装与短期策略，校正偏差。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5">
+          <p class="text-sm text-white/60">Step4 本质</p>
+          <p class="mt-1 text-white">底层认知—情绪—习惯因子，给出可训练项。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 八维介绍 -->
+  <section id="dimensions" class="relative border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-5 py-16">
+      <div class="mb-8 flex items-end justify-between">
+        <div>
+          <p class="text-xs tracking-widest text-white/60">STRUCTURE</p>
+          <h2 class="mt-1 text-2xl font-semibold text-white">八维结构一览</h2>
+        </div>
+      </div>
+      <div id="dims-grid" class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4"></div>
+    </div>
+  </section>
+
+  <!-- 岗位画像 -->
+  <section id="roles" class="relative border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-5 py-16">
+      <div class="mb-8 flex items-end justify-between">
+        <div>
+          <p class="text-xs tracking-widest text-white/60">ROLES</p>
+          <h2 class="mt-1 text-2xl font-semibold text-white">10 大岗位：优先能力与为什么</h2>
+        </div>
+        <div>
+          <select id="role-select" class="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/90"></select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <!-- 雷达与权重表 -->
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-[0_0_60px_rgba(79,124,172,0.35)]">
+          <div class="flex items-center justify-between">
+            <h3 id="role-title" class="text-lg font-semibold text-white">-</h3>
+            <div id="top-badges" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div class="mt-4 flex items-center justify-center">
+            <div id="role-radar"></div>
+          </div>
+          <div id="weights-grid" class="mt-6 grid grid-cols-2 gap-3 text-sm"></div>
+        </div>
+
+        <!-- 原因与建议 -->
+        <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+          <h3 class="text-lg font-semibold text-white">为什么这三项优先？</h3>
+          <ul id="why-list" class="mt-2 list-disc space-y-2 pl-5 text-white/80"></ul>
+          <div class="mt-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-4 text-sm text-white/80">
+            <p class="font-semibold text-white">落地建议</p>
+            <ol class="mt-2 list-decimal space-y-1 pl-5">
+              <li>基于雷达缺口，生成三周训练计划（微习惯×情境触发）</li>
+              <li>将优先维度映射到KPI/KR：过程指标（例：沟通触达、复盘频率）</li>
+              <li>对接岗位SOP/话术库/演练脚本，形成“测—训—用”闭环</li>
+            </ol>
+          </div>
+
+          <div class="mt-6">
+            <p class="mb-2 text-xs tracking-widest text-white/60">快速切换</p>
+            <div id="quick-switch" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 落地路径 -->
+  <section id="how" class="relative border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-5 py-16">
+      <div class="mb-8 flex items-end justify-between">
+        <div>
+          <p class="text-xs tracking-widest text-white/60">IMPLEMENT</p>
+          <h2 class="mt-1 text-2xl font-semibold text-white">四步落地：测—解—训—用</h2>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/20 text-sm font-bold text-sky-300">1</div>
+          <h3 class="mt-3 text-white">测</h3>
+          <p class="mt-1 text-sm text-white/80">S8/E16/P8 一次性建立企业人才基线（个人×团队）。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/20 text-sm font-bold text-sky-300">2</div>
+          <h3 class="mt-3 text-white">解</h3>
+          <p class="mt-1 text-sm text-white/80">岗位优先图谱+能力缺口解读，生成行动清单。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/20 text-sm font-bold text-sky-300">3</div>
+          <h3 class="mt-3 text-white">训</h3>
+          <p class="mt-1 text-sm text-white/80">三周为周期的微习惯训练营，沉淀脚本与话术库。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500/20 text-sm font-bold text-sky-300">4</div>
+          <h3 class="mt-3 text-white">用</h3>
+          <p class="mt-1 text-sm text-white/80">对接绩效/用人/排班/排课，形成复利闭环。</p>
+        </div>
+      </div>
+
+      <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5">
+          <p class="text-sm text-white/60">仪表盘</p>
+          <p class="mt-1 text-white/90">团队雷达×岗位缺口×训练进度，一屏总览。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5">
+          <p class="text-sm text-white/60">报告</p>
+          <p class="mt-1 text-white/90">个人/团队PDF报告，适配面谈与评审。</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-5">
+          <p class="text-sm text-white/60">集成</p>
+          <p class="mt-1 text-white/90">支持与现有HR/CRM/工单系统对接。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta" class="relative border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-5 py-16 text-center">
+      <h2 class="text-2xl font-semibold text-white">预约一场 30 分钟演示</h2>
+      <p class="mt-2 text-white/80">看见你的组织画像与岗位优先图谱，三周内看到可验证的改变。</p>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <a href="mailto:hello@example.com" class="rounded-xl bg-sky-500 px-5 py-2 text-sm font-semibold hover:opacity-90">邮件预约</a>
+        <a href="#" class="rounded-xl border border-white/15 px-5 py-2 text-sm text-white/90 hover:bg-white/5">下载样例报告</a>
+      </div>
+      <p class="mt-6 text-xs text-white/50">© <span id="year"></span> 须芥文化 · 以结构洞察驱动成长</p>
+    </div>
+  </section>
+
+  <script>
+    const DIMENSIONS = [
+      { key: 'mirror',  name: '镜面',   brief: '自我觉察与情境识读', features: '洞察、反思、清晰度', risk: '过度反思 → 迟疑；信息过载' },
+      { key: 'frame',   name: '筋骨',   brief: '稳定性与边界感',     features: '原则、责任、结构定力', risk: '刚性过高；边界松散' },
+      { key: 'flow',    name: '水流',   brief: '适应与调整能力',     features: '灵活、包容、快速重构', risk: '顺从流失；抗拒停滞' },
+      { key: 'drive',   name: '火焰',   brief: '推动力与行动能',     features: '决断、激情、推进力', risk: '冲动耗竭；拖延犹疑' },
+      { key: 'compass', name: '指南针', brief: '方向判断与价值定位', features: '判断力、目标感、取舍', risk: '偏执单向；目标飘忽' },
+      { key: 'shield',  name: '盾牌',   brief: '抗压与情绪稳态',     features: '情绪稳定、风险控制、复原', risk: '情感迟钝；易被情绪带偏' },
+      { key: 'bridge',  name: '桥梁',   brief: '协作与影响力',       features: '沟通、共识、连接', risk: '协调成本高；影响力不足' },
+      { key: 'rock',    name: '岩石',   brief: '持久稳推与长期主义', features: '耐力、纪律、持续性', risk: '惯性僵化；短线放弃' },
+    ];
+
+    const ROLES = [
+      { id: 'sales',   name: '销售', weights: { mirror:75, frame:55, flow:70, drive:85, compass:70, shield:65, bridge:90, rock:50 },
+        why: ['桥梁：高频沟通与影响，促成信任与转化', '火焰：节奏推进与临门一脚', '镜面：读人读场，及时调整话术', '指南针：客需—方案—价值的清晰取舍'] },
+      { id: 'ops',     name: '运营', weights: { mirror:65, frame:80, flow:75, drive:50, compass:60, shield:70, bridge:55, rock:85 },
+        why: ['岩石：日常稳定与流程复利', '筋骨：制度化、SOP、边界清晰', '水流：数据驱动的小步快迭', '盾牌：压力下维持服务与品质'] },
+      { id: 'finance', name: '财务', weights: { mirror:75, frame:90, flow:55, drive:45, compass:65, shield:85, bridge:50, rock:80 },
+        why: ['筋骨：内控与合规底盘', '盾牌：风险识别与稳态心智', '岩石：连续准确与口径一致', '镜面：业务理解与科目映射'] },
+      { id: 'marketing', name: '市场营销', weights: { mirror:80, frame:55, flow:75, drive:75, compass:80, shield:55, bridge:70, rock:50 },
+        why: ['指南针：定位清晰、打法聚焦', '镜面：洞察人群与情境', '水流：渠道—内容—投放的快速试错', '火焰：节奏拉满、事件打造'] },
+      { id: 'pm', name: '产品经理', weights: { mirror:85, frame:70, flow:75, drive:55, compass:80, shield:60, bridge:80, rock:60 },
+        why: ['镜面：用户-场景-矛盾的抽象力', '指南针：路线、优先级与取舍', '桥梁：跨部门共识构建', '筋骨：需求边界与规格严谨'] },
+      { id: 'pmO', name: '项目经理/交付', weights: { mirror:70, frame:85, flow:65, drive:60, compass:70, shield:75, bridge:75, rock:80 },
+        why: ['筋骨+岩石：里程碑、口径、持续跟进', '盾牌：高压场景的情绪稳态', '桥梁：客户-内部双向对齐', '指南针：优先级与范围控制'] },
+      { id: 'cs', name: '客服/客户成功', weights: { mirror:75, frame:60, flow:75, drive:50, compass:55, shield:80, bridge:85, rock:60 },
+        why: ['桥梁：关系维护与NPS', '盾牌：情绪调节与冲突修复', '水流：流程外需求的快速响应', '镜面：同理与问题溯源'] },
+      { id: 'hrbp', name: '人力资源/HRBP', weights: { mirror:80, frame:65, flow:70, drive:55, compass:75, shield:75, bridge:80, rock:60 },
+        why: ['镜面+指南针：胜任力模型与组织路线', '桥梁：业务对齐与干系人管理', '盾牌：敏感议题的稳态处理', '水流：政策与业务变化的联动'] },
+      { id: 'rd', name: '研发工程师', weights: { mirror:75, frame:80, flow:60, drive:50, compass:65, shield:70, bridge:55, rock:85 },
+        why: ['岩石：长期主义与代码质量', '筋骨：规范、评审与安全', '镜面：问题抽象与调试定位', '盾牌：高压与不确定下的稳定'] },
+      { id: 'scm', name: '供应链/采购', weights: { mirror:70, frame:85, flow:60, drive:50, compass:65, shield:80, bridge:75, rock:75 },
+        why: ['筋骨：合规、条款与风险控制', '盾牌：价格波动与突发事件的稳态', '桥梁：多方议价与协同', '岩石：交付稳定与库存纪律'] },
+    ];
+
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    function drawRadar(containerId, values, size = 320) {
+      const dims = DIMENSIONS.length;
+      const radius = size / 2 - 14;
+      const center = { x: size / 2, y: size / 2 };
+      const ringCount = 4;
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('width', size);
+      svg.setAttribute('height', size);
+
+      // 环形网格
+      for (let i = 1; i <= ringCount; i++) {
+        const r = (radius * i) / ringCount;
+        const circle = document.createElementNS(svgNS, 'circle');
+        circle.setAttribute('cx', center.x);
+        circle.setAttribute('cy', center.y);
+        circle.setAttribute('r', r);
+        circle.setAttribute('class', 'radar-ring');
+        svg.appendChild(circle);
+      }
+
+      // 轴线
+      for (let i = 0; i < dims; i++) {
+        const angle = (Math.PI * 2 * i) / dims - Math.PI / 2;
+        const x = center.x + Math.cos(angle) * radius;
+        const y = center.y + Math.sin(angle) * radius;
+        const line = document.createElementNS(svgNS, 'line');
+        line.setAttribute('x1', center.x);
+        line.setAttribute('y1', center.y);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', y);
+        line.setAttribute('class', 'radar-axis');
+        svg.appendChild(line);
+      }
+
+      // 顶点
+      const points = [];
+      for (let i = 0; i < dims; i++) {
+        const angle = (Math.PI * 2 * i) / dims - Math.PI / 2;
+        const key = DIMENSIONS[i].key;
+        const v = Math.max(0, Math.min(100, values[key] || 0)) / 100;
+        const r = radius * (0.2 + 0.8 * v);
+        const x = center.x + Math.cos(angle) * r;
+        const y = center.y + Math.sin(angle) * r;
+        points.push(`${x},${y}`);
+      }
+
+      const polygon = document.createElementNS(svgNS, 'polygon');
+      polygon.setAttribute('points', points.join(' '));
+      polygon.setAttribute('class', 'radar-poly');
+      svg.appendChild(polygon);
+
+      container.appendChild(svg);
+    }
+
+    function renderDimensions() {
+      const grid = document.getElementById('dims-grid');
+      grid.innerHTML = '';
+      DIMENSIONS.forEach((d) => {
+        const card = document.createElement('div');
+        card.className = 'group rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:bg-white/10';
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white">${d.name}</h3>
+            <span class="text-[10px] text-white/60">${d.features}</span>
+          </div>
+          <p class="mt-2 text-sm text-white/80">${d.brief}</p>
+          <p class="mt-3 text-xs text-amber-200/90">失配风险：${d.risk}</p>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderRole(roleId) {
+      const role = ROLES.find(r => r.id === roleId) || ROLES[0];
+      document.getElementById('role-title').textContent = `${role.name}岗位优先级雷达`;
+
+      // Top 3 badges
+      const entries = Object.entries(role.weights).sort((a,b)=>b[1]-a[1]).slice(0,3);
+      const topBadges = document.getElementById('top-badges');
+      topBadges.innerHTML = '';
+      entries.forEach(([key]) => {
+        const dim = DIMENSIONS.find(d => d.key === key);
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center gap-1 rounded-full border border-sky-400 bg-sky-400/10 px-2.5 py-1 text-xs text-sky-200';
+        badge.textContent = `${dim.name}优先`;
+        topBadges.appendChild(badge);
+      });
+
+      // Radar & weights
+      drawRadar('role-radar', role.weights, 320);
+
+      const wg = document.getElementById('weights-grid');
+      wg.innerHTML = '';
+      DIMENSIONS.forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2';
+        item.innerHTML = `<span class="text-white/90">${d.name}</span><span class="text-white/60">${role.weights[d.key]}</span>`;
+        wg.appendChild(item);
+      });
+
+      // Why list
+      const whyList = document.getElementById('why-list');
+      whyList.innerHTML = '';
+      role.why.forEach(w => {
+        const li = document.createElement('li');
+        li.textContent = w;
+        whyList.appendChild(li);
+      });
+
+      // Quick switch buttons
+      const quick = document.getElementById('quick-switch');
+      quick.innerHTML = '';
+      ROLES.forEach(r => {
+        const btn = document.createElement('button');
+        btn.className = `rounded-full border px-3 py-1.5 text-xs transition ${r.id === role.id ? 'border-sky-400 bg-sky-400/10 text-sky-200' : 'border-white/10 bg-white/5 text-white/80 hover:bg-white/10'}`;
+        btn.textContent = r.name;
+        btn.addEventListener('click', ()=>{
+          document.getElementById('role-select').value = r.id;
+          renderRole(r.id);
+        });
+        quick.appendChild(btn);
+      });
+    }
+
+    function initSelect() {
+      const sel = document.getElementById('role-select');
+      sel.innerHTML = '';
+      ROLES.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id; opt.textContent = r.name; opt.className = 'bg-slate-900';
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', (e)=> renderRole(e.target.value));
+      sel.value = ROLES[0].id;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDimensions();
+      initSelect();
+      renderRole(ROLES[0].id);
+      // 首屏雷达示例
+      drawRadar('hero-radar', ROLES[0].weights, 300);
+    });
+  </script>
+</body>
+</html>
