@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>刷漆服务 · 接单管理系统</title>
+<style>
+  :root{
+    --bg:#f6f9ff;
+    --card:#ffffff;
+    --ink:#0b1b3f;
+    --muted:#6b7a99;
+    --primary:#2563eb;
+    --primary-2:#1d4ed8;
+    --accent:#e6efff;
+    --ok:#10b981;
+    --warn:#f59e0b;
+    --danger:#ef4444;
+    --shadow: 0 10px 30px rgba(29,78,216,.15);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:linear-gradient(180deg,#f8fbff,#edf3ff);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color:var(--ink);
+  }
+  .shell{max-width:1200px; margin:24px auto; padding:0 16px;}
+  .topbar{
+    background:var(--card); border-radius:24px; box-shadow:var(--shadow);
+    padding:18px 20px; display:flex; align-items:center; gap:16px; position:sticky; top:12px; z-index:20;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800;}
+  .logo{width:36px; height:36px; background:linear-gradient(135deg,#60a5fa,#2563eb); border-radius:10px; display:grid; place-items:center; color:#fff; font-weight:900;}
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-left:8px}
+  .tab{
+    padding:10px 14px; border-radius:999px; background:#eef3ff; color:#274690; font-weight:600; cursor:pointer;
+    border:1px solid #e3ebff;
+  }
+  .tab.active{ background:linear-gradient(180deg,#3b82f6,#2563eb); color:#fff; box-shadow: 0 6px 16px rgba(37,99,235,.35); border-color:transparent}
+  .grow{flex:1}
+  .search{position:relative; min-width:220px}
+  .search input{
+    width:100%; padding:11px 14px 11px 38px; border-radius:999px; border:1px solid #e2e8ff; outline:none;
+    background:#f7f9ff;
+  }
+  .search svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); fill:#98a5c2}
+  /* layout */
+  .grid{
+    display:grid; grid-template-columns: 1.2fr 1fr; gap:18px; margin-top:18px;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns:1fr}
+  }
+  .card{
+    background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow);
+  }
+  .card h3{margin:0 0 6px; font-size:18px}
+  .muted{color:var(--muted); font-size:13px}
+  .toolbar{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .btn{
+    border:1px solid #e3ebff; background:#f7faff; padding:8px 12px; border-radius:12px; cursor:pointer; font-weight:600; color:#2b3b66;
+  }
+  .btn.primary{background:linear-gradient(180deg,#3b82f6,#2563eb); color:#fff; border-color:transparent}
+  /* list */
+  .list{display:flex; flex-direction:column; gap:10px; margin-top:10px; max-height:540px; overflow:auto; padding-right:2px}
+  .item{
+    display:grid; grid-template-columns: 42px 1.2fr 1fr .8fr .8fr 90px; align-items:center; gap:10px;
+    padding:10px; border:1px solid #ecf1ff; border-radius:14px; background:#ffffff88;
+  }
+  .badge{
+    display:inline-flex; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.2px; align-items:center; gap:6px;
+  }
+  .b-ok{background:#ecfdf5; color:#065f46}
+  .b-warn{background:#fff7ed; color:#92400e}
+  .b-danger{background:#fef2f2; color:#991b1b}
+  .b-info{background:#eef2ff; color:#3730a3}
+  .avatar{width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#93c5fd,#3b82f6); display:grid; place-items:center; color:#fff; font-weight:800}
+  .progress{height:9px; background:#eef2ff; border-radius:999px; overflow:hidden}
+  .progress > span{display:block; height:100%; background:linear-gradient(90deg,#60a5fa,#2563eb)}
+  .pill{padding:6px 10px; border:1px solid #e5ecff; border-radius:12px; font-size:12px; color:#37509a; background:#f7f9ff}
+  .right-wrap{display:flex; flex-direction:column; gap:18px}
+  /* gantt */
+  .gantt{display:grid; grid-template-columns:140px 1fr; gap:10px; margin-top:8px}
+  .gantt .lane{display:flex; align-items:center; gap:10px}
+  .bar{
+    height:22px; border-radius:999px; background:linear-gradient(90deg,#a7f3d0,#10b981); box-shadow:0 6px 14px rgba(16,185,129,.25);
+  }
+  .bar.orange{background:linear-gradient(90deg,#fde68a,#f59e0b)}
+  .bar.blue{background:linear-gradient(90deg,#93c5fd,#3b82f6)}
+  .bar.gray{background:linear-gradient(90deg,#e5e7eb,#9ca3af)}
+  /* kpis */
+  .kpis{display:grid; grid-template-columns: repeat(4,1fr); gap:12px}
+  @media (max-width: 760px){ .kpis{grid-template-columns: repeat(2,1fr)} }
+  .kpi{background:#f7faff; border:1px solid #e6edff; padding:14px; border-radius:14px}
+  .kpi .num{font-size:26px; font-weight:900}
+  .kpi .sub{color:var(--muted); font-size:12px}
+  /* table-like */
+  .table{width:100%; border-collapse:separate; border-spacing:0 10px; margin-top:8px}
+  .table th{font-size:12px; color:#6b7a99; font-weight:700; text-align:left; padding:0 8px}
+  .table td{background:#fff; padding:12px 10px; border:1px solid #ecf1ff}
+  .table tr td:first-child{border-radius:12px 0 0 12px}
+  .table tr td:last-child{border-radius:0 12px 12px 0}
+  /* footer */
+  .tiny{font-size:12px; color:#8aa0d4; text-align:center; margin:16px 0 32px}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">漆</div>
+        <div>刷漆服务 · 接单管理系统</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" data-tab="orders">订单</div>
+        <div class="tab" data-tab="tasks">施工工单</div>
+        <div class="tab" data-tab="schedule">排班</div>
+        <div class="tab" data-tab="gantt">甘特图</div>
+        <div class="tab" data-tab="reports">报表</div>
+        <div class="tab" data-tab="clients">客户</div>
+      </div>
+      <div class="grow"></div>
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M21 21l-4.3-4.3m1.3-4.7a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
+        <input id="q" placeholder="搜索订单/地址/客户…">
+      </div>
+      <button class="btn primary" onclick="alert('新建订单表单（示意）')">+ 新建订单</button>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="grid" id="panel-orders">
+      <div class="card">
+        <div class="toolbar">
+          <h3 style="flex:1">今日接单（12）</h3>
+          <span class="pill">全部</span>
+          <span class="pill">待勘察</span>
+          <span class="pill">待施工</span>
+          <span class="pill">施工中</span>
+          <span class="pill">已完工</span>
+          <span class="pill">已结算</span>
+        </div>
+        <div class="list" id="orderList">
+          <!-- rows will be injected -->
+        </div>
+      </div>
+      <div class="right-wrap">
+        <div class="card">
+          <h3>团队 KPI</h3>
+          <div class="kpis">
+            <div class="kpi"><div class="num" id="kpi1">26</div><div class="sub">在施工订单</div></div>
+            <div class="kpi"><div class="num" id="kpi2">9</div><div class="sub">今日新单</div></div>
+            <div class="kpi"><div class="num" id="kpi3">6</div><div class="sub">待派工</div></div>
+            <div class="kpi"><div class="num" id="kpi4">97%</div><div class="sub">本月客户满意度</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>工人排班（今日）</h3>
+          <table class="table">
+            <thead><tr><th>工人</th><th>今日安排</th><th>工地</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td>王强</td><td>卧室二次修补</td><td>龙华金茂府 7-806</td><td><span class="badge b-ok">已到场</span></td></tr>
+              <tr><td>李然</td><td>全屋底漆</td><td>南山科技园 9-3-101</td><td><span class="badge b-info">路上</span></td></tr>
+              <tr><td>陈飞</td><td>客厅顶面重涂</td><td>宝安星河天地 3-1-501</td><td><span class="badge b-warn">待领料</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>快捷操作</h3>
+          <div class="toolbar">
+            <button class="btn">批量派工</button>
+            <button class="btn">创建报价单</button>
+            <button class="btn">导出对账</button>
+            <button class="btn">客户回访</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 甘特图面板 -->
+    <div class="card" id="panel-gantt" style="display:none; margin-top:18px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <h3 style="flex:1">项目进度甘特图</h3>
+        <span class="pill">近两周</span>
+        <span class="pill">近一月</span>
+      </div>
+      <div class="gantt">
+        <div class="lane muted">龙华金茂府 7-806</div>
+        <div class="lane"><div class="bar blue" style="width:65%"></div></div>
+
+        <div class="lane muted">星河天地 3-1-501</div>
+        <div class="lane"><div class="bar orange" style="width:40%"></div></div>
+
+        <div class="lane muted">南山科技园 9-3-101</div>
+        <div class="lane"><div class="bar" style="width:85%"></div></div>
+
+        <div class="lane muted">前海中洲 2-2-2601</div>
+        <div class="lane"><div class="bar gray" style="width:20%"></div></div>
+      </div>
+      <div class="muted" style="margin-top:10px">* 颜色代表阶段：蓝=面漆/收尾，橙=底漆/找平，绿=整体进行中，灰=待进场</div>
+    </div>
+
+    <!-- 报表 -->
+    <div class="card" id="panel-reports" style="display:none; margin-top:18px">
+      <h3>报表总览</h3>
+      <div class="kpis" style="margin-top:6px">
+        <div class="kpi">
+          <div class="num">¥ 238,600</div>
+          <div class="sub">本月签单额</div>
+        </div>
+        <div class="kpi">
+          <div class="num">¥ 51,420</div>
+          <div class="sub">本月材料成本</div>
+        </div>
+        <div class="kpi">
+          <div class="num">82%</div>
+          <div class="sub">准时完工率</div>
+        </div>
+        <div class="kpi">
+          <div class="num">4.92</div>
+          <div class="sub">客户评分（/5）</div>
+        </div>
+      </div>
+      <table class="table" style="margin-top:14px">
+        <thead>
+          <tr><th>指标</th><th>说明</th><th>趋势</th><th>上月</th><th>本月</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>平均工期（天）</td><td class="muted">从进场到完工的平均时长</td>
+            <td><div class="progress"><span style="width:62%"></span></div></td>
+            <td>6.2</td><td>5.8</td>
+          </tr>
+          <tr>
+            <td>返工率</td><td class="muted">一月内返工单占比</td>
+            <td><div class="progress"><span style="width:18%; background:linear-gradient(90deg,#fecaca,#ef4444)"></span></div></td>
+            <td>4.1%</td><td>3.6%</td>
+          </tr>
+          <tr>
+            <td>材料损耗率</td><td class="muted">实际/计划的偏差</td>
+            <td><div class="progress"><span style="width:28%; background:linear-gradient(90deg,#fde68a,#f59e0b)"></span></div></td>
+            <td>12%</td><td>9%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 施工工单 -->
+    <div class="card" id="panel-tasks" style="display:none; margin-top:18px">
+      <div class="toolbar">
+        <h3 style="flex:1">施工工单</h3>
+        <span class="pill">全部</span>
+        <span class="pill">待派工</span>
+        <span class="pill">进行中</span>
+        <span class="pill">待验收</span>
+        <span class="pill">已完工</span>
+      </div>
+      <div class="list" id="taskList">
+        <!-- 工单数据将通过JS动态生成 -->
+      </div>
+    </div>
+    <!-- 排班日历 -->
+    <div class="card" id="panel-schedule" style="display:none; margin-top:18px">
+      <div class="toolbar">
+        <h3 style="flex:1">排班日历</h3>
+        <span class="pill">本周</span>
+        <span class="pill">下周</span>
+        <span class="pill">本月</span>
+        <button class="btn primary">+ 新增排班</button>
+      </div>
+      
+      <!-- 日历视图 -->
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2" style="margin-top:16px">
+        <!-- 左侧：日历 -->
+        <div class="card" style="background:#f9fafb; border:1px solid #e5e7eb">
+          <div class="flex justify-between items-center p-3 border-b">
+            <button class="btn">&lt;</button>
+            <h4 style="margin:0">2025年3月</h4>
+            <button class="btn">&gt;</button>
+          </div>
+          <div class="grid grid-cols-7 gap-1 p-2 text-center text-xs">
+            <div class="font-bold">日</div>
+            <div class="font-bold">一</div>
+            <div class="font-bold">二</div>
+            <div class="font-bold">三</div>
+            <div class="font-bold">四</div>
+            <div class="font-bold">五</div>
+            <div class="font-bold">六</div>
+            
+            <!-- 日期格子 -->
+            <div class="p-2 text-gray-400">26</div>
+            <div class="p-2 text-gray-400">27</div>
+            <div class="p-2 text-gray-400">28</div>
+            <div class="p-2">1</div>
+            <div class="p-2">2</div>
+            <div class="p-2">3</div>
+            <div class="p-2">4</div>
+            <div class="p-2">5</div>
+            <div class="p-2">6</div>
+            <div class="p-2 bg-blue-100 rounded">7</div>
+            <div class="p-2">8</div>
+            <div class="p-2">9</div>
+            <div class="p-2 bg-blue-100 rounded">10</div>
+            <div class="p-2">11</div>
+            <div class="p-2">12</div>
+            <div class="p-2 bg-blue-100 rounded">13</div>
+            <div class="p-2">14</div>
+            <div class="p-2">15</div>
+            <div class="p-2 bg-blue-100 rounded">16</div>
+            <div class="p-2">17</div>
+            <div class="p-2">18</div>
+            <div class="p-2 bg-blue-100 rounded">19</div>
+            <div class="p-2">20</div>
+            <div class="p-2">21</div>
+            <div class="p-2 bg-blue-100 rounded">22</div>
+            <div class="p-2">23</div>
+            <div class="p-2">24</div>
+            <div class="p-2 bg-blue-100 rounded">25</div>
+            <div class="p-2">26</div>
+            <div class="p-2">27</div>
+            <div class="p-2">28</div>
+            <div class="p-2">29</div>
+            <div class="p-2">30</div>
+            <div class="p-2">31</div>
+          </div>
+        </div>
+        
+        <!-- 右侧：排班列表 -->
+        <div>
+          <div class="card">
+            <h4 style="margin-top:0">今日排班（3月7日）</h4>
+            <table class="table" style="margin-top:10px">
+              <thead><tr><th>工人</th><th>工地</th><th>时间</th><th>状态</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>王强</td>
+                  <td>龙华金茂府 7-806</td>
+                  <td>08:30-17:30</td>
+                  <td><span class="badge b-ok">已确认</span></td>
+                </tr>
+                <tr>
+                  <td>李然</td>
+                  <td>南山科技园 9-3-101</td>
+                  <td>09:00-18:00</td>
+                  <td><span class="badge b-info">待确认</span></td>
+                </tr>
+                <tr>
+                  <td>陈飞</td>
+                  <td>宝安星河天地 3-1-501</td>
+                  <td>08:30-17:30</td>
+                  <td><span class="badge b-warn">请假</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="card" style="margin-top:16px">
+            <h4 style="margin-top:0">人员负载</h4>
+            <div class="space-y-3" style="margin-top:10px">
+              <div>
+                <div class="flex justify-between text-sm">
+                  <span>王强</span>
+                  <span>85%</span>
+                </div>
+                <div class="progress"><span style="width:85%"></span></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm">
+                  <span>李然</span>
+                  <span>60%</span>
+                </div>
+                <div class="progress"><span style="width:60%"></span></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm">
+                  <span>陈飞</span>
+                  <span>40%</span>
+                </div>
+                <div class="progress"><span style="width:40%"></span></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm">
+                  <span>张明</span>
+                  <span>95%</span>
+                </div>
+                <div class="progress"><span style="width:95%; background:linear-gradient(90deg,#fca5a5,#ef4444)"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 客户与地址簿 -->
+    <div class="card" id="panel-clients" style="display:none; margin-top:18px">
+      <div class="toolbar">
+        <h3 style="flex:1">客户与地址簿</h3>
+        <span class="pill">全部</span>
+        <span class="pill">VIP</span>
+        <span class="pill">新客户</span>
+        <span class="pill">待回访</span>
+        <button class="btn primary">+ 新增客户</button>
+      </div>
+      
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2" style="margin-top:16px">
+        <!-- 左侧：客户列表 -->
+        <div>
+          <div class="card">
+            <h4 style="margin-top:0">客户列表</h4>
+            <div class="search" style="margin-top:10px">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path d="M21 21l-4.3-4.3m1.3-4.7a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
+              <input placeholder="搜索客户姓名/电话/地址…">
+            </div>
+            <div class="list" id="clientList" style="margin-top:10px; max-height:400px">
+              <!-- 客户数据将通过JS动态生成 -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 右侧：客户详情 -->
+        <div>
+          <div class="card">
+            <h4 style="margin-top:0">客户详情</h4>
+            <div id="clientDetails" style="margin-top:10px">
+              <div class="text-center text-gray-500 py-8">
+                <p>请从左侧列表选择一个客户查看详情</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" style="margin-top:16px">
+            <h4 style="margin-top:0">客户统计</h4>
+            <div class="kpis" style="margin-top:10px">
+              <div class="kpi">
+                <div class="num">128</div>
+                <div class="sub">总客户数</div>
+              </div>
+              <div class="kpi">
+                <div class="num">23</div>
+                <div class="sub">本月新增</div>
+              </div>
+              <div class="kpi">
+                <div class="num">86%</div>
+                <div class="sub">复购率</div>
+              </div>
+              <div class="kpi">
+                <div class="num">4.8</div>
+                <div class="sub">平均评分</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tiny">© 2025 刷漆服务 · 运营中台（演示版）</div>
+  </div>
+
+<script>
+  // demo data
+  const orders=[
+    {abbr:'A1', title:'全屋翻新（112㎡）', addr:'龙华金茂府 7-806', stage:'施工中', priority:'高', status:'进行中', progress:72, due:'D3'},
+    {abbr:'B2', title:'儿童房主题墙', addr:'福田景田东 18-2-705', stage:'待勘察', priority:'中', status:'待勘察', progress:0, due:'D-'},
+    {abbr:'C3', title:'出租房快速刷新（2室）', addr:'南山科技园 9-3-101', stage:'底漆', priority:'紧急', status:'进行中', progress:41, due:'今日'},
+    {abbr:'D4', title:'客厅顶面重涂', addr:'宝安星河天地 3-1-501', stage:'色卡确认', priority:'中', status:'待施工', progress:8, due:'D5'},
+    {abbr:'E5', title:'两房修补+局部调色', addr:'前海中洲 2-2-2601', stage:'已验收', priority:'低', status:'已完工', progress:100, due:'--'},
+    {abbr:'F6', title:'门窗线条翻新', addr:'罗湖地王大厦 A-1908', stage:'材料入场', priority:'中', status:'施工中', progress:55, due:'D2'},
+    {abbr:'G7', title:'外墙防水+刷漆（60㎡）', addr:'龙岗中心城 5-5-601', stage:'方案报价', priority:'高', status:'待施工', progress:12, due:'D6'}
+  ];
+  
+  // 施工工单数据
+  const tasks=[
+    {id:'T001', order:'A1', title:'全屋翻新-底漆施工', worker:'王强', site:'龙华金茂府 7-806', date:'2025-03-07', status:'进行中', progress:65, priority:'高'},
+    {id:'T002', order:'B2', title:'儿童房主题墙-设计确认', worker:'李然', site:'福田景田东 18-2-705', date:'2025-03-08', status:'待派工', progress:0, priority:'中'},
+    {id:'T003', order:'C3', title:'出租房底漆施工', worker:'陈飞', site:'南山科技园 9-3-101', date:'2025-03-07', status:'进行中', progress:40, priority:'紧急'},
+    {id:'T004', order:'D4', title:'客厅顶面重涂-色卡确认', worker:'张明', site:'宝安星河天地 3-1-501', date:'2025-03-09', status:'待验收', progress:85, priority:'中'},
+    {id:'T005', order:'E5', title:'两房修补-完工验收', worker:'王强', site:'前海中洲 2-2-2601', date:'2025-03-06', status:'已完工', progress:100, priority:'低'},
+    {id:'T006', order:'F6', title:'门窗线条翻新-材料准备', worker:'李然', site:'罗湖地王大厦 A-1908', date:'2025-03-08', status:'进行中', progress:55, priority:'中'},
+    {id:'T007', order:'G7', title:'外墙防水-方案确认', worker:'张明', site:'龙岗中心城 5-5-601', date:'2025-03-10', status:'待派工', progress:10, priority:'高'}
+  ];
+  
+  // 客户数据
+  const clients=[
+    {id:'C001', name:'张先生', phone:'138****5678', addr:'龙华金茂府 7-806', type:'VIP', orders:3, totalAmount:68000, lastOrder:'2025-02-15', rating:4.8},
+    {id:'C002', name:'李女士', phone:'139****1234', addr:'福田景田东 18-2-705', type:'普通', orders:1, totalAmount:12000, lastOrder:'2025-03-01', rating:4.5},
+    {id:'C003', name:'王先生', phone:'137****9876', addr:'南山科技园 9-3-101', type:'普通', orders:2, totalAmount:25000, lastOrder:'2025-02-28', rating:4.7},
+    {id:'C004', name:'赵女士', phone:'136****4321', addr:'宝安星河天地 3-1-501', type:'VIP', orders:4, totalAmount:85000, lastOrder:'2025-03-02', rating:4.9},
+    {id:'C005', name:'陈先生', phone:'135****8765', addr:'前海中洲 2-2-2601', type:'新客户', orders:1, totalAmount:18000, lastOrder:'2025-03-03', rating:5.0},
+    {id:'C006', name:'刘女士', phone:'134****2468', addr:'罗湖地王大厦 A-1908', type:'普通', orders:2, totalAmount:32000, lastOrder:'2025-03-04', rating:4.6},
+    {id:'C007', name:'周先生', phone:'133****1357', addr:'龙岗中心城 5-5-601', type:'VIP', orders:5, totalAmount:95000, lastOrder:'2025-03-05', rating:4.7}
+  ];
+
+  function badgeByStatus(s){
+    if(s.includes('完工')) return '<span class="badge b-ok">已完工</span>';
+    if(s.includes('勘察')) return '<span class="badge b-info">待勘察</span>';
+    if(s.includes('待施工')) return '<span class="badge b-warn">待施工</span>';
+    if(s.includes('派工')) return '<span class="badge b-warn">待派工</span>';
+    if(s.includes('验收')) return '<span class="badge b-info">待验收</span>';
+    return '<span class="badge b-info">施工中</span>';
+  }
+  function priorityPill(p){
+    const m={ '高':'b-danger', '中':'b-warn', '低':'b-ok', '紧急':'b-danger'};
+    return `<span class="badge ${m[p]||'b-info'}">${p}</span>`;
+  }
+  function clientTypeBadge(t){
+    const m={ 'VIP':'b-danger', '普通':'b-info', '新客户':'b-ok'};
+    return `<span class="badge ${m[t]||'b-info'}">${t}</span>`;
+  }
+
+  function render(list){
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const box=document.getElementById('orderList');
+    box.innerHTML = orders
+      .filter(o => !q || (o.title+o.addr).toLowerCase().includes(q))
+      .map(o => `
+      <div class="item">
+        <div class="avatar">${o.abbr}</div>
+        <div>
+          <div style="font-weight:700">${o.title}</div>
+          <div class="muted">${o.addr}</div>
+        </div>
+        <div>${priorityPill(o.priority)}</div>
+        <div>${badgeByStatus(o.status)}</div>
+        <div>
+          <div class="progress"><span style="width:${o.progress}%"></span></div>
+          <div class="muted" style="margin-top:4px">${o.progress}%</div>
+        </div>
+        <div style="text-align:right"><button class="btn" onclick="alert('查看订单：${o.title}')">详情</button></div>
+      </div>`).join('');
+  }
+  
+  // 渲染施工工单
+  function renderTasks() {
+    const box=document.getElementById('taskList');
+    if(!box) return;
+    
+    box.innerHTML = tasks.map(t => `
+      <div class="item">
+        <div class="avatar">${t.id.substring(2)}</div>
+        <div>
+          <div style="font-weight:700">${t.title}</div>
+          <div class="muted">订单: ${t.order} | ${t.site}</div>
+        </div>
+        <div>${priorityPill(t.priority)}</div>
+        <div>${badgeByStatus(t.status)}</div>
+        <div>
+          <div class="progress"><span style="width:${t.progress}%"></span></div>
+          <div class="muted" style="margin-top:4px">${t.progress}%</div>
+        </div>
+        <div style="text-align:right">
+          <div class="muted" style="font-size:11px">${t.worker}</div>
+          <button class="btn" onclick="alert('查看工单：${t.title}')">详情</button>
+        </div>
+      </div>`).join('');
+  }
+  
+  // 渲染客户列表
+  function renderClients() {
+    const box=document.getElementById('clientList');
+    if(!box) return;
+    
+    box.innerHTML = clients.map(c => `
+      <div class="item" onclick="showClientDetails('${c.id}')" style="cursor:pointer">
+        <div class="avatar">${c.name.substring(0,1)}</div>
+        <div>
+          <div style="font-weight:700">${c.name}</div>
+          <div class="muted">${c.phone} | ${c.addr}</div>
+        </div>
+        <div>${clientTypeBadge(c.type)}</div>
+        <div>
+          <div class="muted">订单: ${c.orders}笔</div>
+          <div class="muted">¥${c.totalAmount.toLocaleString()}</div>
+        </div>
+        <div>
+          <div class="muted">最近: ${c.lastOrder}</div>
+          <div class="muted">评分: ${c.rating}★</div>
+        </div>
+        <div style="text-align:right">
+          <button class="btn" onclick="event.stopPropagation(); alert('联系客户：${c.name}')">联系</button>
+        </div>
+      </div>`).join('');
+  }
+  
+  // 显示客户详情
+  function showClientDetails(clientId) {
+    const client = clients.find(c => c.id === clientId);
+    if(!client) return;
+    
+    const detailsBox=document.getElementById('clientDetails');
+    if(!detailsBox) return;
+    
+    detailsBox.innerHTML = `
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h4 style="margin:0">${client.name}</h4>
+          ${clientTypeBadge(client.type)}
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="muted text-xs">联系电话</p>
+            <p>${client.phone}</p>
+          </div>
+          <div>
+            <p class="muted text-xs">客户地址</p>
+            <p>${client.addr}</p>
+          </div>
+          <div>
+            <p class="muted text-xs">订单数量</p>
+            <p>${client.orders} 笔</p>
+          </div>
+          <div>
+            <p class="muted text-xs">总消费金额</p>
+            <p>¥${client.totalAmount.toLocaleString()}</p>
+          </div>
+          <div>
+            <p class="muted text-xs">最近下单</p>
+            <p>${client.lastOrder}</p>
+          </div>
+          <div>
+            <p class="muted text-xs">客户评分</p>
+            <p>${client.rating} ★</p>
+          </div>
+        </div>
+        
+        <div>
+          <p class="muted text-xs">历史订单</p>
+          <div class="space-y-2 mt-2">
+            <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <span>全屋翻新（112㎡）</span>
+              <span class="muted text-xs">2025-02-15</span>
+            </div>
+            <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <span>两房修补+局部调色</span>
+              <span class="muted text-xs">2025-01-20</span>
+            </div>
+            <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <span>儿童房主题墙</span>
+              <span class="muted text-xs">2024-12-10</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex gap-2">
+          <button class="btn primary">创建新订单</button>
+          <button class="btn">查看历史</button>
+          <button class="btn">客户回访</button>
+        </div>
+      </div>
+    `;
+  }
+  
+  render();
+  renderTasks();
+  renderClients();
+
+  document.getElementById('q').addEventListener('input', render);
+
+  // tabs
+  const panels={orders:'panel-orders', tasks:'panel-tasks', schedule:'panel-schedule', gantt:'panel-gantt', reports:'panel-reports', clients:'panel-clients'};
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const key=t.dataset.tab;
+      Object.values(panels).forEach(id=>document.getElementById(id).style.display='none');
+      document.getElementById(panels[key]).style.display = (key==='orders') ? '' : 'block';
+      if(key==='orders'){ document.getElementById('panel-orders').style.display='' }
+      if(key==='gantt'){ document.getElementById('panel-gantt').scrollIntoView({behavior:'smooth'}) }
+      
+      // 初始化特定标签页的内容
+      if(key==='tasks') renderTasks();
+      if(key==='clients') renderClients();
+    })
+  });
+</script>
+</body>
+</html>
