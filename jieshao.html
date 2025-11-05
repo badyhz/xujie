@@ -59,7 +59,7 @@
       <div class="relative mx-auto w-full max-w-sm rounded-3xl bg-white/5 p-4 shadow-[0_0_60px_rgba(79,124,172,0.35)]">
         <div class="rounded-2xl bg-gradient-to-br from-white/5 to-white/0 p-4">
           <div id="hero-radar" class="flex items-center justify-center"></div>
-          <p class="mt-3 text-center text-xs text-white/60">示例：销售岗位优先级雷达</p>
+          <p class="mt-3 text-center text-xs text-white/60">示例：老板/负责人岗位优先级雷达</p>
         </div>
       </div>
     </div>
@@ -130,7 +130,7 @@
       <div class="mb-8 flex items-end justify-between">
         <div>
           <p class="text-xs tracking-widest text-white/60">ROLES</p>
-          <h2 class="mt-1 text-2xl font-semibold text-white">10 大岗位：优先能力与为什么</h2>
+          <h2 class="mt-1 text-2xl font-semibold text-white">岗位画像：优先能力与为什么</h2>
         </div>
         <div>
           <select id="role-select" class="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-white/90"></select>
@@ -227,7 +227,7 @@
       <h2 class="text-2xl font-semibold text-white">预约一场 30 分钟演示</h2>
       <p class="mt-2 text-white/80">看见你的组织画像与岗位优先图谱，三周内看到可验证的改变。</p>
       <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <a href="mailto:630320560@qq.com" class="rounded-xl bg-sky-500 px-5 py-2 text-sm font-semibold hover:opacity-90">邮件预约</a>
+        <a href="mailto:hello@example.com" class="rounded-xl bg-sky-500 px-5 py-2 text-sm font-semibold hover:opacity-90">邮件预约</a>
         <a href="#" class="rounded-xl border border-white/15 px-5 py-2 text-sm text-white/90 hover:bg-white/5">下载样例报告</a>
       </div>
       <p class="mt-6 text-xs text-white/50">© <span id="year"></span> 须芥文化 · 以结构洞察驱动成长</p>
@@ -265,8 +265,8 @@
         why: ['镜面+指南针：胜任力模型与组织路线', '桥梁：业务对齐与干系人管理', '盾牌：敏感议题的稳态处理', '水流：政策与业务变化的联动'] },
       { id: 'rd', name: '研发工程师', weights: { mirror:75, frame:80, flow:60, drive:50, compass:65, shield:70, bridge:55, rock:85 },
         why: ['岩石：长期主义与代码质量', '筋骨：规范、评审与安全', '镜面：问题抽象与调试定位', '盾牌：高压与不确定下的稳定'] },
-      { id: 'scm', name: '供应链/采购', weights: { mirror:70, frame:85, flow:60, drive:50, compass:65, shield:80, bridge:75, rock:75 },
-        why: ['筋骨：合规、条款与风险控制', '盾牌：价格波动与突发事件的稳态', '桥梁：多方议价与协同', '岩石：交付稳定与库存纪律'] },
+      { id: 'ceo', name: '老板/负责人', weights: { mirror:80, frame:85, flow:65, drive:70, compass:90, shield:80, bridge:85, rock:80 },
+        why: ['指南针：方向取舍与战略决策', '筋骨：制度边界与组织架构', '桥梁：资源整合与影响力', '盾牌：危机稳态与情绪决策'] },
     ];
 
     const yearEl = document.getElementById('year');
@@ -414,9 +414,18 @@
     document.addEventListener('DOMContentLoaded', () => {
       renderDimensions();
       initSelect();
-      renderRole(ROLES[0].id);
-      // 首屏雷达示例
-      drawRadar('hero-radar', ROLES[0].weights, 300);
+      // 找到"老板/负责人"岗位并设为默认
+      const ceoRole = ROLES.find(r => r.id === 'ceo');
+      if (ceoRole) {
+        document.getElementById('role-select').value = ceoRole.id;
+        renderRole(ceoRole.id);
+        // 首屏雷达示例也使用老板/负责人
+        drawRadar('hero-radar', ceoRole.weights, 300);
+      } else {
+        // 如果找不到，使用第一个岗位
+        renderRole(ROLES[0].id);
+        drawRadar('hero-radar', ROLES[0].weights, 300);
+      }
     });
   </script>
 </body>
