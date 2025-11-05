@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>须芥文化｜可成交演示版（模式优化：营收 vs 利润差距）</title>
+<style>
+  :root{
+    --bg:#f7f9fc; --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
+    --brand:#1d4ed8; --brand-2:#0ea5e9; --good:#059669; --bad:#b91c1c; --warn:#d97706;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans SC","PingFang SC","Hiragino Sans GB",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(2,6,23,.06)}
+  .row{display:grid;gap:16px}
+  .row.cols-2{grid-template-columns:1.2fr .8fr}
+  .row.cols-3{grid-template-columns:repeat(3,1fr)}
+  header{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line)}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#dbeafe,#e0f2fe);display:grid;place-items:center;color:#1e3a8a;font-weight:800}
+  h1{font-size:22px;margin:0}
+  .sub{color:var(--muted);margin:4px 0 0}
+  .main{padding:18px}
+  .panel{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}
+  .panel h3{margin:0 0 8px;font-size:16px}
+  .muted{color:var(--muted)}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .kpi{border:1px solid var(--line);border-radius:12px;padding:10px;background:linear-gradient(180deg,#f8fbff,#f3f7ff);text-align:center}
+  .kpi b{display:block;font-size:20px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
+  .tab{padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer}
+  .tab.active{background:rgba(29,78,216,.08);border-color:#93c5fd;color:#1e40af}
+  .grid{display:grid;gap:12px}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr)}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+  .cell{border:1px dashed var(--line);border-radius:12px;padding:12px}
+  .label{font-weight:700;color:#1e3a8a;margin-bottom:6px}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;border:1px solid var(--line);background:linear-gradient(90deg,#eef2ff,#e0f2fe);padding:14px;border-radius:12px}
+  .btn{background:var(--brand);color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:700;border:1px solid #1e3a8a}
+  .danger{color:var(--bad);font-weight:700}
+  .good{color:var(--good);font-weight:700}
+  input[type=range]{width:100%}
+  .num{font-variant-numeric:tabular-nums}
+  .badge{display:inline-block;background:rgba(29,78,216,.08);border:1px solid #bfdbfe;color:#1e40af;padding:4px 8px;border-radius:999px;font-size:12px}
+  .hl{background:#fffbeb;border:1px solid #fde68a}
+  .foot{padding:12px 18px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+  @media (max-width:980px){.row.cols-2{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.grid.cols-3{grid-template-columns:1fr}.grid.cols-2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <header>
+        <div class="logo">XJ</div>
+        <div>
+          <h1>营收不错，为什么钱没到自己口袋？</h1>
+          <div class="sub">须芥文化 · 用逻辑画布修正经营模式——把“辛苦钱”变成“结构性利润”</div>
+        </div>
+      </header>
+      <div class="main row cols-2">
+        <!-- 左：交互计算 / 右：讲解棋盘 -->
+        <div class="grid" style="gap:14px">
+
+          <div class="panel">
+            <div class="badge">一键测算 · 现场 3 分钟</div>
+            <h3 style="margin-top:6px">① 先把你的盘面摆出来</h3>
+            <div class="grid cols-2">
+              <div class="cell">
+                <div class="label">年营收（万）</div>
+                <input id="rev" type="range" min="300" max="10000" step="50" value="2000"/>
+                <div class="muted">当前：<span id="revV" class="num">2000</span> 万</div>
+              </div>
+              <div class="cell">
+                <div class="label">毛利率（%）</div>
+                <input id="gm" type="range" min="20" max="45" step="1" value="28"/>
+                <div class="muted">当前：<span id="gmV" class="num">28</span>%（不确定可滑动）</div>
+              </div>
+              <div class="cell">
+                <div class="label">人工/施工占比（%/营收）</div>
+                <input id="labor" type="range" min="8" max="30" step="1" value="18"/>
+                <div class="muted">当前：<span id="laborV" class="num">18</span>%</div>
+              </div>
+              <div class="cell">
+                <div class="label">返工/浪耗（%/人工）</div>
+                <input id="rework" type="range" min="5" max="30" step="1" value="12"/>
+                <div class="muted">当前：<span id="reworkV" class="num">12</span>%</div>
+              </div>
+              <div class="cell">
+                <div class="label">回款周期（天）</div>
+                <input id="days" type="range" min="15" max="120" step="5" value="60"/>
+                <div class="muted">当前：<span id="daysV" class="num">60</span> 天</div>
+              </div>
+              <div class="cell">
+                <div class="label">资金成本（年化%）</div>
+                <input id="coc" type="range" min="4" max="16" step="0.5" value="8"/>
+                <div class="muted">当前：<span id="cocV" class="num">8</span>%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>② 我们怎么把“辛苦钱”变成“结构性利润”</h3>
+            <div class="tabs" id="modes">
+              <div class="tab active" data-mode="profit">利润棋谱</div>
+              <div class="tab" data-mode="execution">执行棋谱</div>
+              <div class="tab" data-mode="market">市场棋谱</div>
+            </div>
+            <div id="board" class="grid cols-3" style="margin-top:10px"></div>
+          </div>
+
+          <div class="panel">
+            <h3>③ 三条最优路径（可调整幅度）</h3>
+            <div class="grid cols-3">
+              <div class="cell hl">
+                <div class="label">A. 毛利结构优化</div>
+                <div class="muted">报价透明 + SKU 结构 + 附加服务</div>
+                <div style="margin-top:8px">提升幅度（百分点）
+                  <input id="dm" type="range" min="3" max="8" value="5" step="1"/>
+                  <div class="muted">当前：+<span id="dmV" class="num">5</span>pp</div>
+                </div>
+              </div>
+              <div class="cell hl">
+                <div class="label">B. 返工与人效</div>
+                <div class="muted">SOP + 能力画像 + 质量自检</div>
+                <div style="margin-top:8px">返工减少比例
+                  <input id="dr" type="range" min="10" max="60" value="30" step="5"/>
+                  <div class="muted">当前：-<span id="drV" class="num">30</span>%（相对返工）</div>
+                </div>
+              </div>
+              <div class="cell hl">
+                <div class="label">C. 现金流与回款</div>
+                <div class="muted">排期 + 节点收款 + 账期治理</div>
+                <div style="margin-top:8px">回款提前（天）
+                  <input id="dd" type="range" min="10" max="60" value="20" step="5"/>
+                  <div class="muted">当前：提前 <span id="ddV" class="num">20</span> 天</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>④ 即刻可见的财务结果（年化估算）</h3>
+            <div class="kpis">
+              <div class="kpi"><span class="muted">基准净利润（估）</span><b class="num" id="npBase">—</b></div>
+              <div class="kpi"><span class="muted">优化后净利润（估）</span><b class="num good" id="npOpt">—</b></div>
+              <div class="kpi"><span class="muted">增量净利 − 年费 80 万</span><b class="num" id="roi">—</b></div>
+            </div>
+            <div class="muted" style="margin-top:8px">* 估算=毛利−人工−返工浪费（估） ，现金流收益按资金成本折现估算；演示目的，具体项目会做精细化测算。</div>
+          </div>
+
+          <div class="cta">
+            <div>
+              <div style="font-weight:800">三周见效 · 季度付费（20 万/季）</div>
+              <div class="muted">第1周诊断与路径 · 第2周 SOP/报价/排期上线 · 第3周试运行+复盘</div>
+            </div>
+            <div>
+              <a class="btn" href="#" onclick="alert('我们将进入付费诊断：签署季度服务后，交付细化棋谱与行动清单。')">进入付费诊断</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 右：讲解与蒸发三角 -->
+        <aside class="grid" style="gap:14px">
+          <div class="panel">
+            <h3>蒸发三角｜钱去哪了？</h3>
+            <div class="grid cols-3">
+              <div class="cell" id="tri-gm"><div class="label">毛利结构</div><div class="muted">低价SKU拉低整体；报价不透明；辅材没单列</div></div>
+              <div class="cell" id="tri-labor"><div class="label">人效/返工</div><div class="muted">保护不足/工序混乱/返工无记录</div></div>
+              <div class="cell" id="tri-cash"><div class="label">现金流</div><div class="muted">账期过长/回款慢/坏账风险</div></div>
+            </div>
+            <div class="muted" style="margin-top:6px">点击左侧任一输入/滑块，右侧会高亮对应蒸发点</div>
+          </div>
+
+          <div class="panel">
+            <h3>我们的承诺</h3>
+            <ul style="margin:6px 0 0 18px">
+              <li>按季度付费，我来承担风险</li>
+              <li>不画饼，所有动作落到 SOP 与看板</li>
+              <li>你的努力已经到位，我们补齐“逻辑闭环”</li>
+            </ul>
+          </div>
+
+          <div class="panel">
+            <h3>老板 15 秒共识话术</h3>
+            <div class="cell hl">
+              <div class="muted">背下来就行：</div>
+              <p style="margin:6px 0 0">“模式不改，营收越大亏得越快；模式一改，原有营收就能产出真正利润。”</p>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+      <div class="foot">© 须芥文化 · 经营棋谱顾问系统（演示版）</div>
+    </section>
+  </div>
+
+<script>
+const $ = (id)=>document.getElementById(id);
+const fmt = (n)=> n.toLocaleString('zh-CN');
+
+const inputs = ['rev','gm','labor','rework','days','coc','dm','dr','dd'];
+const tri = {gm: $('tri-gm'), labor: $('tri-labor'), cash: $('tri-cash')};
+
+inputs.forEach(id=>{
+  $(id).addEventListener('input',()=>{ bindVals(); calc(); highlight(id); });
+});
+
+function bindVals(){
+  $('revV').textContent = $('rev').value;
+  $('gmV').textContent = $('gm').value;
+  $('laborV').textContent = $('labor').value;
+  $('reworkV').textContent = $('rework').value;
+  $('daysV').textContent = $('days').value;
+  $('cocV').textContent = $('coc').value;
+  $('dmV').textContent = $('dm').value;
+  $('drV').textContent = $('dr').value;
+  $('ddV').textContent = $('dd').value;
+}
+
+function calc(){
+  const rev = +$('rev').value * 10000; // 元
+  const gm = +$('gm').value/100;       // 毛利率
+  const labor = +$('labor').value/100; // 人工占营收
+  const rework = +$('rework').value/100; // 返工占人工
+  const days = +$('days').value;       // 回款天数
+  const coc = +$('coc').value/100;     // 资金成本
+
+  const dm = +$('dm').value/100;       // 毛利提升百分点
+  const dr = +$('dr').value/100;       // 返工相对下降
+  const dd = +$('dd').value;           // 回款提前天数
+
+  // 基准
+  const gross = rev * gm;                        // 毛利
+  const laborCost = rev * labor;                 // 人工
+  const reworkLoss = laborCost * rework;         // 返工浪费
+  const npBase = gross - laborCost - reworkLoss; // 简化净利（演示）
+
+  // 优化后的毛利
+  const grossOpt = rev * (gm + dm);
+  // 优化后返工损失
+  const reworkLossOpt = laborCost * (rework * (1 - dr));
+  // 现金流收益（提前 dd 天带来的资金占用成本节省）
+  const cashBenefit = rev * coc * (dd/365);
+
+  const npOpt = (grossOpt - laborCost - reworkLossOpt) + cashBenefit;
+  const inc = npOpt - npBase; // 增量净利
+  const afterFee = inc - 800000; // 扣除 80 万年费
+
+  $('npBase').textContent = '¥'+fmt(Math.max(0, Math.round(npBase)));
+  $('npOpt').textContent  = '¥'+fmt(Math.max(0, Math.round(npOpt)));
+  $('roi').textContent    = (afterFee>=0?'+':'') + '¥' + fmt(Math.round(afterFee));
+  $('roi').className = 'num ' + (afterFee>=0? 'good':'danger');
+}
+
+function highlight(id){
+  [tri.gm, tri.labor, tri.cash].forEach(el=>{el.style.boxShadow='none'; el.style.borderColor='#e5e7eb'});
+  if(['gm','dm'].includes(id)) bump(tri.gm);
+  if(['labor','rework','dr'].includes(id)) bump(tri.labor);
+  if(['days','coc','dd'].includes(id)) bump(tri.cash);
+}
+function bump(el){ el.style.boxShadow='0 0 0 3px rgba(99,102,241,.25)'; el.style.borderColor='#93c5fd'; }
+
+// 棋谱说明板
+const board = $('board');
+const boards = {
+  profit: [
+    {t:'毛利结构', d:'报价标准化、SKU 结构、辅材单列'},
+    {t:'人效/返工', d:'SOP 工序、入场保护、质量自检'},
+    {t:'现金流', d:'节点收款、账期治理、排期与回款联动'}
+  ],
+  execution: [
+    {t:'排期与工单', d:'日/周甘特、异常预警'},
+    {t:'岗位与能力', d:'勘查/报价/施工/售后画像'},
+    {t:'质检与复盘', d:'对光/遮盖/附着力自检 + 日清'}
+  ],
+  market: [
+    {t:'线索到成交', d:'问诊脚本、差异化样板间'},
+    {t:'产品与定价', d:'主推色系 + 附加服务捆绑'},
+    {t:'复购与口碑', d:'质保回访、前后对比内容化'}
+  ]
+};
+function renderBoard(mode){
+  board.innerHTML = boards[mode].map(x=>`<div class="cell"><div class="label">${x.t}</div><div class='muted'>${x.d}</div></div>`).join('');
+}
+
+// 模式切换
+Array.from(document.querySelectorAll('.tab')).forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    renderBoard(tab.dataset.mode);
+  })
+});
+
+// 初始
+bindVals();
+renderBoard('profit');
+calc();
+highlight('gm');
+</script>
+</body>
+</html>
