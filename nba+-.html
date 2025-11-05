@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>销售人员 ± 值贡献图 · Team Impact Chart</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{--bg:#0b0d12;--panel:#121621;--muted:#a8b3c7;--text:#e7ecf7;--brand:#8ab4ff;--accent:#7cf;}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#0b0d12,#0f1320);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    header{padding:20px 24px;border-bottom:1px solid #1b2234;background:rgba(10,12,20,.6);position:sticky;top:0;backdrop-filter:saturate(140%) blur(6px)}
+    h1{margin:0;font-size:20px;letter-spacing:.3px}
+    .container{display:grid;grid-template-columns:360px 1fr;gap:18px; padding:18px;}
+    .card{background:var(--panel);border:1px solid #1b2234;border-radius:16px;box-shadow:0 4px 30px rgba(7,12,24,.35);}
+    .card .hd{padding:14px 16px;border-bottom:1px solid #1b2234;color:#b9c5d9;font-weight:600; letter-spacing:.3px}
+    .card .bd{padding:14px 16px}
+    .row{display:flex;gap:10px;align-items:center;margin:8px 0}
+    .row label{min-width:120px;color:#9fb0c9}
+    input[type="range"]{width:100%}
+    .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #223047;background:#121827;border-radius:999px;padding:6px 10px;color:#c3d2ea}
+    .muted{color:#8fa0bb}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .toolbar input[type="text"]{background:#0f1320;border:1px solid #1b2234;border-radius:10px;padding:8px 10px;color:#e7ecf7;outline:0;min-width:180px}
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+    .kpi{background:#0f1320;border:1px solid #1b2234;border-radius:12px;padding:10px}
+    .kpi .v{font-size:18px;font-weight:700}
+    canvas{width:100%;height:520px}
+    table{width:100%;border-collapse:collapse;margin-top:8px;border:1px solid #1b2234}
+    th,td{padding:8px 10px;border-bottom:1px solid #1b2234;text-align:left;white-space:nowrap}
+    tbody tr:hover{background:#121a2d}
+    .legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .footer{padding:10px 16px;color:#8fa0bb}
+    @media(max-width:1024px){.container{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>销售人员 ± 值贡献图（参考 NBA Plus/Minus）</h1>
+    <div class="muted">横轴：综合正负值（-15 → +15） · 颜色：客户满意温度 · 圆点大小：业绩体量</div>
+  </header>
+  
+  <div class="container">
+    <!-- 左侧控制面板 -->
+    <section class="card">
+      <div class="hd">权重与筛选</div>
+      <div class="bd">
+        <div class="row"><label>业绩产出（40%）</label><input id="w_perf" type="range" min="0" max="100" value="40"/><span class="pill"><span>40%</span></span></div>
+        <div class="row"><label>团队协作（20%）</label><input id="w_collab" type="range" min="0" max="100" value="20"/><span class="pill"><span>20%</span></span></div>
+        <div class="row"><label>客户体验（20%）</label><input id="w_cx" type="range" min="0" max="100" value="20"/><span class="pill"><span>20%</span></span></div>
+        <div class="row"><label>系统依赖成本（10%）</label><input id="w_cost" type="range" min="0" max="100" value="10"/><span class="pill"><span>10%</span></span></div>
+        <div class="row"><label>情绪能量（10%）</label><input id="w_energy" type="range" min="0" max="100" value="10"/><span class="pill"><span>10%</span></span></div>
+        <div class="toolbar">
+          <label class="pill"><input id="f_pos" type="checkbox" checked> 仅看正值</label>
+          <label class="pill"><input id="f_neg" type="checkbox"> 仅看负值</label>
+          <input id="q" type="text" placeholder="搜索姓名 / 部门…"/>
+          <button id="reset" class="pill">重置</button>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="t muted">团队平均 ±</div><div id="k_avg" class="v">—</div></div>
+          <div class="kpi"><div class="t muted">正向人数</div><div id="k_pos" class="v">—</div></div>
+          <div class="kpi"><div class="t muted">负向人数</div><div id="k_neg" class="v">—</div></div>
+        </div>
+        <div class="legend" style="margin-top:10px">
+          <div class="dot" style="background:#23d18b"></div><span class="muted">高满意</span>
+          <div class="dot" style="background:#d1a423"></div><span class="muted">中</span>
+          <div class="dot" style="background:#d14a23"></div><span class="muted">低满意</span>
+        </div>
+      </div>
+      <div class="footer muted">提示：成本为“负向指标”，系统自动转换为“低成本=高分”。权重会自动归一化。</div>
+    </section>
+
+    <!-- 右侧图表与表格 -->
+    <section class="card" style="display:flex;flex-direction:column;min-height:640px">
+      <div class="hd">Team Impact Chart</div>
+      <div class="bd" style="flex:1;min-height:520px">
+        <canvas id="chart"></canvas>
+      </div>
+      <div class="bd" style="max-height:280px;overflow:auto">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th>姓名</th><th>部门</th><th>± 值</th><th>成交额(万)</th><th>满意度</th><th>协作</th><th>成本</th><th>能量</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ===== 1) 示例数据（0-100 分制；cost 为"越高越占用"） =====
+    const raw = [
+      {name:"张三", dept:"一部", revenue:180, perf:80, collab:76, cx:88, cost:35, energy:72},
+      {name:"李四", dept:"一部", revenue:120, perf:65, collab:68, cx:74, cost:48, energy:66},
+      {name:"王五", dept:"二部", revenue:95,  perf:58, collab:40, cx:62, cost:55, energy:51},
+      {name:"赵六", dept:"二部", revenue:60,  perf:42, collab:30, cx:45, cost:72, energy:38},
+      {name:"周琪", dept:"渠道", revenue:210, perf:86, collab:82, cx:79, cost:40, energy:77},
+      {name:"孙宁", dept:"渠道", revenue:140, perf:70, collab:58, cx:72, cost:60, energy:65},
+      {name:"钱超", dept:"自营", revenue:160, perf:75, collab:62, cx:83, cost:46, energy:70},
+      {name:"吴静", dept:"自营", revenue:90,  perf:55, collab:71, cx:69, cost:42, energy:60},
+      {name:"郑爽", dept:"客服", revenue:50,  perf:40, collab:78, cx:91, cost:33, energy:73},
+      {name:"何蓝", dept:"客服", revenue:45,  perf:38, collab:66, cx:85, cost:36, energy:68}
+    ];
+
+    // ===== 2) 工具函数 =====
+    const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    function satisfactionColor(cx){ // cx: 0-100	normalize to 0(red)→1(green)
+      const t = clamp(cx/100,0,1);
+      const h = lerp(5,145,t); // degrees
+      return `hsl(${h} 70% 50%)`;
+    }
+
+    function computePM(item, w){
+      // invert cost → costScore (低成本=高分)
+      const costScore = 100 - item.cost;
+      // 先归一到 0-1
+      const totalW = w.perf + w.collab + w.cx + w.cost + w.energy;
+      const wp = {
+        perf: w.perf/totalW,
+        collab: w.collab/totalW,
+        cx: w.cx/totalW,
+        cost: w.cost/totalW,
+        energy: w.energy/totalW
+      };
+      const score0_100 = (
+        item.perf*wp.perf +
+        item.collab*wp.collab +
+        item.cx*wp.cx +
+        costScore*wp.cost +
+        item.energy*wp.energy
+      );
+      // 50 作为中性点，映射到 -15..+15
+      const pm = ((score0_100 - 50) / 50) * 15;
+      return clamp(+pm.toFixed(2), -15, 15);
+    }
+
+    // ===== 3) 状态与 DOM =====
+    const S = {
+      weights: {perf:40, collab:20, cx:20, cost:10, energy:10},
+      onlyPos:true,
+      onlyNeg:false,
+      query:""
+    };
+
+    const els = {
+      w_perf: document.getElementById('w_perf'),
+      w_collab: document.getElementById('w_collab'),
+      w_cx: document.getElementById('w_cx'),
+      w_cost: document.getElementById('w_cost'),
+      w_energy: document.getElementById('w_energy'),
+      f_pos: document.getElementById('f_pos'),
+      f_neg: document.getElementById('f_neg'),
+      q: document.getElementById('q'),
+      reset: document.getElementById('reset'),
+      k_avg: document.getElementById('k_avg'),
+      k_pos: document.getElementById('k_pos'),
+      k_neg: document.getElementById('k_neg'),
+      tbl: document.querySelector('#tbl tbody'),
+    };
+
+    // 显示权重百分比
+    document.querySelectorAll('input[type=range]').forEach(r=>{
+      r.addEventListener('input', e=>{
+        r.nextElementSibling.querySelector('span').textContent = r.value+"%";
+        S.weights = {
+          perf:+els.w_perf.value,
+          collab:+els.w_collab.value,
+          cx:+els.w_cx.value,
+          cost:+els.w_cost.value,
+          energy:+els.w_energy.value,
+        };
+        render();
+      });
+    });
+
+    els.f_pos.addEventListener('change', ()=>{ if(els.f_pos.checked){ els.f_neg.checked=false; } render(); });
+    els.f_neg.addEventListener('change', ()=>{ if(els.f_neg.checked){ els.f_pos.checked=false; } render(); });
+    els.q.addEventListener('input', render);
+    els.reset.addEventListener('click', ()=>{
+      els.w_perf.value=40;els.w_collab.value=20;els.w_cx.value=20;els.w_cost.value=10;els.w_energy.value=10;
+      document.querySelectorAll('input[type=range]').forEach(r=>{r.nextElementSibling.querySelector('span').textContent=r.value+"%";});
+      els.f_pos.checked=true;els.f_neg.checked=false;els.q.value="";render();
+    });
+
+    // ===== 4) Chart.js 构建 =====
+    const ctx = document.getElementById('chart').getContext('2d');
+    let chart;
+
+    function buildChart(data){
+      const labels = data.map(d=>d.name);
+      const bubbleData = data.map((d,i)=>({
+        x: d.pm,
+        y: d.name, // 类目轴
+        r: Math.max(6, Math.min(18, d.revenue/15)),
+        backgroundColor: satisfactionColor(d.cx),
+        borderColor: '#1b2234', borderWidth:1,
+        _raw:d
+      }));
+
+      const config = {
+        type: 'bubble',
+        data: {datasets:[{label:'销售 ± 值', data: bubbleData}]},
+        options: {
+          responsive:true,
+          maintainAspectRatio:false,
+          parsing:false,
+          scales: {
+            x: {type:'linear', min:-15, max:15, grid:{color:'#1b2234'}, ticks:{color:'#9fb0c9'}},
+            y: {type:'category', labels: data.map(d=>d.name), grid:{color:'#172036'}, ticks:{color:'#9fb0c9'}}
+          },
+          plugins: {
+            legend: {display:false},
+            tooltip: {
+              callbacks: {
+                label: (ctx)=>{
+                  const r = ctx.raw._raw;
+                  return ` ${r.name}（${r.dept}）  ± ${r.pm}  | 成交额 ${r.revenue}万  满意度 ${r.cx}`;
+                }
+              }
+            }
+          }
+        }
+      };
+      if(chart){ chart.destroy(); }
+      chart = new Chart(ctx, config);
+    }
+
+    // ===== 5) 渲染管线（计算 ±，筛选，统计，表格） =====
+    function render(){
+      const q = els.q.value.trim();
+      const onlyPos = els.f_pos.checked, onlyNeg = els.f_neg.checked;
+
+      // 计算 ±
+      const enriched = raw.map(d=>{
+        const pm = computePM(d, S.weights);
+        return {...d, pm};
+      })
+      .filter(d=>!q || (d.name.includes(q) || d.dept.includes(q)))
+      .filter(d=> onlyPos ? d.pm>=0 : (onlyNeg? d.pm<0 : true));
+
+      // 统计 KPI
+      const avg = enriched.length? (enriched.reduce((a,b)=>a+b.pm,0)/enriched.length):0;
+      const pos = enriched.filter(d=>d.pm>=0).length;
+      const neg = enriched.filter(d=>d.pm<0).length;
+      els.k_avg.textContent = (Math.round(avg*10)/10).toFixed(1);
+      els.k_pos.textContent = pos;
+      els.k_neg.textContent = neg;
+
+      // 排序（默认按 ± 值降序）
+      enriched.sort((a,b)=> b.pm - a.pm);
+
+      // 图表
+      buildChart(enriched);
+
+      // 表格
+      els.tbl.innerHTML = enriched.map(d=>`
+        <tr>
+          <td>${d.name}</td>
+          <td>${d.dept}</td>
+          <td style="font-weight:700;">${d.pm}</td>
+          <td>${d.revenue}</td>
+          <td>${d.cx}</td>
+          <td>${d.collab}</td>
+          <td>${d.cost}</td>
+          <td>${d.energy}</td>
+        </tr>
+      `).join("");
+    }
+
+    // ===== 6) 首次渲染 =====
+    render();
+  </script>
+</body>
+</html>
