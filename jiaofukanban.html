@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>企业结构优化与流程复制方案 · 思维导图（展示版）</title>
+  <meta name="description" content="白色背景·Apple风 · 将对外展示内容以结构化思维导图呈现，可折叠、可打印。" />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#0b0f1a;          /* 主文字（深靛蓝黑） */
+      --muted:#5b6270;        /* 次级文字 */
+      --line:#e6e8ee;         /* 连接线/分隔线 */
+      --brand:#007aff;        /* Apple 蓝 */
+      --accent:#34c759;       /* 成功绿 */
+      --orange:#ff9f0a;       /* 强调橙 */
+      --danger:#ff3b30;       /* 红 */
+      --radius:16px;
+      --shadow:0 12px 28px rgba(19,22,32,.08), 0 2px 6px rgba(19,22,32,.06);
+      --ring:0 0 0 3px rgba(0,122,255,.12);
+      --grid: minmax(0,1200px);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"; color:var(--ink); background:var(--bg)}
+    .wrap{max-width:var(--grid); margin:0 auto; padding:28px 18px 80px}
+
+    header.hero{display:grid; gap:8px; align-items:center; justify-items:start; margin:8px 0 18px}
+    .badge{display:inline-flex; gap:8px; align-items:center; font-size:12px; color:#2f6df6; background:#f2f7ff; border:1px solid #e3edff; padding:6px 10px; border-radius:999px}
+    h1{margin:0; font-size:28px; letter-spacing:.2px}
+    .sub{color:var(--muted)}
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
+    .btn{padding:10px 14px; border-radius:12px; border:1px solid #e7e9f0; background:#fff; color:var(--ink); cursor:pointer; transition:.18s ease; box-shadow:var(--shadow)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.brand{background:linear-gradient(180deg,#f5f9ff,#fff); border-color:#dbe7ff}
+    .btn.ghost{background:#fff; border-color:#e7e9f0}
+
+    /* Mindmap */
+    .mind{
+      position:relative; background:#fff; border:1px solid #edf0f6; border-radius:20px; box-shadow:var(--shadow); padding:26px; overflow:hidden
+    }
+    .center{
+      margin:0 auto 22px; width:max-content; max-width:92%; text-align:center; padding:14px 18px; border-radius:16px; border:1px solid #e8ebf3; background:linear-gradient(180deg,#f9fafc,#fff); box-shadow:0 6px 16px rgba(0,0,0,.06);
+    }
+    .center h2{margin:0; font-size:20px}
+    .center .desc{color:var(--muted); font-size:13px}
+
+    .map{display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:start}
+    .branch-col{display:grid; gap:16px}
+
+    /* branch nodes */
+    details.branch{border:1px solid #edf0f6; border-radius:14px; padding:12px 12px 8px; background:#fff; position:relative}
+    details.branch[open]{box-shadow:var(--shadow)}
+    details.branch summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:8px; font-weight:600}
+    details.branch summary::-webkit-details-marker{display:none}
+    .chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid #e8ebf3; background:#f8fafc}
+
+    /* items */
+    .items{display:grid; gap:10px; margin:10px 0 0}
+    .item{position:relative; padding:10px 12px; border:1px solid #eef1f6; border-radius:12px; background:#fff}
+    .item b{font-weight:600}
+    .muted{color:var(--muted)}
+
+    /* connector lines */
+    .branch::before{content:""; position:absolute; top:-16px; left:50%; width:2px; height:16px; background:var(--line); transform:translateX(-50%)}
+    .branch-col .branch:first-child::before{display:none}
+
+    /* legend */
+    .legend{display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 0}
+    .tag{display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid #e8ebf3; background:#fff; font-size:12px}
+    .ok{color:var(--accent)} .warn{color:#ff9f0a} .danger{color:var(--danger)}
+
+    .center-col{display:flex; align-items:center; justify-content:center}
+    .rail{width:4px; background:var(--line); border-radius:999px; height:100%}
+
+    /* tables (compact) */
+    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid #edf0f6; border-radius:12px}
+    th,td{padding:10px 12px; text-align:left}
+    thead th{background:#f8fafc; color:#1d2330; font-weight:600}
+    tbody tr+tr td{border-top:1px solid #f0f2f7}
+
+    footer{margin:26px 0 0; color:var(--muted); text-align:center}
+
+    /* small helpers */
+    .sep{height:1px; background:var(--line); margin:10px 0 12px}
+    .pill{display:inline-block; padding:4px 8px; border-radius:999px; background:#f5f7fb; border:1px solid #e8ebf3; font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero" id="top">
+      <span class="badge">📄 对外展示版 · 思维导图（Apple风/白底）</span>
+      <h1>不动人，只动机制——结构优化与流程复制 · 思维导图</h1>
+      <div class="sub">让事儿自己跑，您只需掌控关键点。适用于：从单店稳态 → 多店复制；从人工经验 → 制度化/数据化闭环。</div>
+      <div class="btns">
+        <button class="btn brand" onclick="window.print()">🖨 打印/导出</button>
+        <button class="btn ghost" onclick="toggleAll(true)">＋ 全部展开</button>
+        <button class="btn ghost" onclick="toggleAll(false)">－ 全部折叠</button>
+      </div>
+    </header>
+
+    <section class="mind">
+      <div class="center">
+        <h2>核心主题｜可控复制</h2>
+        <div class="desc">财务透明 → 激励制度 → 派单回款闭环 → 区域复制</div>
+        <div class="legend">
+          <span class="tag"><span class="ok">●</span> 立即执行</span>
+          <span class="tag"><span class="warn">●</span> 重点关注</span>
+          <span class="tag"><span class="danger">●</span> 风险点</span>
+        </div>
+      </div>
+
+      <div class="map">
+        <!-- 左侧分支 -->
+        <div class="branch-col">
+          <details class="branch" open>
+            <summary><span class="chip">① 企业现状</span></summary>
+            <div class="items">
+              <div class="item"><b>财务未闭环</b> <span class="muted">（应收口径不一、对账不及时）</span></div>
+              <div class="item"><b>派单/激励待优化</b> <span class="muted">（效率断点集中在交付与回款）</span></div>
+              <div class="item"><b>复制速度受限</b> <span class="muted">（经验依赖，标准化不足）</span></div>
+              <div class="item"><b>扩张受后端影响</b> <span class="muted">（担心失控、管理成本上升）</span></div>
+            </div>
+          </details>
+
+          <details class="branch" open>
+            <summary><span class="chip">② 诊断结论</span></summary>
+            <div class="items">
+              <div class="item"><b>聚焦结构效率</b> <span class="muted">（不动人，先动机制）</span></div>
+              <div class="item"><b>三大抓手</b>：财务透明、激励可复制、流程闭环</div>
+              <div class="item"><b>优势</b>：品牌势能、在地资源、老员工稳定</div>
+            </div>
+          </details>
+
+          <details class="branch" open>
+            <summary><span class="chip">③ 优化逻辑</span></summary>
+            <div class="items">
+              <div class="item"><b>财务透明化</b>：统一口径、看板驱动、阈值预警 <span class="pill warn">关键</span></div>
+              <div class="item"><b>激励制度化</b>：角色系数×梯度奖金，覆盖店长/销售/施工</div>
+              <div class="item"><b>流程闭环化</b>：派单→交付→回款，节点留痕与责任到人</div>
+              <div class="item"><b>区域复制化</b>：一店试跑→固化模板→东莞放大</div>
+            </div>
+          </details>
+        </div>
+
+        <!-- 中央竖导轨 -->
+        <div class="center-col"><div class="rail" aria-hidden="true"></div></div>
+
+        <!-- 右侧分支 -->
+        <div class="branch-col">
+          <details class="branch" open>
+            <summary><span class="chip">④ 落地工具</span></summary>
+            <div class="items">
+              <div class="item"><b>财务结构流程图</b>：应收节点/发票流/对账周期/预警</div>
+              <div class="item"><b>激励分配示例表</b>：固定+浮动，阶梯比例与质量加权</div>
+              <div class="item"><b>派单-回款闭环表</b>：SLA匹配、过程留痕、回款跟催</div>
+            </div>
+          </details>
+
+          <details class="branch" open>
+            <summary><span class="chip">⑤ 发展方向</span></summary>
+            <div class="items">
+              <div class="item"><b>制度复制模板：</b>深圳经验 → 东莞落地 <span class="pill ok">立即执行</span></div>
+              <div class="item"><b>财务数字化：</b>现金流/利润实时可视</div>
+              <div class="item"><b>组织升级：</b>保留掌控点，建立中层承接</div>
+              <div class="item"><b>轻咨询试点：</b>单店ROI验证后放大</div>
+            </div>
+          </details>
+
+          <details class="branch" open>
+            <summary><span class="chip">⑥ 闭环流程</span></summary>
+            <div class="items">
+              <div class="item">
+                <table>
+                  <thead><tr><th>阶段</th><th>关键产出</th><th>决策门槛</th></tr></thead>
+                  <tbody>
+                    <tr><td>诊断</td><td>问题清单/现状图谱</td><td>确认优先级</td></tr>
+                    <tr><td>优化</td><td>财务+激励+流程方案</td><td>签署试点清单</td></tr>
+                    <tr><td>验证</td><td>单店试跑数据/复盘</td><td>是否放大复制</td></tr>
+                    <tr><td>复制</td><td>区域落地模板</td><td>扩张节奏与指标</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="item"><b>一店试跑（3-4周）</b>：第1周统一口径；第2周上线看板；第3-4周跑数据与复盘 → <span class="pill">目标：回款≤7天</span></div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>© 2025 结构效率方案（展示版） · Apple风白底思维导图 · <a href="#top" style="color:var(--brand); text-decoration:none">回到顶部</a></div>
+    </footer>
+  </div>
+
+  <script>
+    function toggleAll(expand){
+      document.querySelectorAll('details.branch').forEach(d=> d.open = !!expand);
+    }
+  </script>
+</body>
+</html>
